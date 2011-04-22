@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+ <!-- 3rd party library scripts. Thanks, OSS! -->
+ <script language="javascript" src="/files/lib/prototype.js"></script>
+ <script language="javascript" src="/files/lib/scriptaculous.js"></script>
+ <script language="javascript" src="/files/lib/effects.js"></script>
+ <script language="javascript" src="/files/lib/controls.js"></script>
+ <script language="javascript" src="/files/lib/dragdrop.js"></script>
+ <script language="javascript" src="/files/lib/slider.js"></script>
+ <script language="javascript" src="/files/lib/sound.js"></script>
+
+ <!-- My scripts -->
+ <script language="javascript" src="/files/muclient.js"></script>
+
+ <!-- Stylesheets -->
+ <link rel="stylesheet" type="text/css" href="/files/ansi.css" />
+ <link rel="stylesheet" type="text/css" href="/files/muclient.css" />
+ <title>AJAX MU* Client</title>
+</head>
+<body id="body" class="mainBody" onLoad="initialize();">
+ <span class="title slink">AJAX MU* Client ... Alpha</span><br />
+ <table>
+  <tr><td valign="top" class="Menu">
+    <h3>User: [% var user.name :escapeHTML %]</h3>
+    <span onClick="document.location = '/logout';">Log out</span><br />
+   </div>
+  </td><td>
+   <table class="mushtable bordered usercolor">
+    <tr><td id="tabwindow" class="tabwindow">
+    </td></tr>
+    <tr><td id="mushwindow">
+    </td></tr>
+    <tr><td class="userfont">
+      <span id="charwidth">&gt;</span>&nbsp;
+      <div id="statusline" class="statusline userfont"></div>
+    </td></tr>
+    <tr><td>
+     <input type="text" id="mushinput" class="worldinput userfont" onkeypress="inputKeyPress(event,this);" />
+    </td></tr>
+   </table>
+  </td></tr>
+ </table>
+ <div id="newwindows"></div>
+</body>
+</html>

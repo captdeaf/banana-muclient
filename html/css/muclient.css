@@ -1,0 +1,90 @@
+BODY {
+}
+
+.statusline {
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  background-color: #CCCCCC;
+  color: black;
+}
+
+.tabwindow {
+  padding: 0.2em;
+}
+
+.tab {
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  background-color: #AAAAAA;
+}
+
+/* Our AJAX (<span>) links. */
+.slink {
+  cursor: pointer;
+  color: #0000CC;
+}
+
+.selected {
+  background-color: #009900;
+}
+
+.read .slink {
+  color: #000000;
+}
+
+.unread .slink {
+  color: #990000;
+}
+
+.userfont {
+  font-family: Fixed, monospace;
+  font-size: 12pt;
+}
+
+.usercolor {
+  color: #999999;
+  background-color: #000000;
+}
+
+TABLE.mushtable {
+  width: 100%;
+}
+
+TD.mushwindow: {
+  width: 100%;
+  padding-left: 1em;
+}
+
+DIV.worldwindow {
+  width: 50em;
+  height: 30em;
+  overflow: auto;
+  padding-left: 0.5em;
+}
+
+INPUT.worldinput {
+  width: 100%;
+}
+
+.bordered {
+  border-style: solid;
+  border-width: 3px;
+  border-color: green;
+}
+
+DIV.floater {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: auto;
+  bottom: auto;
+  background-color: green;
+  padding: 0.4em;
+}
+
+DIV.floatcontent {
+  background-color: #003366;
+}

@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8" />
+    <title>WebCat</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/css/ansi.css" />
+    <link rel="stylesheet" type="text/css" href="/css/muclient.css" />
+
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/muclient.js"></script>
+  </head>
+  <body>
+    WebCat client - Purely for demonstration purposes. Don't use it to
+    mu* with for yourself or you'll get one massive headache. =).<br />
+    <br />
+    <style type="text/css">
+    .mush {
+      font-size: 10pt;
+      overflow:  auto;
+      border:    2px solid black;
+      padding:   0.5em;
+      width:     800px;
+      height:    300px;
+    }
+    .prompt {
+      font-size: 10pt;
+      overflow:  auto;
+      border:    2px solid black;
+      padding:   0.5em;
+      width:     800px;
+      height:    20px;
+    }
+    </style>
+    <div class="mush" id="outbox"></div><br />
+    <div class="prompt" id="promptbox"></div>
+    <br />
+    <input id="inbox" type="text" size="100" value="" /><br />
+    <br />
+    <button onclick="connguest();">Guestit</button>
+    <br />
+    WebCat Interface is pathetically simple:<br />
+    <br />
+      /open &lt;worldname&gt;<br />
+      /connect &lt;worldname&gt; &lt;host&gt; &lt;port&gt;<br />
+      /send &lt;worldname&gt; &lt;text&gt;<br />
+      /echo &lt;worldname&gt; &lt;text&gt;<br />
+      /disconnect &lt;worldname&gt;<br />
+      /close &lt;worldname&gt;<br />
+    <br />
+    ... That's it!
+    <script type="text/javascript">
+    var curworld;
+    function handleText(val) {
+      var m;
+      m = val.match(/^\/send (\w+) (.*)$/);
+      if (m) {
+        curworld = m[1];
+        API.world.send(m[1], m[2]);
+        return;
+      }
+      m = val.match(/^\/echo (\w+) (.*)$/);
+      if (m) {
+        curworld = m[1];
+        API.world.echo(m[1], m[2]);
+        return;
+      }
+      m = val.match(/^\/open (\w+)$/);
+      if (m) {
+        curworld = m[1];
+        API.world.open(m[1]);
+        return;
+      }
+      m = val.match(/^\/close (\w+)$/);
+      if (m) {
+        API.world.close(m[1]);
+        return;
+      }
+      m = val.match(/^\/disconnect (\w+)$/);
+      if (m) {
+        API.world.disconnect(m[1]);
+        return;
+      }
+      m = val.match(/^\/connect (\w+) (\S+) (\d+)$/);
+      if (m) {
+        curworld = m[1];
+        API.world.connect(m[1], m[2], m[3]);
+        return;
+      }
+      API.world.send(curworld, val);
+    }
+
+    var toadd = '';
+    API.flush = function() {
+      $('#outbox').append(toadd);
+      $("#outbox").attr({ scrollTop: $("#outbox").attr("scrollHeight") });
+      toadd = '';
+    }
+
+    function append(msg) {
+      toadd += '<br />' + msg;
+    }
+
+    API.alert = function(msg) {
+      append(msg);
+    }
+
+    API.onSystemMessage = function(p) {
+      append('SYSTEM: ' + p.message + ' -- ');
+    }
+
+    API.world.onReceive = function(p) {
+      append(p.world + ': ' + (p.text || ''));
+    };
+
+    API.world.onPrompt = function(p) {
+      $('#promptbox').html(p.text);
+    };
+
+    API.world.onConnectFail = function(p) {
+      append(p.world + ' -- CONNFAIL: ' + p.message + ' -- ');
+    }
+
+    API.world.onDisconnectFail = function(p) {
+      append(p.world + ' -- DISCONNFAIL: ' + p.message + ' -- ');
+    }
+
+    API.world.onError = function(p) {
+      append(p.world + ' -- ERROR: ' + p.message + ' -- ');
+    }
+
+    API.world.onConnect = function(p) {
+      append(p.world + ' -- Connected -- ');
+    }
+
+    API.world.onDisconnect = function(p) {
+      append(p.world + ' -- Disconnected -- ');
+    }
+
+    API.world.onDisconnect = function(p) {
+      append(p.world + ' -- Disconnected -- ');
+    }
+
+    API.world.onOpen = function(p) {
+      append(p.world + ' -- Opened -- ');
+    }
+
+    API.world.onClose = function(p) {
+      append(p.world + ' -- Closed -- ');
+    }
+
+    function connguest() {
+      API.world.open('l');
+      setTimeout(function() {
+        API.world.connect('l', 'localhost', '4240');
+      }, 500);
+      setTimeout(function() {
+        API.world.send('l', 'connect guest');
+      }, 1000);
+      setTimeout(function() {
+        API.world.send('l', 'connect guest');
+      }, 1500);
+      curworld = 'l';
+    }
+
+    $(document).ready(function() {
+      $('#inbox').focus();
+      $('#inbox').keydown(function(e) {
+        if (e.keyCode == 13) {
+          handleText($('#inbox').val());
+          $('#inbox').val('');
+        }
+      });
+    });
+    </script>
+  </body>
+</html>

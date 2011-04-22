@@ -1,0 +1,1734 @@
+.mush {
+  /* white-space: pre; */
+  font-family: Fixed, monospace;
+  font-size: 10pt;
+}
+
+.mush SPAN.Xxh {
+  background-color: #000000;
+  color: #999999;
+}
+
+.mush SPAN.Xxu {
+  background-color: #000000;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xxhu {
+  background-color: #000000;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xx {
+  background-color: #000000;
+  color: #000000;
+}
+
+.mush SPAN.Rxh {
+  background-color: #CC0000;
+  color: #999999;
+}
+
+.mush SPAN.Rxu {
+  background-color: #CC0000;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rxhu {
+  background-color: #CC0000;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rx {
+  background-color: #CC0000;
+  color: #000000;
+}
+
+.mush SPAN.Gxh {
+  background-color: #00CC00;
+  color: #999999;
+}
+
+.mush SPAN.Gxu {
+  background-color: #00CC00;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gxhu {
+  background-color: #00CC00;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gx {
+  background-color: #00CC00;
+  color: #000000;
+}
+
+.mush SPAN.Yxh {
+  background-color: #CCCC00;
+  color: #999999;
+}
+
+.mush SPAN.Yxu {
+  background-color: #CCCC00;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yxhu {
+  background-color: #CCCC00;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yx {
+  background-color: #CCCC00;
+  color: #000000;
+}
+
+.mush SPAN.Bxh {
+  background-color: #0000CC;
+  color: #999999;
+}
+
+.mush SPAN.Bxu {
+  background-color: #0000CC;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bxhu {
+  background-color: #0000CC;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bx {
+  background-color: #0000CC;
+  color: #000000;
+}
+
+.mush SPAN.Mxh {
+  background-color: #CC00CC;
+  color: #999999;
+}
+
+.mush SPAN.Mxu {
+  background-color: #CC00CC;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mxhu {
+  background-color: #CC00CC;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mx {
+  background-color: #CC00CC;
+  color: #000000;
+}
+
+.mush SPAN.Cxh {
+  background-color: #00CCCC;
+  color: #999999;
+}
+
+.mush SPAN.Cxu {
+  background-color: #00CCCC;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cxhu {
+  background-color: #00CCCC;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cx {
+  background-color: #00CCCC;
+  color: #000000;
+}
+
+.mush SPAN.Wxh {
+  background-color: #FFFFFF;
+  color: #999999;
+}
+
+.mush SPAN.Wxu {
+  background-color: #FFFFFF;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wxhu {
+  background-color: #FFFFFF;
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wx {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+.mush SPAN.Dxh {
+  color: #999999;
+}
+
+.mush SPAN.Dxu {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dxhu {
+  color: #999999;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dx {
+  color: #000000;
+}
+
+.mush SPAN.Xrh {
+  background-color: #000000;
+  color: #FF0000;
+}
+
+.mush SPAN.Xru {
+  background-color: #000000;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xrhu {
+  background-color: #000000;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xr {
+  background-color: #000000;
+  color: #CC0000;
+}
+
+.mush SPAN.Rrh {
+  background-color: #CC0000;
+  color: #FF0000;
+}
+
+.mush SPAN.Rru {
+  background-color: #CC0000;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rrhu {
+  background-color: #CC0000;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rr {
+  background-color: #CC0000;
+  color: #CC0000;
+}
+
+.mush SPAN.Grh {
+  background-color: #00CC00;
+  color: #FF0000;
+}
+
+.mush SPAN.Gru {
+  background-color: #00CC00;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Grhu {
+  background-color: #00CC00;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gr {
+  background-color: #00CC00;
+  color: #CC0000;
+}
+
+.mush SPAN.Yrh {
+  background-color: #CCCC00;
+  color: #FF0000;
+}
+
+.mush SPAN.Yru {
+  background-color: #CCCC00;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yrhu {
+  background-color: #CCCC00;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yr {
+  background-color: #CCCC00;
+  color: #CC0000;
+}
+
+.mush SPAN.Brh {
+  background-color: #0000CC;
+  color: #FF0000;
+}
+
+.mush SPAN.Bru {
+  background-color: #0000CC;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Brhu {
+  background-color: #0000CC;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Br {
+  background-color: #0000CC;
+  color: #CC0000;
+}
+
+.mush SPAN.Mrh {
+  background-color: #CC00CC;
+  color: #FF0000;
+}
+
+.mush SPAN.Mru {
+  background-color: #CC00CC;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mrhu {
+  background-color: #CC00CC;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mr {
+  background-color: #CC00CC;
+  color: #CC0000;
+}
+
+.mush SPAN.Crh {
+  background-color: #00CCCC;
+  color: #FF0000;
+}
+
+.mush SPAN.Cru {
+  background-color: #00CCCC;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Crhu {
+  background-color: #00CCCC;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cr {
+  background-color: #00CCCC;
+  color: #CC0000;
+}
+
+.mush SPAN.Wrh {
+  background-color: #FFFFFF;
+  color: #FF0000;
+}
+
+.mush SPAN.Wru {
+  background-color: #FFFFFF;
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wrhu {
+  background-color: #FFFFFF;
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wr {
+  background-color: #FFFFFF;
+  color: #CC0000;
+}
+
+.mush SPAN.Drh {
+  color: #FF0000;
+}
+
+.mush SPAN.Dru {
+  color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Drhu {
+  color: #FF0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dr {
+  color: #CC0000;
+}
+
+.mush SPAN.Xgh {
+  background-color: #000000;
+  color: #00FF00;
+}
+
+.mush SPAN.Xgu {
+  background-color: #000000;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xghu {
+  background-color: #000000;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xg {
+  background-color: #000000;
+  color: #00CC00;
+}
+
+.mush SPAN.Rgh {
+  background-color: #CC0000;
+  color: #00FF00;
+}
+
+.mush SPAN.Rgu {
+  background-color: #CC0000;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rghu {
+  background-color: #CC0000;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rg {
+  background-color: #CC0000;
+  color: #00CC00;
+}
+
+.mush SPAN.Ggh {
+  background-color: #00CC00;
+  color: #00FF00;
+}
+
+.mush SPAN.Ggu {
+  background-color: #00CC00;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gghu {
+  background-color: #00CC00;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gg {
+  background-color: #00CC00;
+  color: #00CC00;
+}
+
+.mush SPAN.Ygh {
+  background-color: #CCCC00;
+  color: #00FF00;
+}
+
+.mush SPAN.Ygu {
+  background-color: #CCCC00;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yghu {
+  background-color: #CCCC00;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yg {
+  background-color: #CCCC00;
+  color: #00CC00;
+}
+
+.mush SPAN.Bgh {
+  background-color: #0000CC;
+  color: #00FF00;
+}
+
+.mush SPAN.Bgu {
+  background-color: #0000CC;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bghu {
+  background-color: #0000CC;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bg {
+  background-color: #0000CC;
+  color: #00CC00;
+}
+
+.mush SPAN.Mgh {
+  background-color: #CC00CC;
+  color: #00FF00;
+}
+
+.mush SPAN.Mgu {
+  background-color: #CC00CC;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mghu {
+  background-color: #CC00CC;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mg {
+  background-color: #CC00CC;
+  color: #00CC00;
+}
+
+.mush SPAN.Cgh {
+  background-color: #00CCCC;
+  color: #00FF00;
+}
+
+.mush SPAN.Cgu {
+  background-color: #00CCCC;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cghu {
+  background-color: #00CCCC;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cg {
+  background-color: #00CCCC;
+  color: #00CC00;
+}
+
+.mush SPAN.Wgh {
+  background-color: #FFFFFF;
+  color: #00FF00;
+}
+
+.mush SPAN.Wgu {
+  background-color: #FFFFFF;
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wghu {
+  background-color: #FFFFFF;
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wg {
+  background-color: #FFFFFF;
+  color: #00CC00;
+}
+
+.mush SPAN.Dgh {
+  color: #00FF00;
+}
+
+.mush SPAN.Dgu {
+  color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dghu {
+  color: #00FF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dg {
+  color: #00CC00;
+}
+
+.mush SPAN.Xyh {
+  background-color: #000000;
+  color: #FFFF00;
+}
+
+.mush SPAN.Xyu {
+  background-color: #000000;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xyhu {
+  background-color: #000000;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xy {
+  background-color: #000000;
+  color: #CCCC00;
+}
+
+.mush SPAN.Ryh {
+  background-color: #CC0000;
+  color: #FFFF00;
+}
+
+.mush SPAN.Ryu {
+  background-color: #CC0000;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ryhu {
+  background-color: #CC0000;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ry {
+  background-color: #CC0000;
+  color: #CCCC00;
+}
+
+.mush SPAN.Gyh {
+  background-color: #00CC00;
+  color: #FFFF00;
+}
+
+.mush SPAN.Gyu {
+  background-color: #00CC00;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gyhu {
+  background-color: #00CC00;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gy {
+  background-color: #00CC00;
+  color: #CCCC00;
+}
+
+.mush SPAN.Yyh {
+  background-color: #CCCC00;
+  color: #FFFF00;
+}
+
+.mush SPAN.Yyu {
+  background-color: #CCCC00;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yyhu {
+  background-color: #CCCC00;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yy {
+  background-color: #CCCC00;
+  color: #CCCC00;
+}
+
+.mush SPAN.Byh {
+  background-color: #0000CC;
+  color: #FFFF00;
+}
+
+.mush SPAN.Byu {
+  background-color: #0000CC;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Byhu {
+  background-color: #0000CC;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.By {
+  background-color: #0000CC;
+  color: #CCCC00;
+}
+
+.mush SPAN.Myh {
+  background-color: #CC00CC;
+  color: #FFFF00;
+}
+
+.mush SPAN.Myu {
+  background-color: #CC00CC;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Myhu {
+  background-color: #CC00CC;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.My {
+  background-color: #CC00CC;
+  color: #CCCC00;
+}
+
+.mush SPAN.Cyh {
+  background-color: #00CCCC;
+  color: #FFFF00;
+}
+
+.mush SPAN.Cyu {
+  background-color: #00CCCC;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cyhu {
+  background-color: #00CCCC;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cy {
+  background-color: #00CCCC;
+  color: #CCCC00;
+}
+
+.mush SPAN.Wyh {
+  background-color: #FFFFFF;
+  color: #FFFF00;
+}
+
+.mush SPAN.Wyu {
+  background-color: #FFFFFF;
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wyhu {
+  background-color: #FFFFFF;
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wy {
+  background-color: #FFFFFF;
+  color: #CCCC00;
+}
+
+.mush SPAN.Dyh {
+  color: #FFFF00;
+}
+
+.mush SPAN.Dyu {
+  color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dyhu {
+  color: #FFFF00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dy {
+  color: #CCCC00;
+}
+
+.mush SPAN.Xbh {
+  background-color: #000000;
+  color: #0000FF;
+}
+
+.mush SPAN.Xbu {
+  background-color: #000000;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xbhu {
+  background-color: #000000;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xb {
+  background-color: #000000;
+  color: #0000CC;
+}
+
+.mush SPAN.Rbh {
+  background-color: #CC0000;
+  color: #0000FF;
+}
+
+.mush SPAN.Rbu {
+  background-color: #CC0000;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rbhu {
+  background-color: #CC0000;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rb {
+  background-color: #CC0000;
+  color: #0000CC;
+}
+
+.mush SPAN.Gbh {
+  background-color: #00CC00;
+  color: #0000FF;
+}
+
+.mush SPAN.Gbu {
+  background-color: #00CC00;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gbhu {
+  background-color: #00CC00;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gb {
+  background-color: #00CC00;
+  color: #0000CC;
+}
+
+.mush SPAN.Ybh {
+  background-color: #CCCC00;
+  color: #0000FF;
+}
+
+.mush SPAN.Ybu {
+  background-color: #CCCC00;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ybhu {
+  background-color: #CCCC00;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yb {
+  background-color: #CCCC00;
+  color: #0000CC;
+}
+
+.mush SPAN.Bbh {
+  background-color: #0000CC;
+  color: #0000FF;
+}
+
+.mush SPAN.Bbu {
+  background-color: #0000CC;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bbhu {
+  background-color: #0000CC;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bb {
+  background-color: #0000CC;
+  color: #0000CC;
+}
+
+.mush SPAN.Mbh {
+  background-color: #CC00CC;
+  color: #0000FF;
+}
+
+.mush SPAN.Mbu {
+  background-color: #CC00CC;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mbhu {
+  background-color: #CC00CC;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mb {
+  background-color: #CC00CC;
+  color: #0000CC;
+}
+
+.mush SPAN.Cbh {
+  background-color: #00CCCC;
+  color: #0000FF;
+}
+
+.mush SPAN.Cbu {
+  background-color: #00CCCC;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cbhu {
+  background-color: #00CCCC;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cb {
+  background-color: #00CCCC;
+  color: #0000CC;
+}
+
+.mush SPAN.Wbh {
+  background-color: #FFFFFF;
+  color: #0000FF;
+}
+
+.mush SPAN.Wbu {
+  background-color: #FFFFFF;
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wbhu {
+  background-color: #FFFFFF;
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wb {
+  background-color: #FFFFFF;
+  color: #0000CC;
+}
+
+.mush SPAN.Dbh {
+  color: #0000FF;
+}
+
+.mush SPAN.Dbu {
+  color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dbhu {
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Db {
+  color: #0000CC;
+}
+
+.mush SPAN.Xmh {
+  background-color: #000000;
+  color: #FF00FF;
+}
+
+.mush SPAN.Xmu {
+  background-color: #000000;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xmhu {
+  background-color: #000000;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xm {
+  background-color: #000000;
+  color: #CC00CC;
+}
+
+.mush SPAN.Rmh {
+  background-color: #CC0000;
+  color: #FF00FF;
+}
+
+.mush SPAN.Rmu {
+  background-color: #CC0000;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rmhu {
+  background-color: #CC0000;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rm {
+  background-color: #CC0000;
+  color: #CC00CC;
+}
+
+.mush SPAN.Gmh {
+  background-color: #00CC00;
+  color: #FF00FF;
+}
+
+.mush SPAN.Gmu {
+  background-color: #00CC00;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gmhu {
+  background-color: #00CC00;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gm {
+  background-color: #00CC00;
+  color: #CC00CC;
+}
+
+.mush SPAN.Ymh {
+  background-color: #CCCC00;
+  color: #FF00FF;
+}
+
+.mush SPAN.Ymu {
+  background-color: #CCCC00;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ymhu {
+  background-color: #CCCC00;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ym {
+  background-color: #CCCC00;
+  color: #CC00CC;
+}
+
+.mush SPAN.Bmh {
+  background-color: #0000CC;
+  color: #FF00FF;
+}
+
+.mush SPAN.Bmu {
+  background-color: #0000CC;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bmhu {
+  background-color: #0000CC;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bm {
+  background-color: #0000CC;
+  color: #CC00CC;
+}
+
+.mush SPAN.Mmh {
+  background-color: #CC00CC;
+  color: #FF00FF;
+}
+
+.mush SPAN.Mmu {
+  background-color: #CC00CC;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mmhu {
+  background-color: #CC00CC;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mm {
+  background-color: #CC00CC;
+  color: #CC00CC;
+}
+
+.mush SPAN.Cmh {
+  background-color: #00CCCC;
+  color: #FF00FF;
+}
+
+.mush SPAN.Cmu {
+  background-color: #00CCCC;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cmhu {
+  background-color: #00CCCC;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cm {
+  background-color: #00CCCC;
+  color: #CC00CC;
+}
+
+.mush SPAN.Wmh {
+  background-color: #FFFFFF;
+  color: #FF00FF;
+}
+
+.mush SPAN.Wmu {
+  background-color: #FFFFFF;
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wmhu {
+  background-color: #FFFFFF;
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wm {
+  background-color: #FFFFFF;
+  color: #CC00CC;
+}
+
+.mush SPAN.Dmh {
+  color: #FF00FF;
+}
+
+.mush SPAN.Dmu {
+  color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dmhu {
+  color: #FF00FF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dm {
+  color: #CC00CC;
+}
+
+.mush SPAN.Xch {
+  background-color: #000000;
+  color: #00FFFF;
+}
+
+.mush SPAN.Xcu {
+  background-color: #000000;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xchu {
+  background-color: #000000;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xc {
+  background-color: #000000;
+  color: #00CCCC;
+}
+
+.mush SPAN.Rch {
+  background-color: #CC0000;
+  color: #00FFFF;
+}
+
+.mush SPAN.Rcu {
+  background-color: #CC0000;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rchu {
+  background-color: #CC0000;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rc {
+  background-color: #CC0000;
+  color: #00CCCC;
+}
+
+.mush SPAN.Gch {
+  background-color: #00CC00;
+  color: #00FFFF;
+}
+
+.mush SPAN.Gcu {
+  background-color: #00CC00;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gchu {
+  background-color: #00CC00;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gc {
+  background-color: #00CC00;
+  color: #00CCCC;
+}
+
+.mush SPAN.Ych {
+  background-color: #CCCC00;
+  color: #00FFFF;
+}
+
+.mush SPAN.Ycu {
+  background-color: #CCCC00;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ychu {
+  background-color: #CCCC00;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yc {
+  background-color: #CCCC00;
+  color: #00CCCC;
+}
+
+.mush SPAN.Bch {
+  background-color: #0000CC;
+  color: #00FFFF;
+}
+
+.mush SPAN.Bcu {
+  background-color: #0000CC;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bchu {
+  background-color: #0000CC;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bc {
+  background-color: #0000CC;
+  color: #00CCCC;
+}
+
+.mush SPAN.Mch {
+  background-color: #CC00CC;
+  color: #00FFFF;
+}
+
+.mush SPAN.Mcu {
+  background-color: #CC00CC;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mchu {
+  background-color: #CC00CC;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mc {
+  background-color: #CC00CC;
+  color: #00CCCC;
+}
+
+.mush SPAN.Cch {
+  background-color: #00CCCC;
+  color: #00FFFF;
+}
+
+.mush SPAN.Ccu {
+  background-color: #00CCCC;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cchu {
+  background-color: #00CCCC;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cc {
+  background-color: #00CCCC;
+  color: #00CCCC;
+}
+
+.mush SPAN.Wch {
+  background-color: #FFFFFF;
+  color: #00FFFF;
+}
+
+.mush SPAN.Wcu {
+  background-color: #FFFFFF;
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wchu {
+  background-color: #FFFFFF;
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wc {
+  background-color: #FFFFFF;
+  color: #00CCCC;
+}
+
+.mush SPAN.Dch {
+  color: #00FFFF;
+}
+
+.mush SPAN.Dcu {
+  color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dchu {
+  color: #00FFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dc {
+  color: #00CCCC;
+}
+
+.mush SPAN.Xwh {
+  background-color: #000000;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Xwu {
+  background-color: #000000;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xwhu {
+  background-color: #000000;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xw {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Rwh {
+  background-color: #CC0000;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Rwu {
+  background-color: #CC0000;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rwhu {
+  background-color: #CC0000;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rw {
+  background-color: #CC0000;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Gwh {
+  background-color: #00CC00;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Gwu {
+  background-color: #00CC00;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gwhu {
+  background-color: #00CC00;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gw {
+  background-color: #00CC00;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Ywh {
+  background-color: #CCCC00;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Ywu {
+  background-color: #CCCC00;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ywhu {
+  background-color: #CCCC00;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yw {
+  background-color: #CCCC00;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Bwh {
+  background-color: #0000CC;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Bwu {
+  background-color: #0000CC;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bwhu {
+  background-color: #0000CC;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bw {
+  background-color: #0000CC;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Mwh {
+  background-color: #CC00CC;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Mwu {
+  background-color: #CC00CC;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mwhu {
+  background-color: #CC00CC;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mw {
+  background-color: #CC00CC;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Cwh {
+  background-color: #00CCCC;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Cwu {
+  background-color: #00CCCC;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cwhu {
+  background-color: #00CCCC;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cw {
+  background-color: #00CCCC;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Wwh {
+  background-color: #FFFFFF;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Wwu {
+  background-color: #FFFFFF;
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wwhu {
+  background-color: #FFFFFF;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ww {
+  background-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+.mush SPAN.Dwh {
+  color: #CCCCCC;
+}
+
+.mush SPAN.Dwu {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dwhu {
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dw {
+  color: #FFFFFF;
+}
+
+.mush SPAN.Xdh {
+  background-color: #000000;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Xdu {
+  background-color: #000000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xdhu {
+  background-color: #000000;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Xd {
+  background-color: #000000;
+}
+
+.mush SPAN.Rdh {
+  background-color: #CC0000;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Rdu {
+  background-color: #CC0000;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rdhu {
+  background-color: #CC0000;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Rd {
+  background-color: #CC0000;
+}
+
+.mush SPAN.Gdh {
+  background-color: #00CC00;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Gdu {
+  background-color: #00CC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gdhu {
+  background-color: #00CC00;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Gd {
+  background-color: #00CC00;
+}
+
+.mush SPAN.Ydh {
+  background-color: #CCCC00;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Ydu {
+  background-color: #CCCC00;
+  text-decoration: underline;
+}
+
+.mush SPAN.Ydhu {
+  background-color: #CCCC00;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Yd {
+  background-color: #CCCC00;
+}
+
+.mush SPAN.Bdh {
+  background-color: #0000CC;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Bdu {
+  background-color: #0000CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bdhu {
+  background-color: #0000CC;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Bd {
+  background-color: #0000CC;
+}
+
+.mush SPAN.Mdh {
+  background-color: #CC00CC;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Mdu {
+  background-color: #CC00CC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Mdhu {
+  background-color: #CC00CC;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Md {
+  background-color: #CC00CC;
+}
+
+.mush SPAN.Cdh {
+  background-color: #00CCCC;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Cdu {
+  background-color: #00CCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cdhu {
+  background-color: #00CCCC;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Cd {
+  background-color: #00CCCC;
+}
+
+.mush SPAN.Wdh {
+  background-color: #FFFFFF;
+  color: #CCCCCC;
+}
+
+.mush SPAN.Wdu {
+  background-color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wdhu {
+  background-color: #FFFFFF;
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Wd {
+  background-color: #FFFFFF;
+}
+
+.mush SPAN.Ddh {
+  color: #CCCCCC;
+}
+
+.mush SPAN.Ddu {
+  text-decoration: underline;
+}
+
+.mush SPAN.Ddhu {
+  color: #CCCCCC;
+  text-decoration: underline;
+}
+
+.mush SPAN.Dd {
+}
+

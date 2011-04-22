@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8" />
+    <title>Banana MU Client</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/css/muclient.css" />
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        var x = window.location.search.substr(1).split('&');
+        var qs = {}
+        for (var i = 0; i < x.length; i++) {
+          var m = x[i].split(/=/,2);
+          qs[m[0]] = decodeURIComponent(m[1]);
+        }
+        if (qs.err) {
+          $('#errmsg').html(qs.err);
+          $('#err').show();
+        }
+        if (qs.user) {
+          $('#username').val(qs.user);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <span class="title">Banana MU* Client</span><br />
+    <form action="/action/login" method="POST">
+     <table class="mushtable bordered">
+       <tr><td colspan="2">Please log in:</td></tr>
+       <tr id="err" style="display:none;"><td id="errmsg" colspan="2" style="color: red">&nbsp;</td></tr>
+      <tr>
+       <td> Username: </td>
+       <td><input type="text" id="username" name="username" value="" /></td>
+      </tr>
+      <tr>
+       <td> Password: </td>
+       <td><input type="password" name="password" value="" /></td>
+      </tr>
+      <!--
+       <tr><td colspan="2">
+       Selected Client: <select name="client">
+        <option value="default" selected>Default</option>
+        <option value="webcat">WebCat</option>
+        <option value="webfugue">WebFugue</option>
+       </select>
+       -->
+       </td></tr>
+       <tr><td>&nbsp;</td></tr>
+       <tr><td colspan="2"><input type="submit" value="submit" /></td></tr>
+     </table>
+    </form>
+  </body>
+</html>

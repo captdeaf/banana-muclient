@@ -1,0 +1,31 @@
+# DO NOT DELETE
+
+build/api_world.o: mongoose.h
+build/api_world.o: conf.h
+build/api_world.o: sessions.h
+build/api_world.o: users.h
+build/api_world.o: banana.h
+build/api_world.o: util.h
+build/api_world.o: api.h
+build/banana.o: mongoose.h
+build/banana.o: conf.h
+build/banana.o: sessions.h
+build/banana.o: users.h
+build/banana.o: banana.h
+build/banana.o: util.h
+build/banana.o: api.h
+build/banana.o: api_inc.h
+build/mongoose.o: mongoose.h
+build/sessions.o: mongoose.h
+build/sessions.o: banana.h
+build/sessions.o: sessions.h
+build/sessions.o: conf.h
+build/users.o: mongoose.h
+build/users.o: conf.h
+build/users.o: banana.h
+build/users.o: sessions.h
+build/users.o: users.h
+build/util.o: mongoose.h
+build/util.o: util.h
+build/util.o: banana.h
+build/util.o: conf.h

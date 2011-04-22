@@ -1,0 +1,261 @@
+MUCLIENT API:
+
+The muclient api is designed around a limited (but powerful) core API intended
+to make it easy to develop web-based mu* clients.
+
+There are several features offered by the API:
+  * System messages
+  * Telnet-capable world management. Connect, read, write, close.
+  * Log access: All worlds are by default logged.
+  * File access: Read, write, list, files.
+  * User information: Change password, etc.
+  * Telnet protocol api: Change reported width/height, client name,
+      etc.
+
+Terminology:
+  world:  A definition of a socket/connection.
+  server: The webserver which hosts the server side of the API.
+  client: One of any of the different web front-ends to the API. "webcat"
+          is one such client.
+  client author: Somebody who writes a client using the API.
+  guest account: A user account with special restrictions.
+
+Technical implementation:
+  The browser polls the web server using a steady stream of "long poll"
+  XMLHTTPRequests (Using jquery's $.ajax()). All incoming events are thus
+  received this way in a fairly expedient manner.
+
+  All functionality will be provided through the API object, defined in
+  /js/muclient.js. This will be the only object defined by muclient.js.
+
+  Calling methods on the server is relegated to an API call such as
+  API.foo(<args>). e.g:
+
+    API.connect(<worldname>, <host>, <port>);
+
+  Adding callbacks to be triggered on events is performed by setting the
+  appropriate "onFoo" attribute of API. e.g:
+
+    API.onReceive = function(worldname, line) {
+      $('#outbox').append(worldname);
+    };
+
+  By nature of HTTP, all API access is async. Any API call that expects
+  a result will accept a callback function parameter.
+
+    API.readFile(<filename>, function(contents) {
+      // Do something with contents here.
+    });
+
+  Every onFoo event receives a single "params" parameter. This is an object
+  with the following attributes:
+    {
+      eventname: <string>,
+      timestamp: <an integer>,
+      seen: <an integer>
+    }
+  params.timestamp is seconds since unix epoch.
+  params.seen is an integer count of how many times this event has been
+      "seen".  Client authors may wish to only cause triggers/etc to fire
+      if params.seen == 1.
+  The API documentation explains only new attributes to params. e.g:
+  API.onFoo({bar: <name of bar>}) implies that onFoo's parameters
+  receives {bar: } _in addition to_ the above parameters.
+  
+  Each event has a seen count (params.seen). With normal usage, this is
+  typically only 1. There are a few ways that this can be a higher number:
+        1) There is more than one browser window open to the client.
+        2) The client page is reloaded in the browser.
+
+  For simplicity in security, all names (world names, file names, user names,
+  etc) may consist only of: Alphanumeric characters, underscores and periods,
+  and must begin with an alphabetic character (a-z). They have a maximum
+  length of 30 characters. Names are case insensitive, and always converted to
+  lower case, so if you create a world named "FOO", you will receive events
+  for a world named "foo".
+
+  To have a custom event handler that receives all events, override
+  API.onEvent(params).
+
+  There is a special function called when a fetch is complete: API.flush().
+  The recommended way to deal with incoming text is to place all received
+  events into a buffer, then to actually render them inside of API.flush().
+
+Reloading pages, or new browser windows:
+  A new page view (reloaded or a new browser window) receives a special set
+  of events when first loading:
+  * The first events it receives are onOpen() events for every open world.
+  * It retrieves the last 200 lines of output from each world, as
+    onReceived events.
+  * It then resumes normal behavior, receiving all other types of events
+    as they come.
+
+System messages:
+  The server uses system messages to inform the client of any invalid API
+  usage.
+    API.onSystemMessage({text: <message>});
+
+World API:
+  All sockets in muclient are defined as "worlds". A world name is a handle
+  to reference a socket connection, which may be active or inactive. A world
+  must first be created (using 'open')
+
+  World API calls:
+    * API.world.open(<worldname>)
+        This must be the first call to create any world connection.
+    * API.world.connect(<worldname>, <host>, <port>, <opts>)
+        connects to a host+port. This will fail if a world is not opened
+        or is already connected.
+        <opts> is an optional object of the following structure:
+          {
+            clientName: <alphanumeric string>
+          }
+    * API.world.send(<worldname>, <text>)
+    * API.world.echo(<worldname>, <text>)
+        Place some text into the world's output buffer, without sending
+        it to the world.
+    * API.world.disconnect(<worldname>)
+    * API.world.close(<worldname>)
+
+  World API events: All event params have {world: <worldname>} added
+  to the params object.
+
+    * API.world.onOpen({
+              status: <"connected", "disconnected">,
+              lines: <# of lines of history>,
+              openTime: <seconds since epoch since opened>,
+              connectTime: <seconds since epoch since last connected>,
+              host: <hostname, if connected>,
+              port: <port, if connected>
+          }
+        onOpen is called after an API.open call, and whenever the page
+        is reloaded or loaded in a new browser window.
+    * API.world.onConnect()
+    * API.world.onConnectFail({cause: <text definition of cause>})
+    * API.world.onReceive({text: <text> of a line})
+        This is triggered for both received text and echoed text.
+    * API.world.onDisconnect({cause: <text definition of cause>})
+    * API.world.onDisconnectFail({cause: <text definition of cause>})
+        Trying to disconnect an unconnected world.
+    * API.world.onClose()
+        onClose() is only called after an API.world.close event.
+
+Log access:
+  All world output is logged. Old logs are removed. Massive logs taking up
+  lots of memory may cause account deletion. Input you type to a world is
+  left as is. I promise I won't snoop on your logs unless I have good reason
+  to suspect abuse.
+
+  Logs are rotated daily, at Central Time US, and are of the name:
+    "<worldname>-YYYY-MM-DD.log"
+
+  Log API data calls:
+    API.log.tail(<worldname>, <num>, function(lines) {})
+        <num> has a maximum of 200.
+        'lines' in the callback is an array of lines, up to <num> in count.
+    API.log.list(<worldname>, function(filenames) {})
+        'filenames' is an array of filenames of logs for a world.
+    API.log.uri(<worldname>, function(uri) {})
+        'uri' is the URL to go to to see all your logs.
+        This will simply return "http://client.pennmush.org/mylogs", but
+        that may change in the future, so this is provided for future
+        consistency.
+
+File access:
+  A client author can design their client to utilize one or more files. It
+  is recommended that files be kept in JSON format, but it's entirely up to
+  you.
+
+  For client authors: It is _highly_ recommended that you name your files
+  something specific to your client. e.g: "webcat.userinfo" etc.
+
+  Files are limited to 1MB in size, and each user may have a maximum of
+  50 files.
+
+  Files creation is disabled for guest accounts. File reading still exists,
+  as some mushes may wish to have specific configurations for their
+  guest accounts.
+
+  File API calls:
+      API.file.write(<filename>, <text>)
+          <filename> must respect the rules for names. There are no
+          directories, so no "/" is allowed.
+          <text> has a maximum size of 1MB. Exceeding it will cause
+          an onWriteFail event.
+      API.file.append(<filename>, <text>)
+          The file, after appending <text>, must be less than 1MB in size,
+          or onWriteFail is triggered.
+      API.file.delete(<filename>)
+
+  File API events:
+      API.file.onCreate({filename: <filename>})
+        
+      API.file.onWriteFail({filename: <filename>, cause: <text>})
+
+      API.file.onDeleteFail({filename: <filename>, cause: <text>})
+          Most probably only "file does not exist" =).
+
+  File API Data calls:
+      API.file.read(<filename>, function(contents) { });
+        'contents' is set to the contents of the file, simply enough.
+      API.file.list(<glob>, function(list) { })
+        <glob> is a file pattern glob. Use '*' to get them all. It supports
+          * and ? as globs.
+        'list' is an object with the following structure:
+          {
+            <filename1>: {
+                size: <size in bytes>,
+                mtime: <modification time, in seconds since epoch, CST>
+                },
+            <filename2>: { ...},
+            ...
+          }
+
+User information:
+  There is user information associated with each account. The following API
+  is for fetching and manipulating it.
+
+  API calls:
+    API.user.setPassword(<newpassword>)
+  
+  API data calls:
+    API.user.getInfo(function(info) { })
+        'info' is an object with the following structure:
+          {
+            username: '',
+            diskUsage: <size of user's directory in bytes>,
+            maxUsage: <max size in bytes>
+            fileCount: <int>,
+            canGuest: <true if this account can be guested>,
+          }
+
+Telnet protocol API:
+  This is for creating low level settings for the Telnet class. At the
+  moment, this will be write-only.
+
+  Telnet API calls:
+    API.telnet.set({
+          width: <int>,
+          height: <int>,
+          clientName: <alphanumeric string>,
+          keepalive: <boolean>,
+        });
+
+  Probable Future options for API.telnet.set:
+      {
+        pueblo: <boolean: Pueblo support>,
+        encoding: <"utf-8", "ascii", "iso8859_1" (default)>
+      }
+  
+  Options set in API.world.connect() override Telnet API options, if
+  existing.
+
+Guest accounts:
+  Guest accounts are special: They have the username "guest_#", and while
+  they are tied to actual accounts, they are treated as separate ones, and
+  one is spawned for each login.
+
+  Guest accounts still log. Unlike typical logs, their logs are named
+    "guest_<num>-YYYY-MM-DD.log"
+
+  Guest accounts cannot write files, but can read.

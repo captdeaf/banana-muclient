@@ -1,0 +1,18 @@
+/*
+ * TODO: Make this a generically useful stylesheet?
+ */
+
+.chatout {
+  width: 40em;
+  height: 10em;
+  border: 2px black solid;
+  overflow: auto;
+  padding: 0.5em;
+}
+
+.chatin {
+  width: 40em;
+  padding: 0.5em;
+  border: 2px black solid;
+  margin-top: 0.5em;
+}
