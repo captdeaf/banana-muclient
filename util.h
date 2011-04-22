@@ -26,6 +26,8 @@ int get_qsvar(const struct mg_request_info *request_info,
 void redirect_to(struct mg_connection *conn, const char *dest);
 #define login_redirect(c) redirect_to(c, "/index.html")
 
+extern pthread_mutexattr_t pthread_recursive_attr; 
+
 // Initialize util stuff.
 void util_init();
 

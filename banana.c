@@ -5,6 +5,7 @@
  * Ripped shamelessly from Mongoose chat example. Thank you, Mongoose!
  */
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -17,27 +18,42 @@
 #include "mongoose.h"
 #include "conf.h"
 #include "sessions.h"
+#include "worlds.h"
 #include "users.h"
 #include "banana.h"
 #include "util.h"
 #include "api.h"
 #include "file.h"
+#include "events.h"
 #include "api_inc.h"
-
-ACTION("update", handle_update) {
-  sleep(10);
-  mg_printf(conn, "HTTP/1.1 302 Found\r\n");
-  mg_printf(conn, "Cache: no-cache\r\n", 0);
-  mg_printf(conn, "updateCount: %d\r\n", 0);
-  mg_printf(conn, "Content-Type: application/x-javascript\r\n", 0);
-  mg_printf(conn, "\r\n");
-  mg_printf(conn, "API.triggerEvent({updateCount:-1,event:'onSystemMessage',message:'No updates now, sorry.'});");
-}
 
 static void
 update_redirect(struct mg_connection *conn) {
   write_ajax_header(conn);
   mg_printf(conn, "window.location.replace('/index.html?err=Logged%%20out');\r\n");
+}
+
+static void
+handle_update(struct user *user, struct mg_connection *conn,
+              const struct mg_request_info *req) {
+  char ucount[20];
+  int updateCount;
+  if (!get_qsvar(req, "updateCount", ucount, 20)) {
+    update_redirect(conn);
+    return;
+  }
+  updateCount = atoi(ucount);
+  if (updateCount > user->updateCount) {
+    // Shouldn't happen.
+    update_redirect(conn);
+    return;
+  }
+  if (updateCount < 0) {
+    // TODO: Dump open and world events.
+    mg_printf(conn, update_header, 0);
+  } else {
+    event_wait(user, conn, updateCount);
+  }
 }
 
 static void
@@ -117,7 +133,6 @@ static void *
 event_handler(enum mg_event event, struct mg_connection *conn,
               struct mg_request_info *req) {
   char *retval = NULL;
-  Session *session;
   char *action;
   User *user;
   int i;
@@ -139,7 +154,6 @@ event_handler(enum mg_event event, struct mg_connection *conn,
 
     user = user_get(conn);
     if (user) {
-      printf("Wow, we have a user!\n");
       // Actions limited to users: Basicaly, all ACTION()s.
       // All logged-in actions are limited to POST.
       // if (strcasecmp(req->request_method,"POST"))
@@ -148,6 +162,7 @@ event_handler(enum mg_event event, struct mg_connection *conn,
       // The most common action: Update.
       if (!strcmp(action, "updates")) {
         handle_update(user, conn, req);
+        retval = "yes";
       }
 
       for (i = 0; allActions[i].name; i++) {
@@ -215,8 +230,11 @@ main(int argc _unused_, char *argv[] _unused_) {
   // the session identifier creation.
   srand((unsigned) time(0));
 
-  // Initialize sessions.
+  // Util needs to be initialized before everything else, because it seta
+  // pthread_attr_recursive
   util_init();
+
+  // Initialize sessions.
   sessions_init(session_user_expire);
   users_init();
 

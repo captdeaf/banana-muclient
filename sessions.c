@@ -16,6 +16,7 @@
 #include <limits.h>
 
 #include "mongoose.h"
+#include "util.h"
 #include "banana.h"
 #include "sessions.h"
 #include "conf.h"
@@ -89,7 +90,7 @@ session_make() {
     generate_session_id(session->session_id, session->random, session_salt);
     snprintf(session->cookie_string, 100,
              "Set-Cookie: session=%s",
-             session->session_id, -1);
+             session->session_id);
   }
   return session;
 }
@@ -100,7 +101,7 @@ void
 sessions_init(on_session_free cleaner) {
   memset(sessions, 0, sizeof(sessions));
   session_cleaner = cleaner;
-  pthread_mutex_init(&session_mutex, NULL);
+  pthread_mutex_init(&session_mutex, &pthread_recursive_attr);
 }
 
 void

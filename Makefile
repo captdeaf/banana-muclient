@@ -3,14 +3,14 @@
 # Muchas gracias to mongoose
 
 PROG  = server
-CFLAGS=	-W -Wall -I. -pthread -g -lc
-LDFLAGS = -lpthread -ldl -lc
+CFLAGS=	-W -Wall -I. -pthread -g -lc -ggdb
+LDFLAGS = -lpthread -ldl -lc -ggdb -lrt
 
 all: $(PROG)
 
 include Makefile.depend
 
-C_FILES = api.c banana.c conf.c mongoose.c sessions.c util.c users.c api_world.c file.c
+C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c
 # C_FILES = *.c
 O_FILES = $(patsubst %.c, build/%.o, $(C_FILES))
 
@@ -19,7 +19,7 @@ $(PROG): $(O_FILES)
 
 build/%.o: %.c
 	@mkdir -p build
-	$(CC) -c $(CCFLAGS) $< -o $(patsubst %.c,build/%.o,$<)
+	$(CC) -c $(CFLAGS) $< -o $(patsubst %.c,build/%.o,$<)
 
 clean:
 	rm $(O_FILES) $(PROG)
@@ -47,5 +47,7 @@ depend:
 	grep -v ": /" Makefile.depend.in > Makefile.depend
 	rm Makefile.depend.in Makefile.depend.in.bak
 
+vgrun:
+	valgrind ./$(PROG)
 run:
 	./$(PROG)

@@ -8,9 +8,10 @@
 
 void write_ajax_header(struct mg_connection *);
 
+#define nouse __attribute__ ((__unused__))
 #define ACTION(s, n) \
-  void n(User *user, struct mg_connection *conn, \
-         const struct mg_request_info *req)
+  void n(User *user nouse, struct mg_connection *conn nouse, \
+         const struct mg_request_info *req nouse)
 
 typedef void (*actioncallback)(User *, struct mg_connection *,
                                const struct mg_request_info *);
@@ -21,3 +22,4 @@ typedef struct _action_list {
 } ActionList;
 
 #endif
+

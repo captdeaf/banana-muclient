@@ -8,9 +8,9 @@
 
 typedef struct user {
   // Username: guest-1, walker, etc.
-  char username[MAX_NAME_LEN];
+  char name[MAX_NAME_LEN];
   // User directory: users/foo/bar
-  char userdir[MAX_DIR_LEN];
+  char dir[MAX_DIR_LEN];
   // A refcount == -1 means this user struct is available for reassignment.
   // A refcount == 0 means this user struct needs to be freed.
   // A refcount > 0 means it's in use.
@@ -18,16 +18,17 @@ typedef struct user {
 
   // User mutex. For protecting worlds and events.
   pthread_mutex_t mutex;
+  pthread_cond_t  evtAlarm;
 
   // Mu* connections.
-  struct mush_world *worlds[MAX_USER_WORLDS];
+  struct world worlds[MAX_USER_WORLDS];
 
   // This is a ringbuffer, so we have evtS and evtE. evtS points at the
-  // first / earliest one. evtE points at the last / most recent one.
+  // first / earliest one. evtE points at where the next will go.
   // At start: evtE == evtS. We free events[evtS] and bump evtS when
   // (evtE+1)%MAX_USER_EVENTS == evtS.
   // After the buffer fills up, evtS will == (evtE+1)%MAX_USER_EVENTS.
-  struct user_event *events[MAX_USER_EVENTS];
+  struct event *events[MAX_USER_EVENTS];
   int evtS, evtE;
 
   // updateCount: Total # of events so far for this user. The <updateCount>th

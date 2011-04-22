@@ -39,6 +39,8 @@ extern char *session_salt;
 // File i/o. 1MB maximum filesize. Real MB, not 1000000.
 #define MAX_FILE_SIZE (1024*1024)
 
+#define MAX_EVENT_SIZE 16386
+
 // String lengths:
 // walker
 #define MAX_NAME_LEN 30

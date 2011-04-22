@@ -22,6 +22,8 @@
 #include "banana.h"
 #include "conf.h"
 
+pthread_mutexattr_t pthread_recursive_attr; 
+
 struct post_data {
   int size;
   char *value;
@@ -32,6 +34,8 @@ unsigned char valid_chars[0x100];
 void
 util_init() {
   int i;
+  pthread_mutexattr_init(&pthread_recursive_attr); 
+  pthread_mutexattr_settype(&pthread_recursive_attr, PTHREAD_MUTEX_RECURSIVE); 
   for (i = 0; i < 0x100; i++) {
     if (isalpha(i)) {
       valid_chars[i] = tolower(i);
@@ -55,7 +59,7 @@ valid_name(char *name) {
       return 0;
     }
   }
-  return (ptr - name) < MAX_NAME_LEN;
+  return (ptr - name) < (MAX_NAME_LEN - 1);
 }
 
 int
@@ -107,7 +111,6 @@ PostData *
 read_post_data(struct mg_connection *conn) {
   char *buff;
   PostData *pd;
-  int i;
 #define BUFF_LEN 1024
   int size = BUFF_LEN;
   int sofar = 0;

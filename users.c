@@ -14,8 +14,10 @@
 #include <limits.h>
 
 #include "mongoose.h"
+#include "util.h"
 #include "conf.h"
 #include "banana.h"
+#include "worlds.h"
 #include "sessions.h"
 #include "users.h"
 
@@ -55,8 +57,8 @@ user_login(Session *session, char *username, char *userdir) {
   // the session at it and increase refcount.
   for (i = 0; i < MAX_USERS; i++) {
     if (users[i].refcount > 0) {
-      if (!strcmp(users[i].username, username)
-          && !strcmp(users[i].userdir, userdir)) {
+      if (!strcmp(users[i].name, username)
+          && !strcmp(users[i].dir, userdir)) {
         // We alrady have one. Bump up the refcount, unlock the mutex, and
         // return.
         users[i].refcount++;
@@ -77,10 +79,13 @@ user_login(Session *session, char *username, char *userdir) {
     // We do this inside of the mutex so we don't have any conflicts
     // with the user logging in simultaneously from two browser windows.
     memset(&users[i], 0, sizeof(User));
-    strncpy(users[i].username, username, MAX_NAME_LEN);
-    strncpy(users[i].userdir, userdir, MAX_DIR_LEN);
+    strncpy(users[i].name, username, MAX_NAME_LEN);
+    strncpy(users[i].dir, userdir, MAX_DIR_LEN);
     users[i].refcount = 1;
-    pthread_mutex_init(&(users[i].mutex), NULL);
+    if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))
+      perror("pthread_mutex_init");
+    if (pthread_cond_init(&(users[i].evtAlarm), NULL))
+      perror("pthread_cond_init");
     session->userid = i;
   }
 
@@ -113,6 +118,7 @@ users_cleanup() {
   for (i = 0; i < MAX_USERS; i++) {
     if (users[i].refcount == 0) {
       pthread_mutex_destroy(&users[i].mutex);
+      pthread_cond_destroy(&users[i].evtAlarm);
       printf("Cleaning user %d.\n", i);
       // TODO: Free events and worlds. Including removing sockets
       // from epoll.
@@ -127,7 +133,7 @@ users_cleanup() {
 void
 users_init() {
   int i;
-  pthread_mutex_init(&user_mutex, NULL);
+  pthread_mutex_init(&user_mutex, &pthread_recursive_attr);
   memset(users, 0, sizeof(users));
   for (i = 0; i < MAX_USERS; i++) {
     users[i].refcount = -1;

@@ -47,7 +47,7 @@ file_read(const char *fname) {
   }
 
   buff = malloc(size + 1);
-  if (fread(buff, 1, size, fin) != size) {
+  if ((int) fread(buff, 1, size, fin) != size) {
     free(buff);
     return NULL;
   }
@@ -57,4 +57,5 @@ file_read(const char *fname) {
 
 int
 file_write(const char *fname, const char *contents) {
+  return 0;
 }

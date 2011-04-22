@@ -15,25 +15,34 @@
 #include "mongoose.h"
 #include "conf.h"
 #include "sessions.h"
+#include "worlds.h"
 #include "users.h"
 #include "banana.h"
 #include "util.h"
+#include "events.h"
 #include "api.h"
 
-ACTION("world.open", world_open) {
+ACTION("world.open", api_world_open) {
+  char world[MAX_NAME_LEN];
+  if (get_qsvar(req, "world", world, MAX_NAME_LEN)) {
+    world_open(user, world);
+  } else {
+    sysMessage(user, "API error: world not passed to open?");
+  }
+  write_ajax_header(conn);
 }
 
-ACTION("world.connect", world_connect) {
+ACTION("world.connect", api_world_connect) {
 }
 
-ACTION("world.send", world_send) {
+ACTION("world.send", api_world_send) {
 }
 
-ACTION("world.echo", world_echo) {
+ACTION("world.echo", api_world_echo) {
 }
 
-ACTION("world.disconnect", world_disconnect) {
+ACTION("world.disconnect", api_world_disconnect) {
 }
 
-ACTION("world.close", world_close) {
+ACTION("world.close", api_world_close) {
 }

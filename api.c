@@ -14,6 +14,7 @@
 #include "mongoose.h"
 #include "conf.h"
 #include "sessions.h"
+#include "worlds.h"
 #include "users.h"
 #include "banana.h"
 #include "util.h"
