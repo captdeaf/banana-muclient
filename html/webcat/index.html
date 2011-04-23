@@ -120,15 +120,15 @@
     };
 
     API.world.onConnectFail = function(p) {
-      append(p.world + ' -- CONNFAIL: ' + p.message + ' -- ');
+      append(p.world + ' -- CONNFAIL: ' + p.cause + ' -- ');
     }
 
     API.world.onDisconnectFail = function(p) {
-      append(p.world + ' -- DISCONNFAIL: ' + p.message + ' -- ');
+      append(p.world + ' -- DISCONNFAIL: ' + p.cause + ' -- ');
     }
 
     API.world.onError = function(p) {
-      append(p.world + ' -- ERROR: ' + p.message + ' -- ');
+      append(p.world + ' -- ERROR: ' + p.cause + ' -- ');
     }
 
     API.world.onConnect = function(p) {

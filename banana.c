@@ -26,6 +26,7 @@
 #include "file.h"
 #include "events.h"
 #include "api_inc.h"
+#include "net.h"
 
 static void
 update_redirect(struct mg_connection *conn) {
@@ -193,29 +194,6 @@ event_handler(enum mg_event event, struct mg_connection *conn,
   return retval;
 }
 
-int is_running = 1;
-int musockets_fd = -1;
-
-#define MAX_EVENTS 20
-#define WAIT_TIMEOUT 1000
-void
-poll_musockets() {
-  struct epoll_event events[MAX_EVENTS];
-  time_t now = time(NULL);
-  time_t next = time(NULL) + CLEANUP_TIMEOUT;
-  
-  while (is_running) {
-    epoll_wait(musockets_fd, events, MAX_EVENTS, WAIT_TIMEOUT);
-    // TODO: Handle events. Whee.
-    now = time(NULL);
-    if (now >= next) {
-      sessions_expire();
-      users_cleanup();
-      next = now + CLEANUP_TIMEOUT;
-    }
-  }
-}
-
 void
 session_user_expire(Session *session) {
   if (session->userid >= 0)
@@ -238,10 +216,8 @@ main(int argc _unused_, char *argv[] _unused_) {
   sessions_init(session_user_expire);
   users_init();
 
-  // Initialize musockets_fd.
-  musockets_fd = epoll_create(50);
-  if (musockets_fd < 0) {
-    perror("epoll_create");
+  // Initialize the network.
+  if (net_init()) {
     return 1;
   }
 
@@ -254,7 +230,7 @@ main(int argc _unused_, char *argv[] _unused_) {
          mg_get_option(ctx, "listening_ports"));
 
   // Begin the loop sitting on epoll
-  poll_musockets();
+  net_poll();
 
   mg_stop(ctx);
   return EXIT_SUCCESS;

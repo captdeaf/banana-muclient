@@ -1,5 +1,24 @@
 TODO:
 
-  * Flesh out TODO file. =)
+  * I _THINK_ the only thread hazard right now is the wait between
+    epoll_wait and when it acquires the net lock. Some solution
+    would be ideal.
 
-  * replace ssl.pem with generated one?
+  * An initial update (-1 => updateCount) with world open events and
+    writing all the events from the worlds, but not from the user.
+
+  * IAC: Figure out where the incorrect character count is coming from?
+    send_ttype works but only if I send a space or two first.
+
+  * Overflow event: Client/HTTP couldn't keep up with the incoming text
+    from the server.
+
+  * Guests
+
+  * User API
+
+  * File API
+
+  * Logging
+
+  * Logging API

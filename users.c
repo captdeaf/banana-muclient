@@ -20,6 +20,7 @@
 #include "worlds.h"
 #include "sessions.h"
 #include "users.h"
+#include "events.h"
 
 static User users[MAX_USERS];  // Current users
 
@@ -112,17 +113,28 @@ user_expire(int userid) {
 
 void
 users_cleanup() {
-  int i;
+  int i, j;
   pthread_mutex_lock(&user_mutex);
   // Go through all users and clean up those that have refcount == 0.
   for (i = 0; i < MAX_USERS; i++) {
     if (users[i].refcount == 0) {
-      pthread_mutex_destroy(&users[i].mutex);
-      pthread_cond_destroy(&users[i].evtAlarm);
+      pthread_mutex_lock(&users[i].mutex);
       printf("Cleaning user %d.\n", i);
-      // TODO: Free events and worlds. Including removing sockets
-      // from epoll.
+
+      for (j = 0; j < MAX_USER_EVENTS; j++) {
+        if (users[i].events[j]) {
+          event_free(users[i].events[j]);
+        }
+      }
+      for (j = 0; j < MAX_USER_WORLDS; j++) {
+        if (users[i].worlds[j].name[0]) {
+          world_free(&users[i].worlds[j], 0);
+        }
+      }
      
+      pthread_mutex_unlock(&users[i].mutex);
+      pthread_cond_destroy(&users[i].evtAlarm);
+      pthread_mutex_destroy(&users[i].mutex);
       // Mark the user struct as ready to be reused.
       users[i].refcount = -1;
     }

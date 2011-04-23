@@ -52,8 +52,29 @@ event_free(Event *event) {
 }
 
 void
-addEvent(struct user *user, struct world *world, const char *eventName,
-         char *fmt, ...) {
+addLines(struct user *user, struct world *world,
+         char *lines[], int nlines) {
+  int i;
+  char *jtext;
+  pthread_mutex_lock(&user->mutex);
+  // TODO: Add all these lines.
+  for (i = 0; i < nlines; i++) {
+    jtext = json_escape(lines[i]);
+    queueEvent(user, world, 0, EVENT_WORLD_RECEIVE,
+               "world:'%s',"
+               "text:'%s'",
+               world->name,
+               jtext
+               );
+    free(jtext);
+  }
+  pthread_cond_broadcast(&user->evtAlarm);
+  pthread_mutex_unlock(&user->mutex);
+}
+
+void
+queueEvent(struct user *user, struct world *world, int alarm,
+           const char *eventName, char *fmt, ...) {
   Event *event = malloc(sizeof(Event));
   va_list args;
 
@@ -68,17 +89,15 @@ addEvent(struct user *user, struct world *world, const char *eventName,
   va_start(args, fmt);
   if (vasprintf(&event->json, fmt, args) < 0) {
     // Fatal error, braincell 5. abort! abort! We won't do jack.
-    printf("Unable to vasprintf.\n");
+    printf("Unable to vasprintf?!.\n");
     free(event);
     pthread_mutex_unlock(&user->mutex);
     return;
   }
-  printf("vasprintf succeeded: %s.\n", event->json);
 
   if (user != NULL) {
     if (user->events[user->evtE]) {
       // We've gone full round robin.
-      printf("Bumping a user event.");
       event_free(user->events[user->evtE]);
       user->evtS++;
       user->evtS %= MAX_USER_EVENTS;
@@ -106,7 +125,9 @@ addEvent(struct user *user, struct world *world, const char *eventName,
   // Alarm, alarm , alarm, alarm. We have an alarm, people. Does anyone see
   // it? There's an alarm. I said it's an alarm. Alarm.
 
-  pthread_cond_broadcast(&user->evtAlarm);
+  if (alarm) {
+    pthread_cond_broadcast(&user->evtAlarm);
+  }
   pthread_mutex_unlock(&user->mutex);
 }
 

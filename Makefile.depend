@@ -20,6 +20,7 @@ build/banana.o: api.h
 build/banana.o: file.h
 build/banana.o: events.h
 build/banana.o: api_inc.h
+build/banana.o: net.h
 build/events.o: mongoose.h
 build/events.o: conf.h
 build/events.o: util.h
@@ -45,6 +46,7 @@ build/users.o: banana.h
 build/users.o: worlds.h
 build/users.o: sessions.h
 build/users.o: users.h
+build/users.o: events.h
 build/api_world.o: mongoose.h
 build/api_world.o: conf.h
 build/api_world.o: sessions.h
@@ -64,3 +66,14 @@ build/worlds.o: sessions.h
 build/worlds.o: worlds.h
 build/worlds.o: users.h
 build/worlds.o: events.h
+build/worlds.o: net.h
+build/net.o: mongoose.h
+build/net.o: banana.h
+build/net.o: conf.h
+build/net.o: util.h
+build/net.o: sessions.h
+build/net.o: worlds.h
+build/net.o: users.h
+build/net.o: events.h
+build/net.o: net.h
+build/net.o: telnet.h

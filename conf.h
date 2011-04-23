@@ -39,7 +39,11 @@ extern char *session_salt;
 // File i/o. 1MB maximum filesize. Real MB, not 1000000.
 #define MAX_FILE_SIZE (1024*1024)
 
-#define MAX_EVENT_SIZE 16386
+// Maximum size a buffer can have.
+#define READ_LEN (8192*2)
+#define BUFFER_LEN (8192*2)
+
+#define MAX_EVENT_SIZE (BUFFER_LEN*2)
 
 // String lengths:
 // walker

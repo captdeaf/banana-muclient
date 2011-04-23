@@ -1,0 +1,19 @@
+Banana expects a users/ directory
+
+It contains directories named after users.
+
+e.g:
+  users/walker/
+
+Contents of a user dir: (So far, only password.md5 is supported :D)
+
+  password.md5: An md5sum of the user's password.
+      echo -n 'password' > password.md5
+
+  canguest: If it contains "yes", it means the user can guest.
+
+  timeout: User's personal session timeout. Usually 120 seconds.
+
+  files/: For the API.file.* read/write/etc.
+
+  log/: For logging and API.log.* access.
