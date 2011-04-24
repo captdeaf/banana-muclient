@@ -437,7 +437,7 @@ send_naws(World *w, int width, int height) {
 
 void
 send_ttype(World *w, char *what) {
-  // write_raw(w->fd, "  ", 2);
+  write_raw(w->fd, "  ", 1);
   write_raw(w->fd, IAC SB TTYPE IS, 4);
   write_escaped(w->fd, what, strlen(what));
   write_raw(w->fd, IAC SE, 2);
