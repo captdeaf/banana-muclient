@@ -406,6 +406,7 @@ ansi2html(World *w, char *str) {
         break;
       case '"':
       case '\'':
+      case '\\':
         r += sprintf(r, "\\%c", (*str) & 0xFF);
         break;
       default:
