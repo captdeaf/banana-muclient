@@ -9,7 +9,6 @@
     <link rel="stylesheet" type="text/css" href="/css/muclient.css" />
 
     <script type="text/javascript" src="/js/jquery.js"></script>
-    <script type="text/javascript" src="/js/jquery-ui.js"></script>
     <script type="text/javascript" src="/js/muclient.js"></script>
   </head>
   <body>
@@ -149,6 +148,7 @@
 
     API.world.onOpen = function(p) {
       append(p.world + ' -- Opened -- ');
+      curworld = p.world;
     }
 
     API.world.onClose = function(p) {
