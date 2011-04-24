@@ -24,7 +24,11 @@
 void write_ajax_header(struct mg_connection *conn) {
   static const char *header =
       "HTTP/1.1 200 OK\r\n"
+      "Expires: yesterday\r\n"
       "Cache: no-cache\r\n"
+      "max-age: 0\r\n"
+      "s-maxage: 0\r\n"
+      "Cache-Control: no-cache, no-store, must-revalidate\r\n"
       "Content-Type: application/x-javascript\r\n"
       "\r\n";
   mg_write(conn, header, strlen(header));

@@ -1495,8 +1495,10 @@ int mg_get_var(const char *buf, size_t buf_len, const char *name,
       // Decode variable into destination buffer
       if ((size_t) (s - p) < dst_len) {
         len = url_decode(p, (size_t)(s - p), dst, dst_len, 1);
+      } else {
+        // Too long.
+        return -2;
       }
-      break;
     }
   }
 

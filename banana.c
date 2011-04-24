@@ -25,7 +25,6 @@
 #include "api.h"
 #include "file.h"
 #include "events.h"
-#include "api_inc.h"
 #include "net.h"
 
 static void
@@ -34,21 +33,19 @@ update_redirect(struct mg_connection *conn) {
   mg_printf(conn, "window.location.replace('/index.html?err=Logged%%20out');\r\n");
 }
 
-static void
-handle_update(struct user *user, struct mg_connection *conn,
-              const struct mg_request_info *req) {
-  char ucount[20];
+ACTION("update", handle_update, API_NOHEADER) {
+  char *ucount;
   int updateCount;
-  if (!get_qsvar(req, "updateCount", ucount, 20)) {
-    update_redirect(conn);
-    return;
-  }
+  getvar(ucount, "updateCount", 20);
+
   updateCount = atoi(ucount);
+
   if (updateCount > user->updateCount) {
     // Shouldn't happen.
     update_redirect(conn);
     return;
   }
+
   if (updateCount < 0) {
     // TODO: Dump open and world events.
     mg_printf(conn, update_header, 0);
@@ -57,11 +54,9 @@ handle_update(struct user *user, struct mg_connection *conn,
   }
 }
 
-static void
-handle_login(struct mg_connection *conn,
-             const struct mg_request_info *req) {
-  char username[MAX_NAME_LEN];
-  char password[MAX_NAME_LEN];
+ACTION("login", handle_login, API_NOHEADER) {
+  char *username;
+  char *password;
   char pwfile[MAX_PATH_LEN];
   char pwmd5[MD5_LEN];
   char uri[MAX_PATH_LEN];
@@ -69,16 +64,30 @@ handle_login(struct mg_connection *conn,
   int  ret;
 
   Session *session;
-  User *user;
+  user = NULL;
 
-  get_qsvar(req, "username", username, MAX_NAME_LEN);
-  get_qsvar(req, "password", password, MAX_NAME_LEN);
+  username = get_qsvar(req, "username", MAX_NAME_LEN);
+  password = get_qsvar(req, "password", MAX_NAME_LEN);
+
+  if (username == NULL) {
+    redirect_to(conn, "/index.html");
+    return;
+  }
+  if (username == VAR_TOO_LONG) {
+    redirect_to(conn, "/index.html?err=Username%20too%20long");
+    return;
+  }
+  if (password == NULL) {
+    redirect_to(conn, "/index.html?err=No%20password%20provided");
+    return;
+  }
+  if (password == VAR_TOO_LONG) {
+    redirect_to(conn, "/index.html?err=Password%20too%20long");
+    return;
+  }
 
   // Make sure both username and password are supplied.
-  if (!username[0]) { redirect_to(conn, "/index.html"); return; }
-  if (!password[0]) { redirect_to(conn, "/index.html?err=No%20password%20provided"); return; }
 
-  printf("User '%s' Attempting to log in.\n", username);
   // valid_name will turn username into a lowercase representation.
   if (!valid_name(username)) {
     redirect_to(conn, "/index.html?err=Invalid%20username");
@@ -125,7 +134,7 @@ handle_login(struct mg_connection *conn,
   // client of choice. =).
 
   mg_printf(conn, "HTTP/1.1 302 FOUND\r\n");
-  mg_printf(conn, "Cache: no-cache\r\n");
+  mg_printf(conn, "%s", HEADER_NOCACHE);
   mg_printf(conn, "%s\r\n", session->cookie_string);
   mg_printf(conn, "Location: %s\r\n\r\n", "/webcat");
 }
@@ -143,15 +152,12 @@ event_handler(enum mg_event event, struct mg_connection *conn,
   // if (!req->is_ssl) {
   //   redirect_to_ssl(conn, req);
   // }
-  req->user_data = NULL;
+  init_conndata(conn, req);
 
   if (!strncmp(req->uri,"/action/", 8)) {
     action = req->uri + 8;
 
     // If this is a POST message, then we need to populate req->user_data.
-    if (!strcasecmp(req->request_method,"POST")) {
-      req->user_data = read_post_data(conn);
-    }
 
     user = user_get(conn);
     if (user) {
@@ -162,22 +168,27 @@ event_handler(enum mg_event event, struct mg_connection *conn,
 
       // The most common action: Update.
       if (!strcmp(action, "updates")) {
-        handle_update(user, conn, req);
+        handle_update(user, conn, req, "updates");
         retval = "yes";
       }
 
       for (i = 0; allActions[i].name; i++) {
         if (!strcmp(allActions[i].name, action)) {
-          allActions[i].handler(user, conn, req);
+          allActions[i].handler(user, conn, req, allActions[i].name);
+
+          // If the action doesn't have API_NOHEADER, then spew out
+          // the ajax header.
+          if (!(allActions[i].flags & API_NOHEADER)) {
+            write_ajax_header(conn);
+          }
           retval = "yes";
           break;
         }
       }
     } else {
-      printf("We have no user and we must cry. :-(!\n");
       // Actions limited to non-users.
       if (!strcmp(action, "login")) {
-        handle_login(conn, req);
+        handle_login(NULL, conn, req, "login");
         retval = "yes";
       } else if (!strcmp(action, "guest")) {
         // handle_guest(conn, req);
@@ -188,9 +199,7 @@ event_handler(enum mg_event event, struct mg_connection *conn,
       }
     }
   }
-  if (req->user_data) {
-    // Free the read post data.
-  }
+  free_conndata(conn, req);
   return retval;
 }
 
@@ -226,7 +235,7 @@ main(int argc _unused_, char *argv[] _unused_) {
   assert(ctx != NULL);
 
   // Wait until enter is pressed, then exit
-  printf("Banana server started on ports %s, press enter to quit.\n",
+  printf("Banana server started on ports %s. ^C to quit.\n",
          mg_get_option(ctx, "listening_ports"));
 
   // Begin the loop sitting on epoll

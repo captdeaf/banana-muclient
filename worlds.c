@@ -156,6 +156,8 @@ world_open(User *user, char *worldname) {
   for (i = 0; i < MAX_USER_WORLDS; i++) {
     if (!strcmp(user->worlds[i].name, worldname)) {
       sysMessage(user, "World '%s' already exists.", worldname);
+      pthread_mutex_unlock(&user->mutex);
+      return;
     }
   }
   if (i >= MAX_USER_WORLDS) {
@@ -192,17 +194,24 @@ void
 world_echo(User *user, char *worldname, char *text) {
   World *w;
   char *jtext;
+  char *s, *p;
   pthread_mutex_lock(&user->mutex);
   w = world_get(user, worldname);
   if (w) {
     // Queue an on receive event.
-    jtext = json_escape(text);
-    addEvent(user, NULL, EVENT_WORLD_RECEIVE,
-        "world:'%s',"
-        "text:'%s'",
-        w->name,
-        jtext);
-    w->lineCount++;
+    for (s = text, p = NULL; s && *s; s = p) {
+      for (p = s; p && *p && (*p != '\r') && (*p != '\n'); p++);
+      if (*p == '\r') *(p++) = '\0';
+      if (*p == '\n') *(p++) = '\0';
+      jtext = json_escape(s);
+      addEvent(user, NULL, EVENT_WORLD_RECEIVE,
+          "world:'%s',"
+          "text:'%s'",
+          w->name,
+          jtext);
+      free(jtext);
+      w->lineCount++;
+    }
   } else {
     sysMessage(user, "No such world '%s'.", worldname);
   }

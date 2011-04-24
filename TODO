@@ -2,7 +2,8 @@ TODO:
 
   * I _THINK_ the only thread hazard right now is the wait between
     epoll_wait and when it acquires the net lock. Some solution
-    would be ideal.
+    would be ideal. Maybe: Check using EPOLL_MOD to make sure it still
+    exist?
 
   * An initial update (-1 => updateCount) with world open events and
     writing all the events from the worlds, but not from the user.

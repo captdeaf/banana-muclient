@@ -88,7 +88,6 @@ queueEvent(struct user *user, struct world *world, int alarm,
   va_start(args, fmt);
   if (vasprintf(&event->json, fmt, args) < 0) {
     // Fatal error, braincell 5. abort! abort! We won't do jack.
-    printf("Unable to vasprintf?!.\n");
     free(event);
     pthread_mutex_unlock(&user->mutex);
     return;
@@ -142,13 +141,13 @@ json_escape(char *str) {
   for (r = ret; *str; str++) {
     if (*str == '\n') {
       *(r++) = '\\';
-      *(r++) = '\n';
+      *(r++) = 'n';
     } else if (*str == '\t') {
       *(r++) = '\\';
-      *(r++) = '\t';
+      *(r++) = 't';
     } else if (*str == '\r') {
       *(r++) = '\\';
-      *(r++) = '\r';
+      *(r++) = 'r';
     } else if (!isprint(*str)) {
       r += sprintf(r, "\\x%.2x", (unsigned char) *str);
     } else if (*str == '\\') {

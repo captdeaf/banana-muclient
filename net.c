@@ -85,7 +85,9 @@ get_in_addr(struct sockaddr *sa)
 static void *
 thread_connect(void *arg) {
   struct new_conn_info *nci = (struct new_conn_info *) arg;
-  World *world = nci->world;
+  char host[200];
+  char port[20];
+  World *world;
   struct epoll_event epvt;
 
   int sockfd;
@@ -96,7 +98,17 @@ thread_connect(void *arg) {
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
 
-  rv = getaddrinfo(nci->host, nci->port, &hints, &servinfo);
+  // Copy over from nci.
+  snprintf(host, 200, "%s", nci->host);
+  snprintf(port, 20, "%s", nci->port);
+  world = nci->world;
+
+  // Free nci
+  free(nci->host);
+  free(nci->port);
+  free(nci);
+
+  rv = getaddrinfo(host, port, &hints, &servinfo);
 
   if (rv != 0) {
     messageEvent(world->user, world, EVENT_WORLD_CONNFAIL, "cause",
@@ -194,7 +206,7 @@ net_connect(World *world, char *host, char *port) {
                  "Socket for '%s' already exists.", world->name);
   } else {
     nci = malloc(sizeof(struct new_conn_info));
-    nci->port = port;
+    nci->port = strdup(port);
     nci->host = strdup(host);
     nci->world = world;
     world->netstatus = WORLD_CONNECTING;
@@ -241,6 +253,8 @@ recv_debug(int fd, unsigned char *ptr, int size, int flags) {
 #define write_raw(f,t,l) send(f,(unsigned char *) t,l, MSG_DONTWAIT)
 #endif
 
+int write_stoppers[0x100];
+
 void
 write_escaped(int fd, char *text, int len) {
   int start = 0;
@@ -250,6 +264,14 @@ write_escaped(int fd, char *text, int len) {
   while (start < len) {
     if (s[start] == _IAC) {
       write_raw(fd, IAC, 1);
+    } else if (s[start] == '\r') {
+      // We skip over \rs, since we turn \ns into \r\n.
+      start++;
+      continue;
+    } else if (s[start] == '\n') {
+      write_raw(fd, "\r\n", 2);
+      start++;
+      continue;
     }
     for (end = start + 1; end < len && s[end] != _IAC; end++);
     write_raw(fd, s + start, end - start);
@@ -299,6 +321,11 @@ net_init() {
   // Stuff for the new_connection-spawned threads.
   signal(SIGUSR1, net_sigusr1);
   pthread_key_create(&pt_key, NULL);
+
+  memset(write_stoppers, 0, sizeof(write_stoppers));
+  write_stoppers['\r'] = 1;
+  write_stoppers['\n'] = 1;
+  write_stoppers[_IAC] = 1;
 
   pthread_mutex_init(&sockmutex, &pthread_recursive_attr);
   epfd = epoll_create(10);

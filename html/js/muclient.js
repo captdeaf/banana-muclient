@@ -50,17 +50,27 @@ var API = {
       async: true,
       data: {updateCount: ucount},
       dataType: 'text',
-      type: 'POST',
+      type: 'get',
       success: API.onSuccess,
       error: API.onError,
     });
   },
+  callQueue: $(function() {}), // I don't know why, but jQuery needs this?
+  callQueueComplete: function() {
+    API.callQueue.dequeue();
+  },
+  queueAction: function(fun) {
+    API.callQueue.queue(fun);
+  },
   callAction: function(uri, args) {
-    $.ajax({
-      url: '/action/' + uri,
-      async: true,
-      data: args,
-      type: 'post'
+    API.queueAction(function() {
+      $.ajax({
+        url: '/action/' + uri,
+        async: true,
+        data: args,
+        type: 'post',
+        complete: API.callQueueComplete
+      });
     });
   },
   world: {
@@ -70,11 +80,45 @@ var API = {
     connect: function(world, host, port) {
       API.callAction('world.connect', {world: world, host: host, port: port});
     },
+    sendQueues: {},
     send: function(world, text) {
-      API.callAction('world.send', {world: world, text: text});
+      // send is special: We don't fire immediately, in case of queued actions.
+      if (API.world.sendQueues[world]) {
+        API.world.sendQueues[world].push(text);
+      } else {
+        API.world.sendQueues[world] = [text];
+        API.queueAction(function() {
+          var allLines = API.world.sendQueues[world].join("\n");
+          delete API.world.sendQueues[world];
+          $.ajax({
+            url: '/action/world.send',
+            async: true,
+            data: {world: world, text: allLines},
+            type: 'post',
+            complete: API.callQueueComplete
+          });
+        });
+      }
     },
+    echoQueues: {},
     echo: function(world, text) {
-      API.callAction('world.echo', {world: world, text: text});
+      // echo is special: We don't fire immediately, in case of queued actions.
+      if (API.world.echoQueues[world]) {
+        API.world.echoQueues[world].push(text);
+      } else {
+        API.world.echoQueues[world] = [text];
+        API.queueAction(function() {
+          var allLines = API.world.echoQueues[world].join("\n");
+          delete API.world.echoQueues[world];
+          $.ajax({
+            url: '/action/world.echo',
+            async: true,
+            data: {world: world, text: allLines},
+            type: 'post',
+            complete: API.callQueueComplete
+          });
+        });
+      }
     },
     disconnect: function(world) {
       API.callAction('world.disconnect', {world: world});

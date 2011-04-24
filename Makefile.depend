@@ -19,7 +19,6 @@ build/banana.o: util.h
 build/banana.o: api.h
 build/banana.o: file.h
 build/banana.o: events.h
-build/banana.o: api_inc.h
 build/banana.o: net.h
 build/events.o: mongoose.h
 build/events.o: conf.h

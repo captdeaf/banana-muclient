@@ -10,7 +10,7 @@ all: $(PROG)
 
 include Makefile.depend
 
-C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c
+C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c
 # C_FILES = *.c
 O_FILES = $(patsubst %.c, build/%.o, $(C_FILES))
 
@@ -25,21 +25,23 @@ clean:
 	rm $(O_FILES) $(PROG)
 
 API_FILES = $(filter api_%.c,$(C_FILES))
-api_inc.h: $(API_FILES)
-	@echo "Generating api_inc.h"
-	echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > api_inc.h
-	echo >> api_inc.h
-	echo "#ifndef _API_INC_H_" >> api_inc.h
-	echo "#define _API_INC_H_" >> api_inc.h
-	echo >> api_inc.h
-	grep ^ACTION $(API_FILES) | sed 's/).*/);/' >> api_inc.h
-	echo >> api_inc.h
-	echo "ActionList allActions[] = {" >> api_inc.h
-	grep ^ACTION $(API_FILES) | pcregrep -o '".*\w' | sed s/$$/\\},/ | sed 's/^/  {/' >> api_inc.h
-	echo "  {NULL, NULL}" >> api_inc.h
-	echo "};" >> api_inc.h
-	echo >> api_inc.h
-	echo "#endif /* _API_INC_H_ */" >> api_inc.h
+genapi.c: $(API_FILES)
+	@echo "Generating genapi.c"
+	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.c
+	@echo >> genapi.c
+	@echo 'struct user;' >> genapi.c
+	@echo 'struct mg_connection;' >> genapi.c
+	@echo 'struct mg_request_info;' >> genapi.c
+	@echo '#include <stdlib.h>' >> genapi.c
+	@echo '#include "api.h"' >> genapi.c
+	@echo >> genapi.c
+	@grep ^ACTION $(API_FILES) | sed 's/).*/);/' >> genapi.c
+	@echo >> genapi.c
+	@echo "ActionList allActions[] = {" >> genapi.c
+	@grep ^ACTION $(API_FILES) | pcregrep -o '".*\w' | sed s/$$/\\},/ | sed 's/^/  {/' >> genapi.c
+	@echo "  {NULL, NULL, 0}" >> genapi.c
+	@echo "};" >> genapi.c
+	@echo >> genapi.c
 
 depend:
 	touch Makefile.depend.in

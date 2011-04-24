@@ -39,6 +39,8 @@
     <input id="inbox" type="text" size="100" value="" /><br />
     <br />
     <button onclick="connguest();">Guestit</button>
+    <button onclick="spamsends();">SpamALot</button>
+    <button onclick="spamechos();">EchoALot</button>
     <br />
     WebCat Interface is pathetically simple:<br />
     <br />
@@ -155,17 +157,24 @@
       append(p.world + ' -- Closed -- ');
     }
 
+    function spamsends() {
+      for (var i = 0; i < 100; i++) {
+        API.world.send('l', 'think send ' + i);
+      }
+    }
+
+    function spamechos() {
+      for (var i = 0; i < 100; i++) {
+        API.world.echo('l', '> ' + i);
+      }
+    }
+
     function connguest() {
+      // callQueue ensures these all arrive in order.
       API.world.open('l');
-      setTimeout(function() {
-        API.world.connect('l', 'localhost', '4240');
-      }, 500);
-      setTimeout(function() {
-        API.world.send('l', 'connect guest');
-      }, 1000);
-      setTimeout(function() {
-        API.world.send('l', 'connect guest');
-      }, 1500);
+      API.world.connect('l', 'localhost', '4240');
+      API.world.send('l', 'connect guest');
+      API.world.send('l', 'connect guest');
       curworld = 'l';
     }
 
