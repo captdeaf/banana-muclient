@@ -55,18 +55,17 @@ void
 addLines(struct user *user, struct world *world,
          char *lines[], int nlines) {
   int i;
-  char *jtext;
   pthread_mutex_lock(&user->mutex);
-  // TODO: Add all these lines.
   for (i = 0; i < nlines; i++) {
-    jtext = json_escape(lines[i]);
+    // lines are already escaped in ansi2html
+    // jtext = json_escape(lines[i]);
     queueEvent(user, world, 0, EVENT_WORLD_RECEIVE,
                "world:'%s',"
                "text:'%s'",
                world->name,
-               jtext
+               lines[i]
                );
-    free(jtext);
+    // free(jtext);
   }
   pthread_cond_broadcast(&user->evtAlarm);
   pthread_mutex_unlock(&user->mutex);
@@ -193,6 +192,20 @@ messageEvent(User *user, World *world, const char *eventName,
 }
 
 static void
+dump_overflow_event(int count, struct mg_connection *conn) {
+  mg_printf(conn,
+      "API.triggerEvent({"
+        "eventname:'%s',"
+        "updateCount:-1,"
+        "seen:1,"
+        "timestamp:%d,"
+        "count:%d});\r\n",
+        EVENT_OVERFLOW,
+        time(NULL),
+        count);
+}
+
+static void
 dump_event(Event *event, struct mg_connection *conn) {
   event->seen++;
 
@@ -232,8 +245,8 @@ event_wait(struct user *user, struct mg_connection *conn, int updateCount) {
     // Find out how many events behind the user is.
     count = user->updateCount - updateCount;
     if (count > MAX_USER_EVENTS) {
+      dump_overflow_event(count - MAX_USER_EVENTS, conn);
       count = MAX_USER_EVENTS;
-      // TODO: Dump a -1 'overflow' event.
     }
 
     // Find the starting location.

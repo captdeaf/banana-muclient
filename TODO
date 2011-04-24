@@ -7,9 +7,6 @@ TODO:
   * An initial update (-1 => updateCount) with world open events and
     writing all the events from the worlds, but not from the user.
 
-  * IAC: Figure out where the incorrect character count is coming from?
-    send_ttype works but only if I send a space or two first.
-
   * Overflow event: Client/HTTP couldn't keep up with the incoming text
     from the server.
 
@@ -22,3 +19,8 @@ TODO:
   * Logging
 
   * Logging API
+
+WTF:
+  * IAC: Figure out where the incorrect character count is coming from?
+    send_ttype works but only if I send a space or two first. Why does
+    send_ttype need to send that magic space?

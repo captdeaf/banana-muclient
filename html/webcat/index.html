@@ -99,6 +99,10 @@
       toadd = '';
     }
 
+    API.world.onOverflow = function(p) {
+      $('#promptbox').html(p.text);
+    };
+
     function append(msg) {
       toadd += '<br />' + msg;
     }

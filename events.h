@@ -41,6 +41,7 @@ void addLines(struct user *user, struct world *world,
 void event_wait(struct user *user, struct mg_connection *conn, int updateCount);
 
 #define EVENT_SYSMESSAGE           "onSystemMessage"
+#define EVENT_OVERFLOW             "onOverflow"
 
 #define EVENT_WORLD_OPEN           "world.onOpen"
 #define EVENT_WORLD_CLOSE          "world.onClose"

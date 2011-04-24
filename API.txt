@@ -95,6 +95,11 @@ System messages:
   usage.
     API.onSystemMessage({text: <message>});
 
+  While rare, sometimes text comes in too fast for the browser long poll
+  connection to keep up with. In this case, the server will return an
+  'overflow' event:
+    API.onOverflow({count: <# of missed events>});
+
 World API:
   All sockets in muclient are defined as "worlds". A world name is a handle
   to reference a socket connection, which may be active or inactive. A world

@@ -27,14 +27,14 @@ extern char *session_salt;
 #define MAX_USERS    10
 
 // A hard max of world count for any one user.
-#define MAX_USER_WORLDS 2
+#define MAX_USER_WORLDS 5
 
 // Max events kept on a per-world basis. Worlds _only_
 // keep their receive and 
-#define MAX_WORLD_EVENTS 300
+#define MAX_WORLD_EVENTS 1000
 
 // Max events kept by a user.
-#define MAX_USER_EVENTS 1000
+#define MAX_USER_EVENTS 5000
 
 // File i/o. 1MB maximum filesize. Real MB, not 1000000.
 #define MAX_FILE_SIZE (1024*1024)

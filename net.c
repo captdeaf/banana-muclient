@@ -206,7 +206,7 @@ net_connect(World *world, char *host, char *port) {
   }
 }
 
-#define DEBUG_NET
+// #define DEBUG_NET
 #ifdef DEBUG_NET
 static int writing = -1;
 static void
@@ -309,15 +309,16 @@ net_init() {
   return 0;
 }
 
+// start_span and end_span must write out text that is JSON-safe.
 int
 start_span(char **r, struct a2h *ah) {
   if (ah->f == 'd' && ah->b == 'D' && ah->h == '\0' && ah->u == '\0')
     return 0;
   // We have a span to start. So write it out.
-  (*r) += sprintf(*r, "<span class=\"%c%c", ah->b, ah->f);
+  (*r) += sprintf(*r, "<span class=\\\"%c%c", ah->b, ah->f);
   if (ah->h) { *(*r)++ = 'h'; }
   if (ah->u) { *(*r)++ = 'u'; }
-  (*r) += sprintf(*r, "\">");
+  (*r) += sprintf(*r, "\\\">");
   return 1;
 }
 
@@ -334,34 +335,58 @@ ansi2html(World *w, char *str) {
   struct a2h *ah = &w->a2h;
   int code;
   int donbsp;
+  // With BUFFER_LEN of 8192, this takes 10kb, but it's called for every
+  // line and the other solution is to malloc 10*stren(), which isn't wise.
+  // We'll probably almost never fill this buffer, but who cares.
+  static char ret[BUFFER_LEN * 10];
   // I think this should be enough for every case. If not, shoot me.
   // It's short lived anyway, so who cares?
-  char *ret = malloc(10*strlen(str));
-  if (!ret) return strdup("PANIC! Not enough memory to convert ansi2html()!");
   r = ret;
 
   inspan = start_span(&r, ah);
   donbsp = 1;
   while (*str) {
     while (*str && *str != _ESC) {
-      if (*str == '\t') {
+      switch (*str) {
+      case '\t':
         r += sprintf(r, "&nbsp; ");
         donbsp = 1;
-      } else if (isspace(*str)) {
+        break;
+      case ' ':
         if (donbsp) {
           r += sprintf(r, "&nbsp;");
         } else {
           *(r++) = ' ';
         }
         donbsp = !donbsp;
-      } else if (*str == '<') {
+        break;
+      case '<':
         r += sprintf(r, "&lt;");
-      } else if (*str == '>') {
+        break;
+      case '>':
         r += sprintf(r, "&gt;");
-      } else if (*str == '&') {
+        break;
+      case '&':
         r += sprintf(r, "&amp;");
-      } else {
-        *(r++) = *(str);
+        break;
+      case '\n':
+        // We should never get \\r or \\n, but just in case . . .
+        r += sprintf(r, "\\r");
+        break;
+      case '\r':
+        // We should never get \\r or \\n, but just in case . . .
+        r += sprintf(r, "\\r");
+        break;
+      case '"':
+      case '\'':
+        r += sprintf(r, "\\%c", (*str) & 0xFF);
+        break;
+      default:
+        if (isprint(*str)) {
+          *(r++) = *str;
+        } else {
+          r += sprintf(r, "\\x%.2x", (*str) & 0xFF);
+        }
       }
       str++;
     }
@@ -420,7 +445,7 @@ ansi2html(World *w, char *str) {
     }
   }
   *(r) = '\0';
-  return ret;
+  return strdup(ret);
 }
 
 void
@@ -525,7 +550,7 @@ handle_iac(World *w, int b) {
 }
 #undef readb
 
-#define MAX_LINES 100
+#define MAX_LINES 200
 // raw_read: Returns 1 if the socket is closed, otherwise 0.
 int
 raw_read(World *w) {
@@ -534,7 +559,6 @@ raw_read(World *w) {
   int  *lbp = &w->lbp;
   char *lines[MAX_LINES];
   char *prompt = NULL;
-  char *jprompt = NULL;
   int   nlines = 0;
   int   i;
   int   b = 0;
@@ -584,11 +608,9 @@ exit_sequence:
     }
   }
   if (prompt) {
-    jprompt = json_escape(prompt);
-    free(prompt);
     queueEvent(w->user, w, 1, EVENT_WORLD_PROMPT,
-               "world:'%s',text:'%s'", w->name, jprompt);
-    free(jprompt);
+               "world:'%s',text:'%s'", w->name, prompt);
+    free(prompt);
   }
   return ret == 0;
 }
