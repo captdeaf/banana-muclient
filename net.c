@@ -206,28 +206,20 @@ net_connect(World *world, char *host, char *port) {
   }
 }
 
-// #define DEBUG_NET
+#define DEBUG_NET
 #ifdef DEBUG_NET
 static int writing = -1;
 static void
-write_raw(int fd, unsigned char *text, int len) {
+write_dbg(int fd, unsigned char *text, int len) {
   int i;
   char c;
   // Debug prints.
   for (i = 0; i < len; i++) {
     c = text[i] & 0xFF;
-    if (writing != 1) {
-      printf("%sSending: \"", writing >= 0 ? "\"\n" : "");
-      writing = 1;
-    }
-    if (c == '\n') { printf("\\n\"\n"); writing = -1; }
-    else if (c == '\r') printf("");
-    else if (c == '\\') printf("\x5c");
-    else if (c == '"') printf("\\\"");
-    else if (isprint(c)) printf("%c", c);
-    else printf("\\x%.2x", c & 0xff);
+    if (writing != 1) { printf("\n* "); writing = 1; }
+    printf("%.2X ", c & 0xff);
   }
-  write(fd, text, len);
+  send(fd, text, len, MSG_DONTWAIT);
 }
 
 int
@@ -237,21 +229,16 @@ recv_debug(int fd, unsigned char *ptr, int size, int flags) {
   char c;
   for (i = 0; i < ret; i++) {
     c = ptr[i] & 0xFF;
-    if (writing != 0) {
-      printf("%sReceiving: \"", writing >= 0 ? "\"\n" : "");
-      writing = 0;
-    }
-    if (c == '\n') { printf("\\n\"\n"); writing = -1; }
-    else if (c == '\r') printf("");
-    else if (c == '\\') printf("\x5c");
-    else if (c == '"') printf("\\\"");
-    else if (isprint(c)) printf("%c", c);
-    else printf("\\x%.2x", c & 0xff);
+    if (writing != 0) { printf("\n"); writing = 0; }
+    printf("%.2X ", c & 0xff);
   }
   return ret;
 }
-#define recv(f, p, c, fl) recv_debug(f, (unsigned char *) p, c, fl)
-#define write(f,t,l) write_raw(f,(unsigned char *) t,l)
+#define recv_raw(f, p, c, fl) recv_debug(f, (unsigned char *) p, c, fl)
+#define write_raw(f,t,l) write_dbg(f,(unsigned char *) t,l)
+#else
+#define recv_raw(f, p, c, fl) recv(f, p, c, fl)
+#define write_raw(f,t,l) send(f,(unsigned char *) t,l, MSG_DONTWAIT)
 #endif
 
 void
@@ -262,10 +249,10 @@ write_escaped(int fd, char *text, int len) {
 
   while (start < len) {
     if (s[start] == _IAC) {
-      write(fd, IAC, 1);
+      write_raw(fd, IAC, 1);
     }
     for (end = start + 1; end < len && s[end] != _IAC; end++);
-    write(fd, s + start, end - start);
+    write_raw(fd, s + start, end - start);
     start = end;
   }
 }
@@ -275,16 +262,14 @@ net_send(World *world, char *text) {
   pthread_mutex_lock(&world->user->mutex);
   if (world->fd >= 0) {
     write_escaped(world->fd, text, strlen(text));
-    write(world->fd, "\r\n", 2);
+    write_raw(world->fd, "\r\n", 2);
   } else {
     messageEvent(world->user, world, EVENT_WORLD_ERROR, "cause",
                  "Not connected.");
   }
 #ifdef DEBUG_NET
-  if (writing >= 0) {
-    writing = -1;
-    printf("\"\n");
-  }
+  printf("\n");
+  writing = -1;
 #endif
   pthread_mutex_unlock(&world->user->mutex);
 }
@@ -441,35 +426,35 @@ ansi2html(World *w, char *str) {
 void
 send_naws(World *w, int width, int height) {
   char bs[4];
-  write(w->fd, IAC SB NAWS, 3);
+  write_raw(w->fd, IAC SB NAWS, 3);
   bs[0] = width >> 8 & 0xFF;
   bs[1] = width & 0xFF;
   bs[2] = height >> 8 & 0xFF;
   bs[3] = height & 0xFF;
   write_escaped(w->fd, bs, 4);
-  write(w->fd, IAC SE, 2);
+  write_raw(w->fd, IAC SE, 2);
 }
 
 void
 send_ttype(World *w, char *what) {
-  // write(w->fd, "  ", 2);
-  write(w->fd, IAC SB TTYPE IS, 4);
+  // write_raw(w->fd, "  ", 2);
+  write_raw(w->fd, IAC SB TTYPE IS, 4);
   write_escaped(w->fd, what, strlen(what));
-  write(w->fd, IAC SE, 2);
+  write_raw(w->fd, IAC SE, 2);
 }
 
-#define readb(b) if (recv(w->fd, &b, 1, 0) < 1) return -1;
+#define readb(b) b = 0; if (recv_raw(w->fd, &b, 1, 0) < 1) return -1;
 int
 iac_do(World *w, int b) {
   switch (b) {
   case _LINEMODE:
-    write(w->fd, IAC WONT LINEMODE, 3);
+    write_raw(w->fd, IAC WONT LINEMODE, 3);
     break;
   case _TTYPE:
-    write(w->fd, IAC WILL TTYPE, 3);
+    write_raw(w->fd, IAC WILL TTYPE, 3);
     break;
   case _NAWS:
-    write(w->fd, IAC WILL NAWS, 3);
+    write_raw(w->fd, IAC WILL NAWS, 3);
     send_naws(w, 92, 19);
     break;
   }
@@ -480,13 +465,13 @@ int
 iac_will(World *w, int b) {
   switch (b) {
   case _EOR:
-    write(w->fd, IAC DO EOR, 3);
+    write_raw(w->fd, IAC DO EOR, 3);
     break;
   case _MSSP:
-    // write(w->fd, IAC DONT MSSP, 3);
+    write_raw(w->fd, IAC DO MSSP, 3);
     break;
   case _NAWS:
-    write(w->fd, IAC DO NAWS, 3);
+    write_raw(w->fd, IAC DO NAWS, 3);
     send_naws(w, 92, 19);
     break;
   }
@@ -502,6 +487,16 @@ iac_sb(World *w, int b) {
     readb(b); // SE
     send_ttype(w, "Banana");
     break;
+  case _MSSP:
+    while (1) {
+      readb(b);
+      if (b == _IAC) {
+        readb(b);
+        if (b != _IAC) {
+          return 0;
+        }
+      }
+    }
   }
   return 0;
 }
@@ -544,7 +539,7 @@ raw_read(World *w) {
   int   i;
   int   b = 0;
 
-#define readb(b) if ((ret = recv(w->fd, &b, 1, 0)) < 1) goto exit_sequence
+#define readb(b) b = 0; if ((ret = recv_raw(w->fd, &b, 1, 0)) < 1) goto exit_sequence
   while (1) {
     readb(b);
     switch (b) {
@@ -612,10 +607,8 @@ net_read(World *w) {
     w->netstatus = WORLD_DISCONNECTED;
   }
 #ifdef DEBUG_NET
-  if (writing >= 0) {
-    writing = -1;
-    printf("\"\n");
-  }
+  printf("\n");
+  writing = -1;
 #endif
   pthread_mutex_unlock(&w->sockmutex);
   pthread_mutex_unlock(&w->user->mutex);
