@@ -1,8 +1,5 @@
 TODO:
 
-  * An initial update (-1 => updateCount) with world open events and
-    writing all the events from the worlds, but not from the user.
-
   * Guests
 
   * User API
@@ -30,3 +27,5 @@ WTF:
 
   * fix: IE9 doesn't work? (Will Johansson) FIXED: Thanks, qa'toq@M*U*S*H
 
+  * An initial update (-1 => updateCount) with world open events and
+    writing all the events from the worlds, but not from the user.
