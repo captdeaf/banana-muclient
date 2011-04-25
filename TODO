@@ -29,3 +29,6 @@ WTF:
 
   * An initial update (-1 => updateCount) with world open events and
     writing all the events from the worlds, but not from the user.
+
+  * Change ansi.css and ansi2html to use classes, e.g:
+    <span class="fgR bgR u h">

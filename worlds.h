@@ -6,8 +6,18 @@
 #ifndef _MY_WORLD_H_
 #define _MY_WORLD_H_
 
+#define ANSI_UNDERLINE  0x01 /* <u> */
+#define ANSI_FLASH      0x02 /* <em> */
+#define ANSI_HILITE     0x04 /* <strong> */
+#define ANSI_INVERT     0x08 /* Switch bg and fg */
+
+#define ANSI_RGB        0x80 /* not supported yet: Uses style="<color>" instead
+                          * of span classes */
+#define ANSI_SIZE 12
 struct a2h {
-  char f, b, h, u;
+  char f[ANSI_SIZE]; /* fg_r, fg_25. */
+  char b[ANSI_SIZE]; /* bg_r */
+  int flags;
 };
 
 typedef struct world {

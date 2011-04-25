@@ -166,10 +166,9 @@ world_open(User *user, char *worldname) {
         snprintf(logpath, 200, "%s/logs/%s", user->dir, worldname);
         world->logger = logger_new(logpath);
         world->user = user;
-        world->a2h.f = 'd';
-        world->a2h.b = 'D';
-        world->a2h.h = 0;
-        world->a2h.u = 0;
+        world->a2h.f[0] = '\0';
+        world->a2h.b[0] = '\0';
+        world->a2h.flags = 0;
         world->netstatus = WORLD_DISCONNECTED;
         snprintf(world->name, MAX_NAME_LEN, "%s", worldname);
         world->openTime = time(NULL);

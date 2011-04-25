@@ -322,19 +322,40 @@ net_init() {
 // start_span and end_span must write out text that is JSON-safe.
 int
 start_span(char **r, struct a2h *ah) {
-  if (ah->f == 'd' && ah->b == 'D' && ah->h == '\0' && ah->u == '\0')
-    return 0;
-  // We have a span to start. So write it out.
-  (*r) += sprintf(*r, "<span class=\\\"%c%c", ah->b, ah->f);
-  if (ah->h) { *(*r)++ = 'h'; }
-  if (ah->u) { *(*r)++ = 'u'; }
-  (*r) += sprintf(*r, "\\\">");
-  return 1;
+  int ret = 0;
+  if (ah->flags) {
+    ret = 1;
+    if (ah->flags & ANSI_UNDERLINE) { *r += sprintf(*r, "<u>"); }
+    if (ah->flags & ANSI_FLASH) { *r += sprintf(*r, "<em>"); }
+    if (ah->flags & ANSI_HILITE) { *r += sprintf(*r, "<strong>"); }
+    if (ah->flags & ANSI_INVERT) { *r += sprintf(*r, "<span class=\\\"invert\\\">"); }
+  }
+  if (ah->f[0] || ah->b[0]) {
+    ret = 1;
+    (*r) += sprintf(*r, "<span class=\\\"");
+    if (ah->b[0]) {
+      (*r) += sprintf(*r, "%s", ah->b);
+    }
+    if (ah->f[0]) {
+      (*r) += sprintf(*r, "%s%s", ah->b[0] ? " " : "", ah->f);
+    }
+    (*r) += sprintf(*r, "\\\">");
+  }
+  return ret;
 }
 
+/** We need to spit out The bits we printed, in reverse */
 void
-end_span(char **r) {
-  (*r) += sprintf(*r, "</span>");
+end_span(char **r, struct a2h *ah) {
+  if (ah->f[0] || ah->b[0]) {
+    (*r) += sprintf(*r, "</span>");
+  }
+  if (ah->flags) {
+    if (ah->flags & ANSI_INVERT) { *r += sprintf(*r, "</span>"); }
+    if (ah->flags & ANSI_HILITE) { *r += sprintf(*r, "</strong>"); }
+    if (ah->flags & ANSI_FLASH) { *r += sprintf(*r, "</em>"); }
+    if (ah->flags & ANSI_UNDERLINE) { *r += sprintf(*r, "</u>"); }
+  }
 }
 
 #define _ESC 0x1B
@@ -345,6 +366,7 @@ ansi2html(World *w, char *str) {
   struct a2h *ah = &w->a2h;
   int code;
   int donbsp;
+  char tmp[ANSI_SIZE];
   // With BUFFER_LEN of 8192, this takes 10kb, but it's called for every
   // line and the other solution is to malloc 10*stren(), which isn't wise.
   // We'll probably almost never fill this buffer, but who cares.
@@ -395,6 +417,7 @@ ansi2html(World *w, char *str) {
       default:
         if (isprint(*str)) {
           *(r++) = *str;
+          donbsp = 0;
         } else {
           r += sprintf(r, "\\x%.2x", (*str) & 0xFF);
         }
@@ -406,7 +429,7 @@ ansi2html(World *w, char *str) {
         r -= 1;
         r += sprintf(r, "&nbsp;");
       }
-      end_span(&r); donbsp = 1;
+      end_span(&r, ah); donbsp = 1;
     }
     inspan = 0;
     if (*str == _ESC) {
@@ -418,29 +441,33 @@ ansi2html(World *w, char *str) {
           while (*str && isdigit(*str)) str++;
           code = atoi(s);
           switch (code) {
-          case 30: ah->f = 'x'; break;
-          case 31: ah->f = 'r'; break;
-          case 32: ah->f = 'g'; break;
-          case 33: ah->f = 'y'; break;
-          case 34: ah->f = 'b'; break;
-          case 35: ah->f = 'm'; break;
-          case 36: ah->f = 'c'; break;
-          case 37: ah->f = 'w'; break;
-          case 40: ah->b = 'X'; break;
-          case 41: ah->b = 'R'; break;
-          case 42: ah->b = 'G'; break;
-          case 43: ah->b = 'Y'; break;
-          case 44: ah->b = 'B'; break;
-          case 45: ah->b = 'M'; break;
-          case 46: ah->b = 'C'; break;
-          case 47: ah->b = 'W'; break;
-          case 1: ah->h = 'h'; break;
-          case 4: ah->u = 'u'; break;
+          case 30: strcpy(ah->f,"fg_x"); break;
+          case 31: strcpy(ah->f,"fg_r"); break;
+          case 32: strcpy(ah->f,"fg_g"); break;
+          case 33: strcpy(ah->f,"fg_y"); break;
+          case 34: strcpy(ah->f,"fg_b"); break;
+          case 35: strcpy(ah->f,"fg_m"); break;
+          case 36: strcpy(ah->f,"fg_c"); break;
+          case 37: strcpy(ah->f,"fg_w"); break;
+          case 40: strcpy(ah->b,"bg_x"); break;
+          case 41: strcpy(ah->b,"bg_r"); break;
+          case 42: strcpy(ah->b,"bg_g"); break;
+          case 43: strcpy(ah->b,"bg_y"); break;
+          case 44: strcpy(ah->b,"bg_b"); break;
+          case 45: strcpy(ah->b,"bg_m"); break;
+          case 46: strcpy(ah->b,"bg_c"); break;
+          case 47: strcpy(ah->b,"bg_w"); break;
+          case 1: ah->flags |= ANSI_HILITE; break;
+          case 3: ah->flags |= ANSI_FLASH; break;
+          case 4: ah->flags |= ANSI_UNDERLINE; break;
+          case 7: ah->flags |= ANSI_INVERT; break;
+          case 5: ah->flags |= ANSI_FLASH; break;
+          case 6: ah->flags |= ANSI_FLASH; break;
           case 0:
-            ah->f = 'd';
-            ah->b = 'D';
-            ah->u = 0;
-            ah->h = 0;
+            // Unset everything.
+            ah->f[0] = '\0';
+            ah->b[0] = '\0';
+            ah->flags = 0;
           }
         } while (*str == ';');
         if (*str == 'm') str++;
