@@ -1,5 +1,5 @@
 // Just the options go here.
-#include <stdlib.h>
+#include "banana.h"
 
 const char *options[] = {
   "document_root", "html",

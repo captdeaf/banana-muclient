@@ -1,25 +1,11 @@
-/* mg_session.c
+/* session.c
  *
  * Session handling for banana.
  *
  * Ripped shamelessly from Mongoose chat example. Thank you, Mongoose!
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <sys/epoll.h>
-#include <limits.h>
-
-#include "mongoose.h"
-#include "util.h"
 #include "banana.h"
-#include "sessions.h"
-#include "conf.h"
 
 static Session sessions[MAX_SESSIONS];  // Current sessions
 
@@ -91,6 +77,7 @@ session_make() {
     snprintf(session->cookie_string, 100,
              "Set-Cookie: session=%s",
              session->session_id);
+    slog("Session: '%s' created", session->session_id);
   }
   return session;
 }
@@ -111,6 +98,7 @@ sessions_expire() {
   for (i = 0; i < MAX_SESSIONS; i++) {
     pthread_mutex_lock(&session_mutex);
     if (sessions[i].expire > 0 && sessions[i].expire < now) {
+      slog("Session: '%s' expired", sessions[i].session_id);
       if (session_cleaner) {
         session_cleaner(&sessions[i]);
       }

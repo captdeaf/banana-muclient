@@ -1,14 +1,7 @@
 TODO:
 
-  * I _THINK_ the only thread hazard right now is the wait between
-    epoll_wait and when it acquires the net lock. Some solution
-    would be ideal. Maybe: Check using EPOLL_MOD to make sure it still
-    exist?
-
   * An initial update (-1 => updateCount) with world open events and
     writing all the events from the worlds, but not from the user.
-
-  * fix: IE9 doesn't work? (Will Johansson)
 
   * Guests
 
@@ -16,9 +9,12 @@ TODO:
 
   * File API
 
-  * Logging
-
   * Logging API
+
+  * I _THINK_ the only thread hazard right now is the wait between
+    epoll_wait and when it acquires the net lock. Some solution
+    would be ideal. Maybe: Check using EPOLL_MOD to make sure it still
+    exists?
 
 WTF:
   * IAC: Figure out where the incorrect character count is coming from?
@@ -27,4 +23,10 @@ WTF:
 
   * Overflow event: Client/HTTP couldn't keep up with the incoming text
     from the server.
+
+  * Logging
+
+  * Clean shutdown.
+
+  * fix: IE9 doesn't work? (Will Johansson) FIXED: Thanks, qa'toq@M*U*S*H
 

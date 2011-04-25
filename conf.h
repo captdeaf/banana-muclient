@@ -7,6 +7,8 @@
 #ifndef _MY_CONF_H_
 #define _MY_CONF_H_
 
+#define LOG_PATH "logs/banana"
+
 extern const char *options[];
 
 extern int   use_ssl;

@@ -187,11 +187,20 @@
 
     $(document).ready(function() {
       $('#inbox').focus();
-      $('#inbox').keydown(function(e) {
+      $('#inbox').keypress(function(e) {
         if (e.keyCode == 13) {
           handleText($('#inbox').val());
           $('#inbox').val('');
+          e.keyCode = 505;
+          e.returnValue = false;
+          e.cancelBubble = true;
+          if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          return false;
         }
+        return true;
       });
     });
     </script>

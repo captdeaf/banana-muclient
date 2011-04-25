@@ -3,25 +3,7 @@
  * World handling for banana.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <sys/epoll.h>
-#include <limits.h>
-
-#include "mongoose.h"
-#include "conf.h"
-#include "util.h"
 #include "banana.h"
-#include "sessions.h"
-#include "worlds.h"
-#include "users.h"
-#include "events.h"
-#include "net.h"
 
 /*
 typedef struct world {
@@ -48,6 +30,17 @@ world_get(User *user, char *worldname) {
   return NULL;
 }
 
+char *
+world_status(World *w) {
+  if (w->netstatus == WORLD_DISCONNECTED)
+    return "disconnected";
+  if (w->netstatus == WORLD_CONNECTED)
+    return "connected";
+  if (w->netstatus == WORLD_CONNECTING)
+    return "connecting";
+  return "unknown";
+}
+
 void
 world_dc_event(User *user, World *w) {
   if (w->netstatus != WORLD_DISCONNECTED) {
@@ -61,6 +54,8 @@ world_dc_event(User *user, World *w) {
         w->netlineCount,
         w->connectTime,
         time(NULL));
+    llog(w->logger, "-- WORLD DISCONNECTED --");
+    slog("Disconnecting world '%s' for user '%s'", w->name, w->user->name);
   }
 }
 
@@ -69,7 +64,7 @@ world_dc_event(User *user, World *w) {
 void
 world_free(World *w, int doEvents) {
   int i;
-  printf("Closing world %s\n", w->name);
+  slog("Closing world '%s' for user '%s'", w->name, w->user->name);
   // If the world is connected, then disconnect it. We'll queue a
   // disconnect event, and prevent the musocket thread from sending
   // an event itself.
@@ -85,6 +80,7 @@ world_free(World *w, int doEvents) {
         w->lineCount,
         w->openTime,
         time(NULL));
+    llog(w->logger, "-- WORLD CLOSED --");
   }
   net_disconnect(w);
 
@@ -147,6 +143,7 @@ world_close(User *user, char *worldname) {
 void
 world_open(User *user, char *worldname) {
   int i;
+  char logpath[200];
   World *world;
   if (!valid_name(worldname)) {
     sysMessage(user, "Invalid world name '%s'.", worldname);
@@ -166,6 +163,8 @@ world_open(User *user, char *worldname) {
         world = &user->worlds[i];
         // Allocate this world.
         memset(world, 0, sizeof(World));
+        snprintf(logpath, 200, "%s/logs/%s", user->dir, worldname);
+        world->logger = logger_new(logpath);
         world->user = user;
         world->a2h.f = 'd';
         world->a2h.b = 'D';
@@ -175,6 +174,8 @@ world_open(User *user, char *worldname) {
         snprintf(world->name, MAX_NAME_LEN, "%s", worldname);
         world->openTime = time(NULL);
         world->fd = -1;
+        llog(world->logger, "-- WORLD OPENED --");
+        slog("Opening world '%s' for user '%s'", world->name, world->user->name);
         addEvent(user, NULL, EVENT_WORLD_OPEN,
             "world:'%s',"
             "status:'disconnected',"
@@ -209,6 +210,7 @@ world_echo(User *user, char *worldname, char *text) {
           "text:'%s'",
           w->name,
           jtext);
+      llog(w->logger, "%s", jtext);
       free(jtext);
       w->lineCount++;
     }

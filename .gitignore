@@ -4,3 +4,4 @@ users
 genapi.c
 mongoose
 *.swp
+logs

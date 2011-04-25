@@ -5,27 +5,8 @@
  * Ripped shamelessly from Mongoose chat example. Thank you, Mongoose!
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <sys/epoll.h>
-
-#include "mongoose.h"
-#include "conf.h"
-#include "sessions.h"
-#include "worlds.h"
-#include "users.h"
 #include "banana.h"
-#include "util.h"
-#include "api.h"
-#include "file.h"
-#include "events.h"
-#include "net.h"
+#include <signal.h>
 
 static void
 update_redirect(struct mg_connection *conn) {
@@ -33,7 +14,7 @@ update_redirect(struct mg_connection *conn) {
   mg_printf(conn, "window.location.replace('/index.html?err=Logged%%20out');\r\n");
 }
 
-ACTION("update", handle_update, API_NOHEADER) {
+ACTION("updates", handle_update, API_NOHEADER) {
   char *ucount;
   int updateCount;
   getvar(ucount, "updateCount", 20);
@@ -47,8 +28,7 @@ ACTION("update", handle_update, API_NOHEADER) {
   }
 
   if (updateCount < 0) {
-    // TODO: Dump open and world events.
-    mg_printf(conn, update_header, 0);
+    event_startup(user, conn);
   } else {
     event_wait(user, conn, updateCount);
   }
@@ -118,6 +98,7 @@ ACTION("login", handle_login, API_NOHEADER) {
   free(pwcheck);
 
   if (ret) {
+    slog("User '%s' failed password check.", username);
     snprintf(uri, MAX_PATH_LEN, "/index.html?user=%s&err=Invalid%%20password", username);
     redirect_to(conn, uri);
     return;
@@ -128,7 +109,12 @@ ACTION("login", handle_login, API_NOHEADER) {
 
   snprintf(pwfile, MAX_PATH_LEN, "users/%s", username);
   user = user_login(session, username, pwfile);
-  if (!user) { redirect_to(conn, "/nousers.html"); return; }
+  if (!user) {
+    slog("User '%s': Out of users.", username);
+    redirect_to(conn, "/nousers.html"); return;
+  }
+  slog("Session: User '%s' attached to session '%s'",
+       username, session->session_id);
 
   // User is logged in, created, etc etc. Send 'em on their way to their
   // client of choice. =).
@@ -205,18 +191,41 @@ event_handler(enum mg_event event, struct mg_connection *conn,
 
 void
 session_user_expire(Session *session) {
-  if (session->userid >= 0)
+  if (session->userid >= 0) {
     user_expire(session->userid);
+  }
+}
+
+struct mg_context *ctx;
+
+void
+do_shutdown(int signal _unused_) {
+  // kill the webserver. Or not, it causes shutdown to hang,
+  // and we don't really need it to do anything to clean up, anyway.
+  // mg_stop(ctx);
+
+  slog("Cleaning up users.");
+  // Clean up all users.
+  users_shutdown();
+
+  slog("Goodbye.");
+  // Finally, shut down logs.
+  logger_shutdown();
+  exit(1);
 }
 
 int
 main(int argc _unused_, char *argv[] _unused_) {
-  struct mg_context *ctx;
-
   // Initialize random number generator. It will be used later on for
   // the session identifier creation.
   srand((unsigned) time(0));
 
+  // Setup and start Mongoose
+  ctx = mg_start(&event_handler, NULL, options);
+  assert(ctx != NULL);
+
+  logger_init(LOG_PATH);
+  slog("Banana started.");
   // Util needs to be initialized before everything else, because it seta
   // pthread_attr_recursive
   util_init();
@@ -225,22 +234,22 @@ main(int argc _unused_, char *argv[] _unused_) {
   sessions_init(session_user_expire);
   users_init();
 
+  signal(SIGTERM, do_shutdown);
+  signal(SIGINT, do_shutdown);
+  signal(SIGHUP, do_shutdown);
+  signal(SIGQUIT, do_shutdown);
+
   // Initialize the network.
   if (net_init()) {
     return 1;
   }
 
-  // Setup and start Mongoose
-  ctx = mg_start(&event_handler, NULL, options);
-  assert(ctx != NULL);
-
   // Wait until enter is pressed, then exit
-  printf("Banana server started on ports %s. ^C to quit.\n",
+  slog("Banana server started on ports %s. ^C to quit.\n",
          mg_get_option(ctx, "listening_ports"));
 
   // Begin the loop sitting on epoll
   net_poll();
 
-  mg_stop(ctx);
   return EXIT_SUCCESS;
 }

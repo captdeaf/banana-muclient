@@ -15,5 +15,6 @@ char *file_read(const char *name);
 
 // Write to a file. 0 is success, otherwise it's errno.
 int file_write(const char *name, const char *contents);
+int file_write_len(const char *fname, const char *contents, int len);
 
 #endif

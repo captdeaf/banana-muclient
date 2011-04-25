@@ -15,6 +15,9 @@ typedef struct world {
   // World name.
   char name[MAX_NAME_LEN];
 
+  // Logger for the world.
+  Logger *logger;
+
   // Ditto as user->events/evtS/evtE
   struct event *events[MAX_WORLD_EVENTS];
   int evtS, evtE;
@@ -53,6 +56,7 @@ typedef struct world {
 } World;
 
 struct user;
+char *world_status(struct world *world);
 void world_open(struct user *user, char *worldname);
 void world_dc_event(struct user *user, struct world *w);
 void world_free(struct world *world, int doevents);

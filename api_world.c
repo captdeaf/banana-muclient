@@ -3,24 +3,7 @@
  * /action/world.foo api calls.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <sys/epoll.h>
-
-#include "mongoose.h"
-#include "conf.h"
-#include "sessions.h"
-#include "worlds.h"
-#include "users.h"
 #include "banana.h"
-#include "util.h"
-#include "events.h"
-#include "api.h"
 
 ACTION("world.open", api_world_open, API_DEFAULT) {
   char *world;

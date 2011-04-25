@@ -7,7 +7,6 @@ var API = {
     /* Only do this once per update count. We are guaranteed
      * to receive it in order from the server. */
     if ((API.updateCount <= params.updateCount) || (params.updateCount == -1)) {
-      API.updateCount = params.updateCount + 1;
       try {
         API.onEvent(params);
       } catch (err) {
@@ -32,6 +31,7 @@ var API = {
       var ucount = xhr.getResponseHeader('updateCount');
       API.fetchUpdates(ucount);
       eval(myData);
+      API.updateCount = ucount;
     } catch (err) {
       API.alert("API error on fetchUpdates/success: '" + err + "'");
     }

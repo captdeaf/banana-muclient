@@ -3,24 +3,7 @@
  * User handling for banana.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <sys/epoll.h>
-#include <limits.h>
-
-#include "mongoose.h"
-#include "util.h"
-#include "conf.h"
 #include "banana.h"
-#include "worlds.h"
-#include "sessions.h"
-#include "users.h"
-#include "events.h"
 
 static User users[MAX_USERS];  // Current users
 
@@ -103,41 +86,62 @@ void
 user_expire(int userid) {
   if (userid < 0) return;
 
-  printf("Expiring user %d?\n", userid);
   pthread_mutex_lock(&user_mutex);
   pthread_mutex_lock(&users[userid].mutex);
   users[userid].refcount--;
+  if (users[userid].refcount == 0) {
+    slog("User '%s' sessions expired.", users[userid].name);
+  }
   pthread_mutex_unlock(&users[userid].mutex);
   pthread_mutex_unlock(&user_mutex);
 }
 
+static void
+user_clean(User *user) {
+  int j;
+  pthread_mutex_lock(&user->mutex);
+  if (user->refcount == 0) {
+    slog("User '%s' cleaning up.", user->name);
+  }
+
+  for (j = 0; j < MAX_USER_EVENTS; j++) {
+    if (user->events[j]) {
+      event_free(user->events[j]);
+    }
+  }
+  for (j = 0; j < MAX_USER_WORLDS; j++) {
+    if (user->worlds[j].name[0]) {
+      world_free(&user->worlds[j], 0);
+    }
+  }
+ 
+  pthread_mutex_unlock(&user->mutex);
+  pthread_cond_destroy(&user->evtAlarm);
+  pthread_mutex_destroy(&user->mutex);
+}
+
 void
 users_cleanup() {
-  int i, j;
+  int i;
   pthread_mutex_lock(&user_mutex);
   // Go through all users and clean up those that have refcount == 0.
   for (i = 0; i < MAX_USERS; i++) {
     if (users[i].refcount == 0) {
-      pthread_mutex_lock(&users[i].mutex);
-      printf("Cleaning user %d.\n", i);
-
-      for (j = 0; j < MAX_USER_EVENTS; j++) {
-        if (users[i].events[j]) {
-          event_free(users[i].events[j]);
-        }
-      }
-      for (j = 0; j < MAX_USER_WORLDS; j++) {
-        if (users[i].worlds[j].name[0]) {
-          world_free(&users[i].worlds[j], 0);
-        }
-      }
-     
-      pthread_mutex_unlock(&users[i].mutex);
-      pthread_cond_destroy(&users[i].evtAlarm);
-      pthread_mutex_destroy(&users[i].mutex);
       // Mark the user struct as ready to be reused.
+      user_clean(&users[i]);
       users[i].refcount = -1;
     }
+  }
+  pthread_mutex_unlock(&user_mutex);
+}
+
+void
+users_shutdown() {
+  int i;
+  pthread_mutex_lock(&user_mutex);
+  // Go through all users and clean up those that have refcount == 0.
+  for (i = 0; i < MAX_USERS; i++) {
+    user_clean(&users[i]);
   }
   pthread_mutex_unlock(&user_mutex);
 }

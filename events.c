@@ -3,27 +3,7 @@
  * User handling for banana.
  */
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <sys/epoll.h>
-#include <limits.h>
-#include <ctype.h>
-
-#include "mongoose.h"
-#include "conf.h"
-#include "util.h"
 #include "banana.h"
-#include "sessions.h"
-#include "worlds.h"
-#include "users.h"
-#include "events.h"
 
 /*
 typedef struct event {
@@ -37,7 +17,7 @@ typedef struct event {
 */
 const char *update_header = 
         "HTTP/1.1 200 OK\r\n"
-        "Cache: no-cache\r\n"
+        HEADER_NOCACHE
         "Content-Type: application/x-javascript\r\n"
         "updateCount: %d\r\n"
         "\r\n";
@@ -58,14 +38,13 @@ addLines(struct user *user, struct world *world,
   pthread_mutex_lock(&user->mutex);
   for (i = 0; i < nlines; i++) {
     // lines are already escaped in ansi2html
-    // jtext = json_escape(lines[i]);
     queueEvent(user, world, 0, EVENT_WORLD_RECEIVE,
                "world:'%s',"
                "text:'%s'",
                world->name,
                lines[i]
                );
-    // free(jtext);
+    llog(world->logger, "%s", lines[i]);
   }
   pthread_cond_broadcast(&user->evtAlarm);
   pthread_mutex_unlock(&user->mutex);
@@ -220,6 +199,58 @@ dump_event(Event *event, struct mg_connection *conn) {
         event->seen,
         event->timestamp,
         event->json);
+}
+
+void
+event_startup(struct user *user, struct mg_connection *conn) {
+  int i, j, e;
+  World *w;
+  pthread_mutex_lock(&user->mutex);
+
+  // Header: updateCount
+  mg_printf(conn, update_header, user->updateCount);
+
+  // All open worlds.
+  for (i = 0; i < MAX_USER_WORLDS; i++) {
+    w = &user->worlds[i];
+    if (w->name[0]) {
+      // Send the WORLD_OPEN event.
+      mg_printf(conn,
+          "API.triggerEvent({"
+            "eventname:'%s',"
+            "updateCount:-1,"
+            "seen:0,"
+            "timestamp:%d,"
+            "world:'%s',"
+            "status:'%s',"
+            "lines:%d,"
+            "openTime:%d});\r\n",
+            EVENT_WORLD_OPEN,
+            w->openTime,
+            w->name,
+            world_status(w),
+            w->lineCount,
+            w->openTime);
+    }
+  }
+
+  for (i = 0; i < MAX_USER_WORLDS; i++) {
+    w = &user->worlds[i];
+    if (w->name[0]) {
+      e = w->evtS;
+      for (j = 0; j < MAX_WORLD_EVENTS; j++) {
+        if (w->events[e]) {
+          dump_event(w->events[e], conn);
+        } else {
+          break;
+        }
+        e++;
+        e %= MAX_WORLD_EVENTS;
+      }
+    }
+  }
+
+  pthread_mutex_unlock(&user->mutex);
 }
 
 void

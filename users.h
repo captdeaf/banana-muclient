@@ -45,8 +45,11 @@ void user_expire(int userid);
 
 // Initialize user stuff.
 void users_init();
+
 // Walk through the users struct and clean up any that are marked for
 // deletion. (refcount == 0)
 void users_cleanup();
+
+void users_shutdown();
 
 #endif

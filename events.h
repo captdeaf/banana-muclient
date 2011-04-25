@@ -38,6 +38,7 @@ void messageEvent(struct user *user, struct world *world,
 void addLines(struct user *user, struct world *world,
               char *lines[], int lineCount);
 
+void event_startup(struct user *user, struct mg_connection *conn);
 void event_wait(struct user *user, struct mg_connection *conn, int updateCount);
 
 #define EVENT_SYSMESSAGE           "onSystemMessage"

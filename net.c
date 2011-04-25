@@ -3,36 +3,16 @@
  * Network library for connecting to mu*s.
  */
 
-
-#include <arpa/inet.h>
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <pthread.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/epoll.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <time.h>
-#include <ctype.h>
-#include <unistd.h>
-
-#include "mongoose.h"
 #include "banana.h"
-#include "conf.h"
-#include "util.h"
-#include "sessions.h"
-#include "worlds.h"
-#include "users.h"
-#include "events.h"
-#include "net.h"
+
 #include "telnet.h"
+#include <netdb.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <signal.h>
 
 #define MAX_EVENTS 20
 #define WAIT_TIMEOUT 1000
@@ -182,6 +162,9 @@ thread_connect(void *arg) {
   epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &epvt);
 
   world->connectTime = time(NULL);
+
+  llog(world->logger, "-- WORLD CONNECTED --");
+  slog("Connected world '%s' for user '%s'", world->name, world->user->name);
 
   net_unlock();
 

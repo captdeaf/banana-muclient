@@ -1,4 +1,3 @@
-
 /* mg_session.c
  *
  * Session handling for banana.
@@ -6,21 +5,7 @@
  * Ripped shamelessly from Mongoose chat example. Thank you, Mongoose!
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <sys/epoll.h>
-#include <limits.h>
-#include <ctype.h>
-
-#include "mongoose.h"
-#include "util.h"
 #include "banana.h"
-#include "conf.h"
 
 pthread_mutexattr_t pthread_recursive_attr; 
 
