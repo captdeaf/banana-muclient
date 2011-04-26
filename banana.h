@@ -6,7 +6,6 @@
 
 #define _unused_ __attribute__ ((__unused__))
 
-#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>

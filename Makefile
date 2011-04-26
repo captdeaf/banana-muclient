@@ -3,7 +3,7 @@
 # Muchas gracias to mongoose
 
 PROG  = server
-CFLAGS=	-W -Wall -I. -pthread -g -lc -ggdb -Werror
+CFLAGS=	-W -Wall -I. -pthread -g -lc -ggdb -Werror -D_GNU_SOURCE
 LDFLAGS = -lpthread -ldl -lc -ggdb -lrt -liconv
 
 all: $(PROG)
