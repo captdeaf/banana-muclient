@@ -47,5 +47,18 @@ depend:
 
 vgrun:
 	valgrind ./$(PROG)
+
+guestuser:
+	mkdir -p users/guest
+	echo yes > users/guest/can_guest
+	echo 1 > users/guest/guestcount
+	echo -n 'webcat' > users/guest/client
+	echo -n 'guest' | md5sum > users/guest/password.md6
+
+iconv:
+	wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz
+	tar xvzf libiconv-1.13.1.tar.gz
+	cd libiconv-1.13.1 ; ./configure --prefix=/usr ; make ; sudo make install
+
 run:
 	./$(PROG)
