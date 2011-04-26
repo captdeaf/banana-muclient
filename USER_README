@@ -10,10 +10,11 @@ Contents of a user dir: (So far, only password.md5 is supported :D)
   password.md5: An md5sum of the user's password.
       echo -n 'password' > password.md5
 
-  canguest: If it contains "yes", it means the user can guest.
+  can_guest: If it contains "yes", it means the user can guest.
 
-  timeout: User's personal session timeout. Usually 120 seconds.
+  guestcount: Contains a number, it is the number of the next guest
+              to connect (assuming can_guest is enabled).
 
   files/: For the API.file.* read/write/etc.
 
-  log/: For logging and API.log.* access.
+  logs/: For logging and API.log.* access.
