@@ -1,7 +1,4 @@
 var API = {
-  alert: function(msg) {
-    alert(msg);
-  },
   updateCount: -1,
   triggerEvent: function(params) {
     /* Only do this once per update count. We are guaranteed
@@ -14,8 +11,6 @@ var API = {
       }
     }
   },
-  flush: function() {
-  },
   onEvent: function(params) {
     var m = params.eventname.match(/^(\w+)\.(\w+)$/);
     if (m) {
@@ -25,6 +20,10 @@ var API = {
     } else if (API[params.eventname]) {
       API[params.eventname](params);
     }
+  },
+  onFirstSuccess: function(myData, textStatus, xhr) {
+    API.onSuccess(myData, textStatus, xhr);
+    API.onReady();
   },
   onSuccess: function(myData, textStatus, xhr) {
     try {
@@ -52,6 +51,17 @@ var API = {
       dataType: 'text',
       type: 'get',
       success: API.onSuccess,
+      error: API.onError,
+    });
+  },
+  fetchFirstUpdate: function(ucount) {
+    API.updateObject = $.ajax({
+      url: '/action/updates',
+      async: true,
+      data: {updateCount: -1},
+      dataType: 'text',
+      type: 'get',
+      success: API.onFirstSuccess,
       error: API.onError,
     });
   },
@@ -126,6 +136,16 @@ var API = {
     close: function(world) {
       API.callAction('world.close', {world: world});
     }
+  },
+  alert: function(msg) {
+    /* OVERRIDE ME */
+    alert(msg);
+  },
+  flush: function() {
+    /* OVERRIDE ME */
+  },
+  onReady: function() {
+    /* OVERRIDE ME */
   },
 };
 

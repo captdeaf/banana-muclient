@@ -100,6 +100,7 @@ world_connect(User *user, char *worldname, char *host, char *port) {
   pthread_mutex_lock(&user->mutex);
   w = world_get(user, worldname);
   if (w) {
+    w->tried_iac = 0;
     net_connect(w, host, port);
   } else {
     sysMessage(user, "No such world '%s'.", worldname);
@@ -163,12 +164,15 @@ world_open(User *user, char *worldname) {
         world = &user->worlds[i];
         // Allocate this world.
         memset(world, 0, sizeof(World));
-        snprintf(logpath, 200, "%s/logs/%s", user->dir, worldname);
+        snprintf(logpath, 200, "%s/logs/%s-%s",
+                 user->dir, user->name, worldname);
         world->logger = logger_new(logpath);
         world->user = user;
         world->a2h.f[0] = '\0';
         world->a2h.b[0] = '\0';
         world->a2h.flags = 0;
+        world->tried_iac = 0;
+        snprintf(world->charset, 20, "ISO-8859-1");
         world->netstatus = WORLD_DISCONNECTED;
         snprintf(world->name, MAX_NAME_LEN, "%s", worldname);
         world->openTime = time(NULL);
@@ -209,7 +213,7 @@ world_echo(User *user, char *worldname, char *text) {
           "text:'%s'",
           w->name,
           jtext);
-      llog(w->logger, "%s", jtext);
+      llog(w->logger, "%s", remove_markup(jtext));
       free(jtext);
       w->lineCount++;
     }

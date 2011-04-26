@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <iconv.h>
 
 #define MAX_EVENTS 20
 #define WAIT_TIMEOUT 1000
@@ -129,7 +130,7 @@ thread_connect(void *arg) {
   if (p == NULL) {
     messageEvent(world->user, world, EVENT_WORLD_CONNFAIL, "cause",
                  "Failed to connect.");
-    world->netstatus = WORLD_CONNECTED;
+    world->netstatus = WORLD_DISCONNECTED;
     return NULL;
   }
 
@@ -163,7 +164,7 @@ thread_connect(void *arg) {
 
   world->connectTime = time(NULL);
 
-  llog(world->logger, "-- WORLD CONNECTED --");
+  llog(world->logger, "-- WORLD CONNECTED to '%s' port '%s' --", host, port);
   slog("Connected world '%s' for user '%s'", world->name, world->user->name);
 
   net_unlock();
@@ -319,6 +320,75 @@ net_init() {
   return 0;
 }
 
+// Remove HTML markup from a line of text. */
+char *
+remove_markup(char *str) {
+  char *r = str;
+  char *s = str;
+  while (s && *s) {
+    switch (*s) {
+    case '&':
+      if (!strncmp(s, "&nbsp;", 6)) {
+        s += 6;
+        *(r++) = ' ';
+      } else if (!strncmp(s, "&amp;", 5)) {
+        s += 5;
+        *(r++) = '&';
+      } else if (!strncmp(s, "&gt;", 4)) {
+        s += 4;
+        *(r++) = '>';
+      } else if (!strncmp(s, "&lt;", 4)) {
+        s += 4;
+        *(r++) = '<';
+      }
+      break;
+    case '<':
+      while (*s && *s != '>') s++;
+      s++;
+      break;
+    case '\\':
+      s++;
+    default:
+      *(r++) = *s++;
+    }
+  }
+  *(r) = '\0';
+  return str;
+}
+
+char *
+convert_charset( char *from_charset, char *to_charset, char *input )
+{
+  size_t input_size, output_size, bytes_converted;
+  char * output;
+  char * ret;
+  iconv_t cd;
+
+  cd = iconv_open( to_charset, from_charset);
+  if ( cd == (iconv_t) -1 ) {
+    //Something went wrong with iconv_open
+    if (errno == EINVAL)
+    {
+      slog("Conversion from %s to %s not available", from_charset, to_charset);
+    }
+    perror("iconv_open");
+    return NULL;
+  }
+
+  input_size = strlen(input);
+  output_size = 4 * input_size;
+  ret = output = malloc(output_size + 1);
+  memset(output, 0, output_size + 1);
+
+  bytes_converted = iconv(cd, &input, &input_size, &output, &output_size);
+  if ( iconv_close (cd) != 0) {
+    perror("iconv_open");
+    slog("Error closing iconv port?");
+  }
+
+  return ret;
+}
+
 // start_span and end_span must write out text that is JSON-safe.
 int
 start_span(char **r, struct a2h *ah) {
@@ -366,7 +436,6 @@ ansi2html(World *w, char *str) {
   struct a2h *ah = &w->a2h;
   int code;
   int donbsp;
-  char tmp[ANSI_SIZE];
   // With BUFFER_LEN of 8192, this takes 10kb, but it's called for every
   // line and the other solution is to malloc 10*stren(), which isn't wise.
   // We'll probably almost never fill this buffer, but who cares.
@@ -415,12 +484,15 @@ ansi2html(World *w, char *str) {
         r += sprintf(r, "\\%c", (*str) & 0xFF);
         break;
       default:
+        /*
         if (isprint(*str)) {
           *(r++) = *str;
           donbsp = 0;
         } else {
           r += sprintf(r, "\\x%.2x", (*str) & 0xFF);
         }
+        */
+        *(r++) = *str;
       }
       str++;
     }
@@ -468,6 +540,25 @@ ansi2html(World *w, char *str) {
             ah->f[0] = '\0';
             ah->b[0] = '\0';
             ah->flags = 0;
+            break;
+          case 38: 
+            // 256 color foreground
+            if ((*str == ';') && (*(str+1) == '5') && *(str+2) == ';') {
+              str += 3;
+              code = atoi(str);
+              while (*str && isdigit(*str)) str++;
+              snprintf(ah->f, ANSI_SIZE, "fg_%d", code);
+            }
+            break;
+          case 48: 
+            // 256 color background
+            if ((*str == ';') && (*(str+1) == '5') && *(str+2) == ';') {
+              str += 3;
+              code = atoi(str);
+              while (*str && isdigit(*str)) str++;
+              snprintf(ah->b, ANSI_SIZE, "bg_%d", code);
+            }
+            break;
           }
         } while (*str == ';');
         if (*str == 'm') str++;
@@ -484,6 +575,33 @@ ansi2html(World *w, char *str) {
   }
   *(r) = '\0';
   return strdup(ret);
+}
+
+char *
+convert_to_json(World *w, char *str) {
+  char *post_convert;
+  char *post_ansi2html;
+
+  if (strcasecmp(w->charset, "UTF-8")) {
+    post_convert = convert_charset(w->charset, "UTF-8", str);
+    if (post_convert) {
+      post_ansi2html = ansi2html(w, post_convert);
+      free(post_convert);
+    } else {
+      post_ansi2html = ansi2html(w, str);
+    }
+  } else {
+    post_ansi2html = ansi2html(w, str);
+  }
+  return post_ansi2html;
+}
+
+void
+send_charsets(World *w) {
+  char *charsets = ";UTF-8;ISO-8859-1;ISO-8859-2;US-ASCII;CP437";
+  write_raw(w->fd, IAC SB CHARSET CHARSET_REQUEST, 4);
+  write_raw(w->fd, charsets, sizeof(charsets));
+  write_raw(w->fd, IAC SE, 2);
 }
 
 void
@@ -506,6 +624,13 @@ send_ttype(World *w, char *what) {
   write_raw(w->fd, IAC SE, 2);
 }
 
+// When we get our first IAC, we send this.
+void
+try_iac(World *w) {
+  write_raw(w->fd, IAC WILL CHARSET, 3);
+  write_raw(w->fd, " ", 1);
+}
+
 #define readb(b) b = 0; if (recv_raw(w->fd, &b, 1, 0) < 1) return -1;
 int
 iac_do(World *w, int b) {
@@ -519,6 +644,9 @@ iac_do(World *w, int b) {
   case _NAWS:
     write_raw(w->fd, IAC WILL NAWS, 3);
     send_naws(w, 92, 19);
+    break;
+  case _CHARSET:
+    send_charsets(w);
     break;
   }
   return 0;
@@ -537,12 +665,17 @@ iac_will(World *w, int b) {
     write_raw(w->fd, IAC DO NAWS, 3);
     send_naws(w, 92, 19);
     break;
+  case _CHARSET:
+    write_raw(w->fd, IAC DO CHARSET, 3);
+    break;
   }
   return 0;
 }
 
 int
 iac_sb(World *w, int b) {
+  char charset[20];
+  int i;
   switch (b) {
   case _TTYPE:
     readb(b); // SEND
@@ -560,12 +693,39 @@ iac_sb(World *w, int b) {
         }
       }
     }
+    break;
+  case _CHARSET:
+    readb(b);
+    if (b != _CHARSET_ACCEPTED) {
+      readb(b); // IAC
+      readb(b); // SE
+    } else {
+      for (i = 0; i < 20; i++) {
+        readb(b);
+        if (b == _IAC) break;
+        charset[i] = b;
+      }
+      if (i == 20) {
+        while (b != _IAC) {
+          readb(b);
+        }
+      }
+      readb(b); // SE
+      slog("%s.%s: Charset '%s' accepted.", w->user->name, w->name, charset);
+      snprintf(w->charset, 20, "%s", charset);
+    }
   }
   return 0;
 }
 
 int
 handle_iac(World *w, int b) {
+  // W got an IAC command. If we haven't dealt with IAC before, then
+  // send our own connection string.
+  if (w->tried_iac == 0) {
+    w->tried_iac = 1;
+    try_iac(w);
+  }
   switch (b) {
   case _DO:
     readb(b);
@@ -609,7 +769,7 @@ raw_read(World *w) {
       break;
     case '\n':
       buff[*lbp] = '\0';
-      lines[nlines++] = ansi2html(w,buff);
+      lines[nlines++] = convert_to_json(w,buff);
       *lbp = 0;
       if (nlines >= MAX_LINES) {
         // Don't read no more, just wait until next one.
@@ -624,7 +784,7 @@ raw_read(World *w) {
           goto exit_sequence;
         } else if (ret > 0) {
           buff[*lbp] = '\0';
-          prompt = ansi2html(w,buff);
+          prompt = convert_to_json(w,buff);
           goto exit_sequence;
         }
         break;

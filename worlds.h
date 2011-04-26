@@ -24,6 +24,8 @@ typedef struct world {
   struct user *user;
   // World name.
   char name[MAX_NAME_LEN];
+  int tried_iac;
+  char charset[20];
 
   // Logger for the world.
   Logger *logger;

@@ -48,5 +48,22 @@
 #define _EOR            0x19
 #define _MSSP           0x46
 
+#define CHARSET            "\x2a"
+#define CHARSET_REQUEST    "\x01"
+#define CHARSET_ACCEPTED   "\x02"
+#define CHARSET_REJECTED   "\x03"
+#define TTABLE_IS          "\x04"
+#define TTABLE_REJECTED    "\x05"
+#define TTABLE_ACK         "\x06"
+#define TTABLE_NACK        "\x07"
+
+#define _CHARSET            0x2a
+#define _CHARSET_REQUEST    0x01
+#define _CHARSET_ACCEPTED   0x02
+#define _CHARSET_REJECTED   0x03
+#define _TTABLE_IS          0x04
+#define _TTABLE_REJECTED    0x05
+#define _TTABLE_ACK         0x06
+#define _TTABLE_NACK        0x07
 
 #endif

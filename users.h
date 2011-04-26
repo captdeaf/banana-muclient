@@ -7,8 +7,8 @@
 #define _MY_USER_H_
 
 typedef struct user {
-  // Username: guest-1, walker, etc.
-  char name[MAX_NAME_LEN];
+  // Username: mush-guest-1, walker, etc.
+  char name[MAX_GUESTNAME_LEN];
   // User directory: users/foo/bar
   char dir[MAX_DIR_LEN];
   // A refcount == -1 means this user struct is available for reassignment.
@@ -37,6 +37,7 @@ typedef struct user {
 } User;
 
 User *user_get(const struct mg_connection *conn);
+User *user_guest(Session *session, char *username, char *userdir);
 User *user_login(Session *session, char *username, char *userdir);
 
 // Called after session_expire, it is given a userid to decrease th

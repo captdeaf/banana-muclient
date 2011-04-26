@@ -139,7 +139,7 @@ vllog(Logger *logger, char *fmt, va_list args) {
     }
   }
 
-  strftime(timebuff, 20, "%F.%T", &today);
+  strftime(timebuff, 20, "%T", &today);
 
   fprintf(logger->logout, "%s ", timebuff);
 

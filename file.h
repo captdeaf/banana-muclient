@@ -17,4 +17,9 @@ char *file_read(const char *name);
 int file_write(const char *name, const char *contents);
 int file_write_len(const char *fname, const char *contents, int len);
 
+// For file-based config stuff.
+int file_yorn(const char *fname);
+int file_readnum(const char *fname, int def);
+int file_writenum(const char *fname, int val);
+
 #endif

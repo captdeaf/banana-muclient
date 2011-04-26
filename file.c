@@ -7,6 +7,56 @@
 
 #include "banana.h"
 
+/** Read a number from a file and return it, if it exists. If it doesn't,
+ *  the default is returned.
+ */
+int
+file_readnum(const char *fname, int def) {
+  char *s;
+  int ret;
+  if (!file_exists(fname))
+    return def;
+
+  s = file_read(fname);
+  if (!s) return def;
+  ret = atoi(s);
+  free(s);
+  return ret;
+}
+
+int
+file_writenum(const char *fname, int val) {
+  char buff[10];
+
+  snprintf(buff, 10, "%d\n", val);
+  return file_write(fname, buff);
+}
+
+/**
+ * yorn: Yes or no. return 1 if the contents of a given file
+ * start with "yes", "1", "enabled" or "true". Otherwise return 0.
+ */
+int
+file_yorn(const char *fname) {
+  char *s;
+  char buff[10];
+  if (!file_exists(fname))
+    return 0;
+
+  s = file_read(fname);
+  if (!s) return 0;
+  snprintf(buff, 10, "%s", s);
+  free(s);
+  buff[9] = '\0';
+
+  if (!strncmp(buff, "y", 1)) { return 1; }
+  if (!strncmp(buff, "1", 1)) { return 1; }
+  if (!strncmp(buff, "true", 4)) { return 1; }
+  if (!strncmp(buff, "enabled", 7)) { return 1; }
+  // No other currently valid options.
+  return 0;
+}
+
 int
 file_size(const char *fname) {
   struct stat fbuf;
@@ -17,15 +67,18 @@ file_size(const char *fname) {
   return fbuf.st_size;
 }
 
+/** Read a file into memory. It must be smaller than MAX_FILE_SIZE, and
+ * must exist. Any non-NULLs returned by this pointer must be free()'d.
+ */
 char *
 file_read(const char *fname) {
   int size = file_size(fname);
   char *buff;
   FILE *fin;
   if (size < 0) return NULL;
-  if (size == 0) return "";
+  if (size == 0) return strdup("");
   if (size > MAX_FILE_SIZE) {
-    return "MAXIMUM FILE SIZE EXCEEDED.";
+    return strdup("MAXIMUM FILE SIZE EXCEEDED.");
   }
   // size + 1, since we add a null character. If anyone wants the actual 
   // file size, that's what file_size is for.

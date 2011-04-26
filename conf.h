@@ -50,6 +50,8 @@ extern char *session_salt;
 // String lengths:
 // walker
 #define MAX_NAME_LEN 30
+// guestname len is max_name_len + "guest-<num>"
+#define MAX_GUESTNAME_LEN 50
 // users/walker
 #define MAX_DIR_LEN (MAX_NAME_LEN + 10)
 // users/walker/files/filename

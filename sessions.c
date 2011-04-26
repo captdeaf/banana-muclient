@@ -16,7 +16,7 @@ static pthread_mutex_t session_mutex;
 Session *
 session_get(const struct mg_connection *conn) {
   int i;
-  char session_id[33];
+  char session_id[SESSION_LEN];
   time_t now = time(NULL);
   pthread_mutex_lock(&session_mutex);
 
@@ -72,10 +72,10 @@ session_make() {
 
   session = session_new();
   if (session) {
-    snprintf(session->random, sizeof(session->random), "%d", rand());
+    snprintf(session->random, RANDOM_LEN, "%d", rand());
     generate_session_id(session->session_id, session->random, session_salt);
-    snprintf(session->cookie_string, 100,
-             "Set-Cookie: session=%s",
+    snprintf(session->cookie_string, COOKIE_LEN,
+             "Set-Cookie: session=%s; path=/; expires Wed, 06-Jan-2038 12:34:56 GMT",
              session->session_id);
     slog("Session: '%s' created", session->session_id);
   }

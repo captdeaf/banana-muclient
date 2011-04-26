@@ -21,4 +21,7 @@ void net_connect(struct world *world, char *host, char *port);
 void net_disconnect(struct world *world);
 void net_send(World *world, char *text);
 
+// WARNING: remove_markup DESTRUCTIVELY modifies the string.
+char *remove_markup(char *str);
+
 #endif

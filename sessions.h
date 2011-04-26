@@ -6,11 +6,14 @@
 #ifndef _MY_SESSION_H_
 #define _MY_SESSION_H_
 
+#define SESSION_LEN 33
+#define RANDOM_LEN  20
+#define COOKIE_LEN  200
 typedef struct _session {
   // Identifying the web session
-  char session_id[33];      // Session ID, must be unique
-  char random[20];          // Random data used for extra user validation
-  char cookie_string[100];   // The cookie string.
+  char session_id[SESSION_LEN];      // Session ID, must be unique
+  char random[RANDOM_LEN];          // Random data used for extra user validation
+  char cookie_string[COOKIE_LEN];   // The cookie string.
 
   // Time left.
   time_t expire;            // Expiration timestamp, UTC. expire of 0

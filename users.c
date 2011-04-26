@@ -32,6 +32,49 @@ user_get(const struct mg_connection *conn) {
 
 // Allocate new user object
 User *
+user_guest(Session *session, char *username, char *userdir) {
+  int i;
+  int guestid;
+  char pwfile[MAX_PATH_LEN];
+
+  snprintf(pwfile, MAX_PATH_LEN, "%s/guestcount", userdir);
+
+  pthread_mutex_lock(&user_mutex);
+
+  // refcount < 0 means this is available for use.
+  for (i = 0; i < MAX_USERS; i++) {
+    if (users[i].refcount < 0) break;
+  }
+
+  if (i < MAX_USERS) {
+    guestid = file_readnum(pwfile, 1);
+    file_writenum(pwfile, guestid + 1);
+    slog("Logging in guest %s-%d", username, guestid);
+    // We do this inside of the mutex so we don't have any conflicts
+    // with the user logging in simultaneously from two browser windows.
+    memset(&users[i], 0, sizeof(User));
+    snprintf(users[i].name, MAX_GUESTNAME_LEN, "%s-guest-%d",
+             username, guestid);
+    strncpy(users[i].dir, userdir, MAX_DIR_LEN);
+    users[i].refcount = 1;
+    if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))
+      perror("pthread_mutex_init");
+    if (pthread_cond_init(&(users[i].evtAlarm), NULL))
+      perror("pthread_cond_init");
+    session->userid = i;
+  }
+
+  pthread_mutex_unlock(&user_mutex);
+
+  if (i >= MAX_USERS) {
+    return NULL;
+  }
+
+  return &users[i];
+}
+
+// Allocate new user object
+User *
 user_login(Session *session, char *username, char *userdir) {
   int i;
 

@@ -1,12 +1,19 @@
 TODO:
 
-  * Guests
-
   * User API
+
+  * Accessing logs and files via http.
 
   * File API
 
   * Logging API
+
+  * Figure out wtf is going on with the IAC calls.
+
+  * Server preferences, for connecting to a given IP:port: Send REAL_IP,
+    etc?
+
+  * SSL connection to MU*s.
 
   * I _THINK_ the only thread hazard right now is the wait between
     epoll_wait and when it acquires the net lock. Some solution
@@ -32,3 +39,9 @@ WTF:
 
   * Change ansi.css and ansi2html to use classes, e.g:
     <span class="fgR bgR u h">
+
+  * 256 colors
+  
+  * UTF-8 support
+
+  * Guests

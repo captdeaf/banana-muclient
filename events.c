@@ -18,7 +18,7 @@ typedef struct event {
 const char *update_header = 
         "HTTP/1.1 200 OK\r\n"
         HEADER_NOCACHE
-        "Content-Type: application/x-javascript\r\n"
+        "Content-Type: application/x-javascript; charset=utf-8\r\n"
         "updateCount: %d\r\n"
         "\r\n";
 
@@ -44,7 +44,7 @@ addLines(struct user *user, struct world *world,
                world->name,
                lines[i]
                );
-    llog(world->logger, "%s", lines[i]);
+    llog(world->logger, "%s", remove_markup(lines[i]));
   }
   pthread_cond_broadcast(&user->evtAlarm);
   pthread_mutex_unlock(&user->mutex);

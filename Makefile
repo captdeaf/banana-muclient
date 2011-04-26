@@ -3,14 +3,14 @@
 # Muchas gracias to mongoose
 
 PROG  = server
-CFLAGS=	-W -Wall -I. -pthread -g -lc -ggdb
-LDFLAGS = -lpthread -ldl -lc -ggdb -lrt
+CFLAGS=	-W -Wall -I. -pthread -g -lc -ggdb -Werror
+LDFLAGS = -lpthread -ldl -lc -ggdb -lrt -liconv
 
 all: $(PROG)
 
 include Makefile.depend
 
-C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c logger.c
+C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c logger.c api_user.c
 # C_FILES = *.c
 O_FILES = $(patsubst %.c, build/%.o, $(C_FILES))
 
@@ -29,16 +29,12 @@ genapi.c: $(API_FILES)
 	@echo "Generating genapi.c"
 	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.c
 	@echo >> genapi.c
-	@echo 'struct user;' >> genapi.c
-	@echo 'struct mg_connection;' >> genapi.c
-	@echo 'struct mg_request_info;' >> genapi.c
-	@echo '#include <stdlib.h>' >> genapi.c
-	@echo '#include "api.h"' >> genapi.c
+	@echo '#include "banana.h"' >> genapi.c
 	@echo >> genapi.c
-	@grep ^ACTION $(API_FILES) | sed 's/).*/);/' >> genapi.c
+	@grep -h ^ACTION $(API_FILES) | sed 's/).*/);/' >> genapi.c
 	@echo >> genapi.c
 	@echo "ActionList allActions[] = {" >> genapi.c
-	@grep ^ACTION $(API_FILES) | pcregrep -o '".*\w' | sed s/$$/\\},/ | sed 's/^/  {/' >> genapi.c
+	@grep -h ^ACTION $(API_FILES) | pcregrep -o '".*\w' | sed s/$$/\\},/ | sed 's/^/  {/' >> genapi.c
 	@echo "  {NULL, NULL, 0}" >> genapi.c
 	@echo "};" >> genapi.c
 	@echo >> genapi.c
