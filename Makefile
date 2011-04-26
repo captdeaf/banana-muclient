@@ -53,7 +53,7 @@ guestuser:
 	echo yes > users/guest/can_guest
 	echo 1 > users/guest/guestcount
 	echo -n 'webcat' > users/guest/client
-	echo -n 'guest' | md5sum > users/guest/password.md6
+	echo -n 'guest' | md5sum > users/guest/password.md5
 
 iconv:
 	wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz
