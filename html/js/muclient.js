@@ -144,7 +144,7 @@ var API = {
   },
   user: {
     setPassword: function(newpass) {
-      API.callAction('user.setPassword', {newpassword: newpass});
+      API.callAction('user.setpassword', {newpassword: newpass});
     }
   },
   alert: function(msg) {
