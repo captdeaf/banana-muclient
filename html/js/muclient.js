@@ -143,6 +143,9 @@ var API = {
     }
   },
   user: {
+    setPassword: function(newpass) {
+      API.callAction('user.setPassword', {newpassword: newpass});
+    }
   },
   alert: function(msg) {
     /* OVERRIDE ME */
