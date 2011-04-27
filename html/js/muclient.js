@@ -1,5 +1,14 @@
 var API = {
+  apibase: '', /* It connects to apibase + "/action/..." So if you're
+                * connecting from a remote site, use API.apibase = 
+                * 'http://client.pennmush.org' or similar. */
   updateCount: -1,
+  loginname: '', /* This is set on the first update */
+  username: '', /* This is set on the first update */
+  setNames: function(loginname, username) {
+    API.loginname = loginname;
+    API.username = username;
+  },
   triggerEvent: function(params) {
     /* Only do this once per update count. We are guaranteed
      * to receive it in order from the server. */
@@ -7,7 +16,7 @@ var API = {
       try {
         API.onEvent(params);
       } catch (err) {
-        alert("Client error: '" + err + "'");
+        API.alert("Client error: '" + err + "'");
       }
     }
   },
@@ -26,6 +35,7 @@ var API = {
     API.onReady();
   },
   onSuccess: function(myData, textStatus, xhr) {
+    API.errorCount = 0;
     try {
       var ucount = xhr.getResponseHeader('updateCount');
       API.fetchUpdates(ucount);
@@ -37,15 +47,24 @@ var API = {
     API.updateCount = ucount;
     API.flush();
   },
+  errorCount: 0,
   onError: function(jqxhr, textStatus) {
-    setTimeout(API.fetchupdates, 1000);
+    API.alert("AJAX Error?");
+    API.errorCount += 1;
+    if (API.errorCount > 20) {
+      setTimeout(API.fetchUpdates, 5000);
+    } else if (API.errorCount > 2) {
+      setTimeout(API.fetchUpdates, 1000);
+    } else {
+      API.fetchUpdates(API.updateCount);
+    }
   },
   fetchUpdates: function(ucount) {
     if (!ucount) {
       ucount = API.updateCount;
     }
     API.updateObject = $.ajax({
-      url: '/action/updates',
+      url: API.apibase + '/action/updates',
       async: true,
       data: {updateCount: ucount},
       dataType: 'text',
@@ -56,7 +75,7 @@ var API = {
   },
   fetchFirstUpdate: function(ucount) {
     API.updateObject = $.ajax({
-      url: '/action/updates',
+      url: API.apibase + '/action/updates',
       async: true,
       data: {updateCount: -1},
       dataType: 'text',
@@ -69,13 +88,10 @@ var API = {
   callQueueComplete: function() {
     API.callQueue.dequeue();
   },
-  queueAction: function(fun) {
-    API.callQueue.queue(fun);
-  },
   callAction: function(uri, args) {
-    API.queueAction(function() {
+    API.callQueue.queue(function() {
       $.ajax({
-        url: '/action/' + uri,
+        url: API.apibase + '/action/' + uri,
         async: true,
         data: args,
         type: 'post',
@@ -90,45 +106,11 @@ var API = {
     connect: function(world, host, port) {
       API.callAction('world.connect', {world: world, host: host, port: port});
     },
-    sendQueues: {},
     send: function(world, text) {
-      // send is special: We don't fire immediately, in case of queued actions.
-      if (API.world.sendQueues[world]) {
-        API.world.sendQueues[world].push(text);
-      } else {
-        API.world.sendQueues[world] = [text];
-        API.queueAction(function() {
-          var allLines = API.world.sendQueues[world].join("\n");
-          delete API.world.sendQueues[world];
-          $.ajax({
-            url: '/action/world.send',
-            async: true,
-            data: {world: world, text: allLines},
-            type: 'post',
-            complete: API.callQueueComplete
-          });
-        });
-      }
+      API.callAction('world.send', {world: world, text: text});
     },
-    echoQueues: {},
     echo: function(world, text) {
-      // echo is special: We don't fire immediately, in case of queued actions.
-      if (API.world.echoQueues[world]) {
-        API.world.echoQueues[world].push(text);
-      } else {
-        API.world.echoQueues[world] = [text];
-        API.queueAction(function() {
-          var allLines = API.world.echoQueues[world].join("\n");
-          delete API.world.echoQueues[world];
-          $.ajax({
-            url: '/action/world.echo',
-            async: true,
-            data: {world: world, text: allLines},
-            type: 'post',
-            complete: API.callQueueComplete
-          });
-        });
-      }
+      API.callAction('world.echo', {world: world, text: text});
     },
     disconnect: function(world) {
       API.callAction('world.disconnect', {world: world});
@@ -136,6 +118,31 @@ var API = {
     close: function(world) {
       API.callAction('world.close', {world: world});
     }
+  },
+  file: {
+    write: function(filename, contents) {
+      API.callAction('file.write', {file: filename, contents: contents});
+    },
+    read: function(filename, callback) {
+      API.callQueue.queue(function() {
+        $.ajax({
+          url: API.apibase + '/user/' + API.loginname + '/files/' + filename,
+          async: true,
+          data: args,
+          type: 'get',
+          success: function(myData, textStatus, xhr) {
+            callback(myData);
+          },
+          error: function() {
+            if (API.file.onReadFail) {
+              API.file.onReadFail({file: filename, cause: "File not found."});
+            }
+          }
+        });
+      });
+    }
+  },
+  user: {
   },
   alert: function(msg) {
     /* OVERRIDE ME */

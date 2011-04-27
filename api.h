@@ -6,7 +6,7 @@
 #ifndef _MY_API_H_
 #define _MY_API_H_
 
-void write_ajax_header(struct mg_connection *);
+void write_ajax_header(struct mg_connection *, int);
 
 #define nouse __attribute__ ((__unused__))
 #define ACTION(s, n, f) \
@@ -18,9 +18,13 @@ typedef void (*actioncallback)(struct user *, struct mg_connection *,
                                const char *);
 
 // Bitwise fields for ACTION() / action_list
-#define API_DEFAULT    0x00
-#define API_NOHEADER   0x01
-#define API_POSTONLY   0x02
+#define API_NOOPTS       0x00
+#define API_AUTOHEADER   0x01
+#define API_NOLENGTH     0x02
+#define API_NOGUEST      0x04
+#define API_POSTONLY     0x08
+
+#define API_DEFAULT    (API_AUTOHEADER | API_NOLENGTH)
 
 typedef struct _action_list {
   const char *name;
@@ -42,5 +46,9 @@ typedef struct _action_list {
   } while (0)
 
 extern ActionList allActions[];
+
+// From api_file.c
+void read_user_file(User *user, struct mg_connection *conn,
+                    struct mg_request_info *req, char *fname);
 
 #endif /* _API_INC_H_ */

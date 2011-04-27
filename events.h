@@ -57,6 +57,7 @@ void event_wait(struct user *user, struct mg_connection *conn, int updateCount);
 
 #define EVENT_FILE_WRITE           "file.onWrite"
 #define EVENT_FILE_WRITE_FAIL      "file.onWriteFail"
+#define EVENT_FILE_DELETE          "file.onDelete"
 #define EVENT_FILE_DELETE_FAIL     "file.onDeleteFail"
 
 #endif

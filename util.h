@@ -30,11 +30,23 @@ extern char *VAR_TOO_LONG;
 char * get_qsvar(const struct mg_request_info *request_info,
               const char *name, int maxsize);
 
+// Error headers
+void send_404(struct mg_connection *conn);
+void send_error(struct mg_connection *conn, const char *msg);
+
 // Redirect a connection to an url.
 void redirect_to(struct mg_connection *conn, const char *dest);
 #define login_redirect(c) redirect_to(c, "/index.html")
 
 extern pthread_mutexattr_t pthread_recursive_attr; 
+
+void do_noisy_lock(pthread_mutex_t *mutex, char *name,
+                   char *fname, int linenum);
+void do_noisy_unlock(pthread_mutex_t *mutex, char *name,
+                     char *fname, int linenum);
+
+#define noisy_lock(m,n) do_noisy_lock(m,n,__FILE__,__LINE__)
+#define noisy_unlock(m,n) do_noisy_unlock(m,n,__FILE__,__LINE__)
 
 // Initialize util stuff.
 void util_init();

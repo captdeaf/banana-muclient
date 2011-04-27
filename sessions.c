@@ -18,7 +18,7 @@ session_get(const struct mg_connection *conn) {
   int i;
   char session_id[SESSION_LEN];
   time_t now = time(NULL);
-  pthread_mutex_lock(&session_mutex);
+  noisy_lock(&session_mutex, "sessions");
 
   mg_get_cookie(conn, "session", session_id, sizeof(session_id));
   for (i = 0; i < MAX_SESSIONS; i++) {
@@ -31,7 +31,7 @@ session_get(const struct mg_connection *conn) {
     }
   }
 
-  pthread_mutex_unlock(&session_mutex);
+  noisy_unlock(&session_mutex, "sessions");
   return i == MAX_SESSIONS ? NULL : &sessions[i];
 }
 
@@ -40,14 +40,14 @@ static Session *
 session_new(void) {
   int i;
   time_t now = time(NULL);
-  pthread_mutex_lock(&session_mutex);
+  noisy_lock(&session_mutex, "sessions");
   for (i = 0; i < MAX_SESSIONS; i++) {
     if (sessions[i].expire == 0 || sessions[i].expire < now) {
       sessions[i].expire = time(NULL) + SESSION_TTL;
       break;
     }
   }
-  pthread_mutex_unlock(&session_mutex);
+  noisy_unlock(&session_mutex, "sessions");
   if (i >= MAX_SESSIONS) {
     return NULL;
   }
@@ -75,7 +75,7 @@ session_make() {
     snprintf(session->random, RANDOM_LEN, "%d", rand());
     generate_session_id(session->session_id, session->random, session_salt);
     snprintf(session->cookie_string, COOKIE_LEN,
-             "Set-Cookie: session=%s; path=/; expires Wed, 06-Jan-2038 12:34:56 GMT",
+             "Set-Cookie: session=%s; path=/; Expires=Wed, 06-Jan-2038 12:34:56 GMT",
              session->session_id);
     slog("Session: '%s' created", session->session_id);
   }
@@ -95,8 +95,8 @@ void
 sessions_expire() {
   int i;
   time_t now = time(NULL);
+  noisy_lock(&session_mutex, "sessions");
   for (i = 0; i < MAX_SESSIONS; i++) {
-    pthread_mutex_lock(&session_mutex);
     if (sessions[i].expire > 0 && sessions[i].expire < now) {
       slog("Session: '%s' expired", sessions[i].session_id);
       if (session_cleaner) {
@@ -105,6 +105,6 @@ sessions_expire() {
       sessions[i].expire = 0;
       sessions[i].userid = -1;
     }
-    pthread_mutex_unlock(&session_mutex);
   }
+  noisy_unlock(&session_mutex, "sessions");
 }

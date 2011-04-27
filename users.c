@@ -16,7 +16,7 @@ user_get(const struct mg_connection *conn) {
   Session *session;
   User *ret = NULL;
 
-  pthread_mutex_lock(&user_mutex);
+  noisy_lock(&user_mutex, "users");
 
   session = session_get(conn);
   if (session) {
@@ -25,7 +25,7 @@ user_get(const struct mg_connection *conn) {
     }
   }
 
-  pthread_mutex_unlock(&user_mutex);
+  noisy_unlock(&user_mutex, "users");
 
   return ret;
 }
@@ -39,7 +39,7 @@ user_guest(Session *session, char *username, char *userdir) {
 
   snprintf(pwfile, MAX_PATH_LEN, "%s/guestcount", userdir);
 
-  pthread_mutex_lock(&user_mutex);
+  noisy_lock(&user_mutex, "users");
 
   // refcount < 0 means this is available for use.
   for (i = 0; i < MAX_USERS; i++) {
@@ -53,9 +53,11 @@ user_guest(Session *session, char *username, char *userdir) {
     // We do this inside of the mutex so we don't have any conflicts
     // with the user logging in simultaneously from two browser windows.
     memset(&users[i], 0, sizeof(User));
+    snprintf(users[i].loginname, MAX_NAME_LEN, "%s", username);
     snprintf(users[i].name, MAX_GUESTNAME_LEN, "%s-guest-%d",
              username, guestid);
     strncpy(users[i].dir, userdir, MAX_DIR_LEN);
+    users[i].isGuest = 1;
     users[i].refcount = 1;
     if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))
       perror("pthread_mutex_init");
@@ -64,7 +66,7 @@ user_guest(Session *session, char *username, char *userdir) {
     session->userid = i;
   }
 
-  pthread_mutex_unlock(&user_mutex);
+  noisy_unlock(&user_mutex, "users");
 
   if (i >= MAX_USERS) {
     return NULL;
@@ -78,7 +80,7 @@ User *
 user_login(Session *session, char *username, char *userdir) {
   int i;
 
-  pthread_mutex_lock(&user_mutex);
+  noisy_lock(&user_mutex, "users");
 
   // First, see if the user is already logged in. If they are, point
   // the session at it and increase refcount.
@@ -90,7 +92,7 @@ user_login(Session *session, char *username, char *userdir) {
         // return.
         users[i].refcount++;
         session->userid = i;
-        pthread_mutex_unlock(&user_mutex);
+        noisy_unlock(&user_mutex, "users");
         return &users[i];
       }
     }
@@ -106,8 +108,10 @@ user_login(Session *session, char *username, char *userdir) {
     // We do this inside of the mutex so we don't have any conflicts
     // with the user logging in simultaneously from two browser windows.
     memset(&users[i], 0, sizeof(User));
+    snprintf(users[i].loginname, MAX_NAME_LEN, "%s", username);
     strncpy(users[i].name, username, MAX_NAME_LEN);
     strncpy(users[i].dir, userdir, MAX_DIR_LEN);
+    users[i].isGuest = 0;
     users[i].refcount = 1;
     if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))
       perror("pthread_mutex_init");
@@ -116,7 +120,7 @@ user_login(Session *session, char *username, char *userdir) {
     session->userid = i;
   }
 
-  pthread_mutex_unlock(&user_mutex);
+  noisy_unlock(&user_mutex, "users");
 
   if (i >= MAX_USERS) {
     return NULL;
@@ -129,20 +133,20 @@ void
 user_expire(int userid) {
   if (userid < 0) return;
 
-  pthread_mutex_lock(&user_mutex);
-  pthread_mutex_lock(&users[userid].mutex);
+  noisy_lock(&user_mutex, "users");
+  noisy_lock(&users[userid].mutex, users[userid].name);
   users[userid].refcount--;
   if (users[userid].refcount == 0) {
     slog("User '%s' sessions expired.", users[userid].name);
   }
-  pthread_mutex_unlock(&users[userid].mutex);
-  pthread_mutex_unlock(&user_mutex);
+  noisy_unlock(&users[userid].mutex, users[userid].name);
+  noisy_unlock(&user_mutex, "users");
 }
 
 static void
 user_clean(User *user) {
   int j;
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   if (user->refcount == 0) {
     slog("User '%s' cleaning up.", user->name);
   }
@@ -158,7 +162,7 @@ user_clean(User *user) {
     }
   }
  
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
   pthread_cond_destroy(&user->evtAlarm);
   pthread_mutex_destroy(&user->mutex);
 }
@@ -166,7 +170,7 @@ user_clean(User *user) {
 void
 users_cleanup() {
   int i;
-  pthread_mutex_lock(&user_mutex);
+  noisy_lock(&user_mutex, "users");
   // Go through all users and clean up those that have refcount == 0.
   for (i = 0; i < MAX_USERS; i++) {
     if (users[i].refcount == 0) {
@@ -175,18 +179,20 @@ users_cleanup() {
       users[i].refcount = -1;
     }
   }
-  pthread_mutex_unlock(&user_mutex);
+  noisy_unlock(&user_mutex, "users");
 }
 
 void
 users_shutdown() {
   int i;
-  pthread_mutex_lock(&user_mutex);
+  noisy_lock(&user_mutex, "users");
   // Go through all users and clean up those that have refcount == 0.
   for (i = 0; i < MAX_USERS; i++) {
-    user_clean(&users[i]);
+    if (users[i].refcount >= 0) {
+      user_clean(&users[i]);
+    }
   }
-  pthread_mutex_unlock(&user_mutex);
+  noisy_unlock(&user_mutex, "users");
 }
 
 void

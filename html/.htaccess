@@ -6,3 +6,4 @@ RewriteEngine on
 # else is a static file handled by Apache.
 RewriteRule ^(/?action.*) http://client.pennmush.org:8088/$1 [P,QSA,L]
 RewriteRule ^(/?guest.*) http://client.pennmush.org:8088/$1 [P,QSA,L]
+RewriteRule ^(/?user.*) http://client.pennmush.org:8088/$1 [P,QSA,L]

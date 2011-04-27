@@ -10,11 +10,11 @@
 
 static void
 update_redirect(struct mg_connection *conn) {
-  write_ajax_header(conn);
+  write_ajax_header(conn, 0);
   mg_printf(conn, "window.location.replace('/index.html?err=Logged%%20out');\r\n");
 }
 
-ACTION("updates", handle_update, API_NOHEADER) {
+ACTION("updates", handle_update, API_NONE) {
   char *ucount;
   int updateCount;
   getvar(ucount, "updateCount", 20);
@@ -232,12 +232,13 @@ event_handler(enum mg_event event, struct mg_connection *conn,
   // }
   init_conndata(conn, req);
 
+  user = user_get(conn);
+
   if (!strncmp(req->uri,"/action/", 8)) {
     action = req->uri + 8;
 
     // If this is a POST message, then we need to populate req->user_data.
 
-    user = user_get(conn);
     if (user) {
       // Actions limited to users: Basicaly, all ACTION()s.
       // All logged-in actions are limited to POST.
@@ -254,10 +255,10 @@ event_handler(enum mg_event event, struct mg_connection *conn,
         if (!strcmp(allActions[i].name, action)) {
           allActions[i].handler(user, conn, req, allActions[i].name);
 
-          // If the action doesn't have API_NOHEADER, then spew out
+          // If the action has API_AUTOHEADER set, then spit out
           // the ajax header.
-          if (!(allActions[i].flags & API_NOHEADER)) {
-            write_ajax_header(conn);
+          if (allActions[i].flags & API_AUTOHEADER) {
+            write_ajax_header(conn, allActions[i].flags);
           }
           retval = "yes";
           break;
@@ -268,9 +269,6 @@ event_handler(enum mg_event event, struct mg_connection *conn,
       if (!strcmp(action, "login")) {
         handle_login(conn, req);
         retval = "yes";
-      } else if (!strcmp(action, "guest")) {
-        // handle_guest(conn, req);
-        // retval = "yes";
       } else if (!strcmp(action, "updates")) {
         update_redirect(conn);
         retval = "yes";
@@ -281,6 +279,25 @@ event_handler(enum mg_event event, struct mg_connection *conn,
     if (*action) {
       handle_guest(conn, req, action);
       retval = "yes";
+    }
+  } else if (!strncmp(req->uri, "/user/", 6)) {
+    if (user) {
+      slog("User accessing /user/");
+      action = req->uri + 6;
+      // Try for /user/<username>/... And we only accept when <username>
+      // == the logged in user.
+      int len = strlen(user->loginname);
+      slog("Action: '%s', loginname: '%s'", action, user->loginname);
+      if (!strncmp(action, user->loginname, len) && (*(action+len) == '/')) {
+        action = action + len + 1; // Advance past the /
+        slog("Want to do: '%s'", action);
+        if (!strncmp(action, "files/", 6)) {
+          action = action + 6;
+          retval = "yes";
+          slog("Reading user file '%s'", action);
+          read_user_file(user, conn, req, action);
+        }
+      }
     }
   }
   free_conndata(conn, req);

@@ -1,10 +1,10 @@
 TODO:
 
-  * User API
+  * Guest limitations
 
-  * Accessing logs and files via http.
+  * Accessing logs and files via http. - files done.
 
-  * File API
+  * File API - partly done.
 
   * Logging API
 
@@ -45,3 +45,10 @@ WTF:
   * UTF-8 support
 
   * Guests
+
+  * Mongoose is limiting writes in push(). Fix it, or change to non-mongoose?
+    -- Changed mg_printf to use vasprintf instead of snprintf on a fixed
+       buffer.
+
+  * User API
+

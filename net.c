@@ -16,7 +16,8 @@
 #include <iconv.h>
 
 #define MAX_EVENTS 20
-#define WAIT_TIMEOUT 1000
+// 10 second wait timeout.
+#define WAIT_TIMEOUT 30000
 
 static int epfd;
 static pthread_mutex_t sockmutex;
@@ -31,12 +32,12 @@ struct new_conn_info {
 
 inline void
 net_lock() {
-  pthread_mutex_lock(&sockmutex);
+  noisy_lock(&sockmutex, "sock");
 }
 
 inline void
 net_unlock() {
-  pthread_mutex_unlock(&sockmutex);
+  noisy_unlock(&sockmutex, "sock");
 }
 
 void
@@ -265,7 +266,7 @@ write_escaped(int fd, char *text, int len) {
 
 void
 net_send(World *world, char *text) {
-  pthread_mutex_lock(&world->user->mutex);
+  noisy_lock(&world->user->mutex, world->user->name);
   if (world->fd >= 0) {
     write_escaped(world->fd, text, strlen(text));
     write_raw(world->fd, "\r\n", 2);
@@ -277,7 +278,7 @@ net_send(World *world, char *text) {
   printf("\n");
   writing = -1;
 #endif
-  pthread_mutex_unlock(&world->user->mutex);
+  noisy_unlock(&world->user->mutex, world->user->name);
 }
 
 void
@@ -816,8 +817,8 @@ exit_sequence:
 void
 net_read(World *w) {
   struct epoll_event epvt;
-  pthread_mutex_lock(&w->user->mutex);
-  pthread_mutex_lock(&w->sockmutex);
+  net_lock();
+  noisy_lock(&w->user->mutex, w->user->name);
 
   // Read data. Just throw it away for now.
   if (raw_read(w)) {
@@ -830,8 +831,8 @@ net_read(World *w) {
   printf("\n");
   writing = -1;
 #endif
-  pthread_mutex_unlock(&w->sockmutex);
-  pthread_mutex_unlock(&w->user->mutex);
+  noisy_unlock(&w->user->mutex, w->user->name);
+  net_unlock();
 }
 
 void
@@ -846,28 +847,24 @@ net_poll() {
 
   while (1) {
     numevents = epoll_wait(epfd, events, MAX_EVENTS, WAIT_TIMEOUT);
-    if (numevents > 0) {
-      net_lock();
-      for (i = 0; i < numevents; i++) {
-        w = (World *) events[i].data.ptr;
-        // Make sure we haven't been removed for bad behaviour.
-        // TODO: A better algorithm?
-        if (w->netstatus != WORLD_CONNECTED) continue;
-        // If we got here, we have valid data to process. Or rather,
-        // we have a valid socket to work on.
-        if (events[i].events & EPOLLIN) {
-          net_read(w);
-        }
-        if (events[i].events & EPOLLERR) {
-          close(w->fd);
-          epoll_ctl(epfd, EPOLL_CTL_DEL, w->fd, &epvt);
-          world_dc_event(w->user, w);
-          w->fd = -1;
-          w->netstatus = WORLD_DISCONNECTED;
-        }
+    net_lock();
+    for (i = 0; i < numevents; i++) {
+      w = (World *) events[i].data.ptr;
+      // Make sure we haven't been removed for bad behaviour.
+      // TODO: A better algorithm?
+      if (w->netstatus != WORLD_CONNECTED) continue;
+      // If we got here, we have valid data to process. Or rather,
+      // we have a valid socket to work on.
+      if (events[i].events & EPOLLIN) {
+        net_read(w);
       }
-      net_unlock();
-      // TODO: Handle events. Whee.
+      if (events[i].events & EPOLLERR) {
+        close(w->fd);
+        epoll_ctl(epfd, EPOLL_CTL_DEL, w->fd, &epvt);
+        world_dc_event(w->user, w);
+        w->fd = -1;
+        w->netstatus = WORLD_DISCONNECTED;
+      }
     }
     now = time(NULL);
     if (now >= next) {
@@ -875,5 +872,6 @@ net_poll() {
       users_cleanup();
       next = now + CLEANUP_TIMEOUT;
     }
+    net_unlock();
   }
 }

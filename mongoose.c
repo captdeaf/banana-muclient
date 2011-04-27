@@ -1421,15 +1421,19 @@ int mg_write(struct mg_connection *conn, const void *buf, size_t len) {
 }
 
 int mg_printf(struct mg_connection *conn, const char *fmt, ...) {
-  char buf[BUFSIZ];
+  char *ptr;
   int len;
   va_list ap;
+  int ret;
 
   va_start(ap, fmt);
-  len = mg_vsnprintf(conn, buf, sizeof(buf), fmt, ap);
+  len = vasprintf(&ptr, fmt, ap);
   va_end(ap);
 
-  return mg_write(conn, buf, (size_t)len);
+  ret = mg_write(conn, ptr, (size_t)len);
+  free(ptr);
+
+  return ret;
 }
 
 // URL-decode input buffer into destination buffer.

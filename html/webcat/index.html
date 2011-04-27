@@ -47,7 +47,11 @@
     <br />
     <button onclick="connguest();">Guestit</button>
     <button onclick="spamsends();">SpamALot</button>
-    <button onclick="spamechos();">EchoALot</button>
+    <button onclick="spamechos();">EchoALot</button><br />
+    <br />
+    JS Eval: <input id="jsbox" type="text" size="100" value="" /><br />
+    <div id="jsoutbox" style="padding: 0.5em; border:2px solid red;"></div>
+    <br />
     <br />
     WebCat Interface is pathetically simple:<br />
     <br />
@@ -115,10 +119,6 @@
       toadd += '<br />' + msg;
     }
 
-    API.alert = function(msg) {
-      append(msg);
-    }
-
     API.onSystemMessage = function(p) {
       append('SYSTEM: ' + p.message + ' -- ');
     }
@@ -164,6 +164,10 @@
       append(p.world + ' -- Closed -- ');
     }
 
+    API.alert = function(p) {
+      $('#promptbox').html(p);
+    }
+
     function spamsends() {
       for (var i = 0; i < 100; i++) {
         API.world.send('l', 'think send ' + i);
@@ -202,7 +206,29 @@
         }
         return true;
       });
+      $('#jsbox').keypress(function(e) {
+        if (e.keyCode == 13) {
+          $('#jsoutbox').html('');
+          var x = eval($('#jsbox').val());
+          try {
+            $('#jsoutbox').html(x);
+          } catch (err) {
+            $('#jsoutbox').html('Error while evaluating.');
+          }
+          $('#jsbox').val('');
+          e.keyCode = 505;
+          e.returnValue = false;
+          e.cancelBubble = true;
+          if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          return false;
+        }
+        return true;
+      });
     });
+
     </script>
   </body>
 </html>

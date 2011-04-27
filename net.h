@@ -6,9 +6,6 @@
 #ifndef _MY_NET_H_
 #define _MY_NET_H_
 
-#define MAX_EVENTS 20
-#define WAIT_TIMEOUT 1000
-
 struct user;
 struct world;
 

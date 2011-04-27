@@ -18,6 +18,7 @@ typedef struct event {
 const char *update_header = 
         "HTTP/1.1 200 OK\r\n"
         HEADER_NOCACHE
+        "Connection: close\r\n"
         "Content-Type: application/x-javascript; charset=utf-8\r\n"
         "updateCount: %d\r\n"
         "\r\n";
@@ -35,7 +36,7 @@ void
 addLines(struct user *user, struct world *world,
          char *lines[], int nlines) {
   int i;
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   for (i = 0; i < nlines; i++) {
     // lines are already escaped in ansi2html
     queueEvent(user, world, 0, EVENT_WORLD_RECEIVE,
@@ -47,7 +48,7 @@ addLines(struct user *user, struct world *world,
     llog(world->logger, "%s", remove_markup(lines[i]));
   }
   pthread_cond_broadcast(&user->evtAlarm);
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
 }
 
 void
@@ -55,8 +56,9 @@ queueEvent(struct user *user, struct world *world, int alarm,
            const char *eventName, char *fmt, ...) {
   Event *event = malloc(sizeof(Event));
   va_list args;
+  int ret;
 
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
 
   event->timestamp = time(NULL);
   event->seen = 0;
@@ -65,10 +67,12 @@ queueEvent(struct user *user, struct world *world, int alarm,
   event->updateCount = user->updateCount++;
 
   va_start(args, fmt);
-  if (vasprintf(&event->json, fmt, args) < 0) {
+  ret = vasprintf(&event->json, fmt, args);
+  va_end(args);
+  if (ret < 0) {
     // Fatal error, braincell 5. abort! abort! We won't do jack.
     free(event);
-    pthread_mutex_unlock(&user->mutex);
+    noisy_unlock(&user->mutex, user->name);
     return;
   }
 
@@ -105,7 +109,7 @@ queueEvent(struct user *user, struct world *world, int alarm,
   if (alarm) {
     pthread_cond_broadcast(&user->evtAlarm);
   }
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
 }
 
 char *
@@ -152,10 +156,12 @@ void
 messageEvent(User *user, World *world, const char *eventName,
              const char *varname, char *fmt, ...) {
   va_list args;
-  va_start(args, fmt);
   char *msg, *jmsg;
 
+  va_start(args, fmt);
   vasprintf(&msg, fmt, args);
+  va_end(args);
+
   jmsg = json_escape(msg);
   free(msg);
 
@@ -205,10 +211,15 @@ void
 event_startup(struct user *user, struct mg_connection *conn) {
   int i, j, e;
   World *w;
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
 
   // Header: updateCount
   mg_printf(conn, update_header, user->updateCount);
+
+  // Set usernames.
+  mg_printf(conn,
+      "API.setNames('%s','%s');",
+      user->loginname, user->name);
 
   // All open worlds.
   for (i = 0; i < MAX_USER_WORLDS; i++) {
@@ -250,7 +261,7 @@ event_startup(struct user *user, struct mg_connection *conn) {
     }
   }
 
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
 }
 
 void
@@ -258,7 +269,7 @@ event_wait(struct user *user, struct mg_connection *conn, int updateCount) {
   struct timespec to;
   int count, i;
 
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
 
   if (user->updateCount <= updateCount) {
     // Nuts, no updates. Let's take a nap.
@@ -292,5 +303,5 @@ event_wait(struct user *user, struct mg_connection *conn, int updateCount) {
     mg_printf(conn, update_header, user->updateCount);
   }
 
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
 }

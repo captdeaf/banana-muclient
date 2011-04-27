@@ -89,6 +89,7 @@ llog(Logger *logger, char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   vllog(logger, fmt, args);
+  va_end(args);
 }
 
 void
@@ -106,6 +107,7 @@ vllog(Logger *logger, char *fmt, va_list args) {
 
   if (today.tm_yday != logger->logday.tm_yday) {
     // Date has advanced.
+    localtime_r(&now, &logger->logday);
     free(logger->datestr);
     strftime(timebuff, 20, "%F", &logger->logday);
     logger->datestr = strdup(timebuff);
@@ -168,4 +170,9 @@ slog(char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   vllog(syslogger, fmt, args);
+  va_end(args);
+  va_start(args, fmt);
+  vprintf(fmt, args);
+  va_end(args);
+  printf("\n");
 }

@@ -97,7 +97,7 @@ void
 world_connect(User *user, char *worldname, char *host, char *port) {
   World *w;
   net_lock();
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   w = world_get(user, worldname);
   if (w) {
     w->tried_iac = 0;
@@ -105,7 +105,7 @@ world_connect(User *user, char *worldname, char *host, char *port) {
   } else {
     sysMessage(user, "No such world '%s'.", worldname);
   }
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
   net_unlock();
 }
 
@@ -114,7 +114,7 @@ void
 world_disconnect(User *user, char *worldname) {
   World *w;
   net_lock();
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   w = world_get(user, worldname);
   if (w && w->netstatus != WORLD_DISCONNECTED) {
     world_dc_event(user, w);
@@ -122,7 +122,7 @@ world_disconnect(User *user, char *worldname) {
   } else {
     sysMessage(user, "No such world '%s'.", worldname);
   }
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
   net_unlock();
 }
 
@@ -130,14 +130,14 @@ void
 world_close(User *user, char *worldname) {
   World *w;
   net_lock();
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   w = world_get(user, worldname);
   if (w) {
     world_free(w, 1);
   } else {
     sysMessage(user, "No such world '%s'.", worldname);
   }
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
   net_unlock();
 }
 
@@ -150,11 +150,11 @@ world_open(User *user, char *worldname) {
     sysMessage(user, "Invalid world name '%s'.", worldname);
     return;
   }
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   for (i = 0; i < MAX_USER_WORLDS; i++) {
     if (!strcmp(user->worlds[i].name, worldname)) {
       sysMessage(user, "World '%s' already exists.", worldname);
-      pthread_mutex_unlock(&user->mutex);
+      noisy_unlock(&user->mutex, user->name);
       return;
     }
   }
@@ -191,7 +191,7 @@ world_open(User *user, char *worldname) {
       sysMessage(user, "Too many worlds.");
     }
   }
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
 }
 
 void
@@ -199,7 +199,7 @@ world_echo(User *user, char *worldname, char *text) {
   World *w;
   char *jtext;
   char *s, *p;
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   w = world_get(user, worldname);
   if (w) {
     // Queue an on receive event.
@@ -220,14 +220,14 @@ world_echo(User *user, char *worldname, char *text) {
   } else {
     sysMessage(user, "No such world '%s'.", worldname);
   }
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
 }
 
 void
 world_send(User *user, char *worldname, char *text) {
   World *w;
   net_lock();
-  pthread_mutex_lock(&user->mutex);
+  noisy_lock(&user->mutex, user->name);
   w = world_get(user, worldname);
   if (w) {
     // Queue an on receive event.
@@ -235,6 +235,6 @@ world_send(User *user, char *worldname, char *text) {
   } else {
     sysMessage(user, "No such world '%s'.", worldname);
   }
-  pthread_mutex_unlock(&user->mutex);
+  noisy_unlock(&user->mutex, user->name);
   net_unlock();
 }

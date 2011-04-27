@@ -9,6 +9,36 @@
 
 pthread_mutexattr_t pthread_recursive_attr; 
 
+// #define NOISY_LOCK
+
+void
+do_noisy_lock(pthread_mutex_t *mutex,
+              char *name _unused_,
+              char *fname _unused_,
+              int linenum _unused_) {
+#ifdef NOISY_LOCK
+  slog("Mutex '%s' try_lock by %X at %s:%d",
+       name, pthread_self(), fname, linenum);
+#endif
+  pthread_mutex_lock(mutex);
+#ifdef NOISY_LOCK
+  slog("Mutex '%s' locked by %X at %s:%d",
+       name, pthread_self(), fname, linenum);
+#endif
+}
+
+void
+do_noisy_unlock(pthread_mutex_t *mutex,
+                char *name _unused_,
+                char *fname _unused_,
+                int linenum _unused_) {
+#ifdef NOISY_LOCK
+  slog("Mutex '%s' unlocked by %X at %s:%d",
+       name, pthread_self(), fname, linenum);
+#endif
+  pthread_mutex_unlock(mutex);
+}
+
 #define MAX_PARAMS 40
 
 struct param {
@@ -62,12 +92,12 @@ get_qsvar(const struct mg_request_info *req, const char *name, int maxlen) {
   const char *qs = req->query_string;
   int i;
   int ret;
-  char buff[3*BUFFER_LEN];
+  char buff[MAX_FILE_SIZE];
   PostData *pd = (PostData *) req->user_data;
 
-  if (maxlen > 3*BUFFER_LEN) {
+  if (maxlen > MAX_FILE_SIZE) {
     printf("maxlen in get_qsvar is too high: %d.\n", maxlen);
-    maxlen = 3*BUFFER_LEN;
+    maxlen = MAX_FILE_SIZE;
   }
 
   for (i = 0; i < pd->nparams; i++) {
@@ -174,4 +204,27 @@ init_conndata(struct mg_connection *conn, struct mg_request_info *req) {
     pd->value = buff;
 
   }
+}
+
+void
+send_404(struct mg_connection *conn) {
+  char *msg = "404: File not found.";
+  mg_printf(conn,
+      "HTTP/1.1 404 Not Found"
+      "Content-Type: text/plain\r\n"
+      "Content-Length: %d\r\n\r\n"
+      "%s",
+      strlen(msg), msg
+      );
+}
+
+void
+send_error(struct mg_connection *conn, const char *msg) {
+  mg_printf(conn,
+      "HTTP/1.1 500 Internal Server Error\r\n"
+      "Content-Type: text/plain\r\n"
+      "Content-Length: %d\r\n\r\n"
+      "%s",
+      strlen(msg), msg
+      );
 }

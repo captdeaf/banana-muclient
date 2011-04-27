@@ -122,7 +122,25 @@ file_write_len(const char *fname, const char *contents, int len) {
 int
 file_write(const char *fname, const char *contents) {
   return file_write_len(fname, contents, strlen(contents));
-}  
+}
+
+// Anything returned by this needs to be free()'d.
+char *
+file_mimetype(const char *fpath) {
+  char mimebuff[300];
+  FILE *fio;
+
+  fio = popen("./get_mtype.sh","r+");
+  if (!fio) return strdup("text/plain");
+  fwrite(fpath, 1, strlen(fpath), fio);
+  fwrite("\n", 1, 1, fio);
+  fflush(fio);
+  slog("Getting mimetype for %s", fpath);
+  fgets(mimebuff, 300, fio);
+  slog("Getting mimetype for %s: %s", fpath, mimebuff);
+  pclose(fio);
+  return strdup(mimebuff);
+}
 
 int
 file_mkdir(char *pathname) {
@@ -143,4 +161,97 @@ file_mkdir(char *pathname) {
     }
   }
   return 0;
+}
+
+void
+send_file_data(struct mg_connection *conn, FILE *fp, int64_t len) {
+  char buf[1024];
+  int to_read, num_read, num_written;
+
+  while (len > 0) {
+    // Calculate how much to read from the file in the buffer
+    to_read = sizeof(buf);
+    if ((int64_t) to_read > len)
+      to_read = (int) len;
+
+    // Read from file, exit the loop on error
+    if ((num_read = fread(buf, 1, (size_t)to_read, fp)) == 0)
+      break;
+
+    // Send read bytes to the client, exit the loop on error
+    if ((num_written = mg_write(conn, buf, (size_t)num_read)) != num_read)
+      break;
+
+    // Both read and were successful, adjust counters
+    len -= num_written;
+  }
+}
+
+void
+file_read_to_conn(struct mg_connection *conn, const char *path, int dohead) {
+  char date[64], lm[64], etag[64], range[64];
+  const char *fmt = "%a, %d %b %Y %H:%M:%S %Z", *msg = "OK", *hdr;
+  time_t curtime = time(NULL);
+  int cl, r1, r2;
+  FILE *fp;
+  int n;
+  int status_code = 200;
+  char *mtype;
+  struct stat fbuf;
+
+  if (stat(path, &fbuf)) {
+    send_error(conn, strerror(errno));
+    return;
+  }
+
+  cl = fbuf.st_size;
+
+  range[0] = '\0';
+
+  mtype = file_mimetype(path);
+
+  if ((fp = fopen(path, "rb")) == NULL) {
+    free(mtype);
+    send_error(conn, "Unable to determine mime-type");
+    return;
+  }
+
+  // If Range: header specified, act accordingly
+  r1 = r2 = 0;
+  hdr = mg_get_header(conn, "Range");
+  if (hdr != NULL && (n = sscanf(hdr, "bytes=%I64d-%I64d", &r1, &r2)) > 0) {
+    status_code = 206;
+    (void) fseeko(fp, (off_t) r1, SEEK_SET);
+    cl = n == 2 ? r2 - r1 + 1: cl - r1;
+    (void) snprintf(range, sizeof(range),
+        "Content-Range: bytes "
+        "%I64d-%I64d/%I64d\r\n",
+        r1, r1 + cl - 1, (int) fbuf.st_size);
+    msg = "Partial Content";
+  }
+
+  // Prepare Etag, Date, Last-Modified headers
+  strftime(date, sizeof(date), fmt, localtime(&curtime));
+  strftime(lm, sizeof(lm), fmt, localtime(&fbuf.st_mtime));
+  snprintf(etag, sizeof(etag), "%lx.%lx",
+      (unsigned long) fbuf.st_mtime, (unsigned long) fbuf.st_size);
+
+  (void) mg_printf(conn,
+      "HTTP/1.1 %d %s\r\n"
+      "Date: %s\r\n"
+      "Last-Modified: %s\r\n"
+      "Etag: \"%s\"\r\n"
+      "Content-Type: %.*s\r\n"
+      "Content-Length: %I64d\r\n"
+      "Connection: %s\r\n"
+      "Accept-Ranges: bytes\r\n"
+      "%s\r\n",
+      status_code, msg, date, lm, etag,
+      strlen(mtype), mtype, cl, "keep-alive", range);
+
+  if (!dohead) {
+    send_file_data(conn, fp, cl);
+  }
+  (void) fclose(fp);
+  free(mtype);
 }

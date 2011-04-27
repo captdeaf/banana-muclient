@@ -159,3 +159,15 @@ build/api_user.o: api.h
 build/api_user.o: file.h
 build/api_user.o: events.h
 build/api_user.o: net.h
+build/api_file.o: banana.h
+build/api_file.o: mongoose.h
+build/api_file.o: logger.h
+build/api_file.o: conf.h
+build/api_file.o: sessions.h
+build/api_file.o: worlds.h
+build/api_file.o: users.h
+build/api_file.o: util.h
+build/api_file.o: api.h
+build/api_file.o: file.h
+build/api_file.o: events.h
+build/api_file.o: net.h

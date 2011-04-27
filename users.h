@@ -7,10 +7,14 @@
 #define _MY_USER_H_
 
 typedef struct user {
+  // Actual name: mush, walker, etc.
+  char loginname[MAX_NAME_LEN];
   // Username: mush-guest-1, walker, etc.
   char name[MAX_GUESTNAME_LEN];
   // User directory: users/foo/bar
   char dir[MAX_DIR_LEN];
+
+  int isGuest;
   // A refcount == -1 means this user struct is available for reassignment.
   // A refcount == 0 means this user struct needs to be freed.
   // A refcount > 0 means it's in use.

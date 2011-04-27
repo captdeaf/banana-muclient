@@ -5,7 +5,7 @@
 
 #include "banana.h"
 
-ACTION("user.setpassword", api_user_setpass, API_DEFAULT) {
+ACTION("user.setpassword", api_user_setpass, API_DEFAULT | API_NOLENGTH) {
   char pwmd5[MD5_LEN];
   char *newpass;
   char pwfile[MAX_PATH_LEN];
