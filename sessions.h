@@ -9,7 +9,7 @@
 #define SESSION_LEN 33
 #define RANDOM_LEN  20
 #define COOKIE_LEN  200
-typedef struct _session {
+typedef struct session {
   // Identifying the web session
   char session_id[SESSION_LEN];      // Session ID, must be unique
   char random[RANDOM_LEN];          // Random data used for extra user validation

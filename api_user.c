@@ -19,3 +19,9 @@ ACTION("user.setpassword", api_user_setpass, API_DEFAULT | API_NOLENGTH) {
   snprintf(pwfile, MAX_PATH_LEN, "%s/password.md5", user->dir);
   file_write(pwfile, pwmd5);
 }
+
+// We only get this if the user is already logged in. In which case:
+// redirect them to their preferred client.
+ACTION("login", api_logged_in, 0) {
+  redirect_to_client(NULL, user, conn);
+}

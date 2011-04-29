@@ -1,8 +1,6 @@
-/* mg_session.c
+/* util.c
  *
- * Session handling for banana.
- *
- * Ripped shamelessly from Mongoose chat example. Thank you, Mongoose!
+ * http-related and other utility functions for Banana.
  */
 
 #include "banana.h"
@@ -130,8 +128,37 @@ get_qsvar(const struct mg_request_info *req, const char *name, int maxlen) {
   return NULL;
 }
 
-// Redirect user to the login form. In the cookie, store the original URL
-// we came from, so that after the authorization we could redirect back.
+// Redirect user to their preferred client.
+void
+redirect_to_client(struct session *session,
+                   struct user *user,
+                   struct mg_connection *conn) {
+  char clfile[MAX_PATH_LEN];
+  char *client;
+  snprintf(clfile, MAX_PATH_LEN, "%s/%s", user->dir, "client");
+  client = file_read(clfile);
+  if (client) {
+    strchomp(client);
+    snprintf(clfile, MAX_PATH_LEN, "/%s", client);
+    free(client);
+  } else {
+    snprintf(clfile, MAX_PATH_LEN, "/webcat");
+  }
+  if (session && session->cookie_string) {
+    mg_printf(conn, "HTTP/1.1 302 Found\r\n"
+              HEADER_NOCACHE
+              "%s\r\n"
+              "Location: %s\r\n\r\n",
+              session->cookie_string,
+              clfile);
+  } else {
+    mg_printf(conn, "HTTP/1.1 302 Found\r\n"
+              HEADER_NOCACHE
+              "Location: %s\r\n\r\n",
+              clfile);
+  }
+}
+
 void
 redirect_to(struct mg_connection *conn, const char *dest) {
   mg_printf(conn, "HTTP/1.1 302 Found\r\n"
@@ -211,6 +238,7 @@ send_404(struct mg_connection *conn) {
   char *msg = "404: File not found.";
   mg_printf(conn,
       "HTTP/1.1 404 Not Found"
+      HEADER_NOCACHE
       "Content-Type: text/plain\r\n"
       "Content-Length: %d\r\n\r\n"
       "%s",
@@ -222,6 +250,7 @@ void
 send_error(struct mg_connection *conn, const char *msg) {
   mg_printf(conn,
       "HTTP/1.1 500 Internal Server Error\r\n"
+      HEADER_NOCACHE
       "Content-Type: text/plain\r\n"
       "Content-Length: %d\r\n\r\n"
       "%s",

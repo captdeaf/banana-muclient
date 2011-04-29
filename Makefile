@@ -10,7 +10,7 @@ all: $(PROG)
 
 include Makefile.depend
 
-C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c logger.c api_user.c api_file.c
+C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c logger.c api_user.c api_file.c strutil.c
 # C_FILES = *.c
 O_FILES = $(patsubst %.c, build/%.o, $(C_FILES))
 
@@ -26,7 +26,7 @@ clean:
 
 API_FILES = $(filter api_%.c,$(C_FILES))
 genapi.c: $(API_FILES)
-	@type -p pcregrep || (echo "pcregrep is not installed" && false)
+	@type -p pcregrep >/dev/null || (echo "pcregrep is not installed" && false)
 	@echo "Generating genapi.c"
 	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.c
 	@echo >> genapi.c

@@ -1,6 +1,8 @@
 TODO:
 
-  * Guest limitations
+  * Logout, and auto-logout
+
+  * Getting real IP address of connections: X-FORWARDED-FOR
 
   * Accessing logs and files via http. - files done.
 
@@ -51,4 +53,12 @@ WTF:
        buffer.
 
   * User API
+
+  * Guest limitations
+
+  * API callAction calls are not always arriving in order. jquery queue
+    isn't working? Fix!
+
+  * login and guest should check for extant session, and redirect if they
+    exist.
 

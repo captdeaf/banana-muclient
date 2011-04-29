@@ -2,6 +2,7 @@
 
 build/api.o: banana.h
 build/api.o: mongoose.h
+build/api.o: strutil.h
 build/api.o: logger.h
 build/api.o: conf.h
 build/api.o: sessions.h
@@ -14,6 +15,7 @@ build/api.o: events.h
 build/api.o: net.h
 build/banana.o: banana.h
 build/banana.o: mongoose.h
+build/banana.o: strutil.h
 build/banana.o: logger.h
 build/banana.o: conf.h
 build/banana.o: sessions.h
@@ -26,6 +28,7 @@ build/banana.o: events.h
 build/banana.o: net.h
 build/conf.o: banana.h
 build/conf.o: mongoose.h
+build/conf.o: strutil.h
 build/conf.o: logger.h
 build/conf.o: conf.h
 build/conf.o: sessions.h
@@ -38,6 +41,7 @@ build/conf.o: events.h
 build/conf.o: net.h
 build/events.o: banana.h
 build/events.o: mongoose.h
+build/events.o: strutil.h
 build/events.o: logger.h
 build/events.o: conf.h
 build/events.o: sessions.h
@@ -51,6 +55,7 @@ build/events.o: net.h
 build/mongoose.o: mongoose.h
 build/sessions.o: banana.h
 build/sessions.o: mongoose.h
+build/sessions.o: strutil.h
 build/sessions.o: logger.h
 build/sessions.o: conf.h
 build/sessions.o: sessions.h
@@ -63,6 +68,7 @@ build/sessions.o: events.h
 build/sessions.o: net.h
 build/util.o: banana.h
 build/util.o: mongoose.h
+build/util.o: strutil.h
 build/util.o: logger.h
 build/util.o: conf.h
 build/util.o: sessions.h
@@ -75,6 +81,7 @@ build/util.o: events.h
 build/util.o: net.h
 build/users.o: banana.h
 build/users.o: mongoose.h
+build/users.o: strutil.h
 build/users.o: logger.h
 build/users.o: conf.h
 build/users.o: sessions.h
@@ -87,6 +94,7 @@ build/users.o: events.h
 build/users.o: net.h
 build/api_world.o: banana.h
 build/api_world.o: mongoose.h
+build/api_world.o: strutil.h
 build/api_world.o: logger.h
 build/api_world.o: conf.h
 build/api_world.o: sessions.h
@@ -99,6 +107,7 @@ build/api_world.o: events.h
 build/api_world.o: net.h
 build/file.o: banana.h
 build/file.o: mongoose.h
+build/file.o: strutil.h
 build/file.o: logger.h
 build/file.o: conf.h
 build/file.o: sessions.h
@@ -111,6 +120,7 @@ build/file.o: events.h
 build/file.o: net.h
 build/worlds.o: banana.h
 build/worlds.o: mongoose.h
+build/worlds.o: strutil.h
 build/worlds.o: logger.h
 build/worlds.o: conf.h
 build/worlds.o: sessions.h
@@ -123,6 +133,7 @@ build/worlds.o: events.h
 build/worlds.o: net.h
 build/net.o: banana.h
 build/net.o: mongoose.h
+build/net.o: strutil.h
 build/net.o: logger.h
 build/net.o: conf.h
 build/net.o: sessions.h
@@ -134,21 +145,10 @@ build/net.o: file.h
 build/net.o: events.h
 build/net.o: net.h
 build/net.o: telnet.h
-build/genapi.o: banana.h
-build/genapi.o: mongoose.h
-build/genapi.o: logger.h
-build/genapi.o: conf.h
-build/genapi.o: sessions.h
-build/genapi.o: worlds.h
-build/genapi.o: users.h
-build/genapi.o: util.h
-build/genapi.o: api.h
-build/genapi.o: file.h
-build/genapi.o: events.h
-build/genapi.o: net.h
 build/logger.o: logger.h
 build/api_user.o: banana.h
 build/api_user.o: mongoose.h
+build/api_user.o: strutil.h
 build/api_user.o: logger.h
 build/api_user.o: conf.h
 build/api_user.o: sessions.h
@@ -161,6 +161,7 @@ build/api_user.o: events.h
 build/api_user.o: net.h
 build/api_file.o: banana.h
 build/api_file.o: mongoose.h
+build/api_file.o: strutil.h
 build/api_file.o: logger.h
 build/api_file.o: conf.h
 build/api_file.o: sessions.h
@@ -171,3 +172,16 @@ build/api_file.o: api.h
 build/api_file.o: file.h
 build/api_file.o: events.h
 build/api_file.o: net.h
+build/strutil.o: banana.h
+build/strutil.o: mongoose.h
+build/strutil.o: strutil.h
+build/strutil.o: logger.h
+build/strutil.o: conf.h
+build/strutil.o: sessions.h
+build/strutil.o: worlds.h
+build/strutil.o: users.h
+build/strutil.o: util.h
+build/strutil.o: api.h
+build/strutil.o: file.h
+build/strutil.o: events.h
+build/strutil.o: net.h

@@ -8,12 +8,7 @@
 #include "banana.h"
 #include <signal.h>
 
-static void
-update_redirect(struct mg_connection *conn) {
-  write_ajax_header(conn, 0);
-  mg_printf(conn, "window.location.replace('/index.html?err=Logged%%20out');\r\n");
-}
-
+// Redirect the user to their preferred client.
 ACTION("updates", handle_update, API_NONE) {
   char *ucount;
   int updateCount;
@@ -22,8 +17,10 @@ ACTION("updates", handle_update, API_NONE) {
   updateCount = atoi(ucount);
 
   if (updateCount > user->updateCount) {
-    // Shouldn't happen.
-    update_redirect(conn);
+    // Shouldn't happen, but may be caused by a browser accessing
+    // an old cache.
+    // update_redirect(conn);
+    send_error(conn, "Turn off caches.");
     return;
   }
 
@@ -40,7 +37,6 @@ handle_guest(struct mg_connection *conn, struct mg_request_info *req _unused_,
   char uri[MAX_PATH_LEN];
   char pwfile[MAX_PATH_LEN];
   char username[MAX_NAME_LEN];
-  char *client;
   User *user;
 
   Session *session;
@@ -101,26 +97,13 @@ handle_guest(struct mg_connection *conn, struct mg_request_info *req _unused_,
 
   // User is logged in, created, etc etc. Send 'em on their way to their
   // client of choice. =).
-
-  snprintf(pwfile, MAX_PATH_LEN, "users/%s/client", username);
-  client = file_read(pwfile);
-
-  mg_printf(conn, "HTTP/1.1 302 FOUND\r\n");
-  mg_printf(conn, "%s", HEADER_NOCACHE);
-  mg_printf(conn, "%s\r\n", session->cookie_string);
-  if (client) {
-    mg_printf(conn, "Location: /%s\r\n\r\n", client);
-    free(client);
-  } else {
-    mg_printf(conn, "Location: %s\r\n\r\n", "/webcat");
-  }
+  redirect_to_client(session, user, conn);
 }
 
 void
 handle_login(struct mg_connection *conn, struct mg_request_info *req) {
   char *username;
   char *password;
-  char *client;
   char pwfile[MAX_PATH_LEN];
   char pwmd5[MD5_LEN];
   char uri[MAX_PATH_LEN];
@@ -201,20 +184,7 @@ handle_login(struct mg_connection *conn, struct mg_request_info *req) {
   slog("Session: User '%s' attached to session '%s'",
        username, session->session_id);
 
-  // User is logged in, created, etc etc. Send 'em on their way to their
-  // client of choice. =).
-  snprintf(pwfile, MAX_PATH_LEN, "users/%s/client", username);
-  client = file_read(pwfile);
-
-  mg_printf(conn, "HTTP/1.1 302 FOUND\r\n");
-  mg_printf(conn, "%s", HEADER_NOCACHE);
-  mg_printf(conn, "%s\r\n", session->cookie_string);
-  if (client) {
-    mg_printf(conn, "Location: /%s\r\n\r\n", client);
-    free(client);
-  } else {
-    mg_printf(conn, "Location: %s\r\n\r\n", "/webcat");
-  }
+  redirect_to_client(session, user, conn);
 }
 
 static void *
@@ -270,15 +240,19 @@ event_handler(enum mg_event event, struct mg_connection *conn,
         handle_login(conn, req);
         retval = "yes";
       } else if (!strcmp(action, "updates")) {
-        update_redirect(conn);
+        send_error(conn, "You are logged out.");
         retval = "yes";
       }
     }
   } else if (!strncmp(req->uri,"/guest/", 7)) {
-    action = req->uri + 7;
-    if (*action) {
-      handle_guest(conn, req, action);
-      retval = "yes";
+    if (user) {
+      redirect_to_client(NULL, user, conn);
+    } else {
+      action = req->uri + 7;
+      if (*action) {
+        handle_guest(conn, req, action);
+        retval = "yes";
+      }
     }
   } else if (!strncmp(req->uri, "/user/", 6)) {
     if (user) {

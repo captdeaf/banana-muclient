@@ -44,6 +44,9 @@ void do_noisy_lock(pthread_mutex_t *mutex, char *name,
                    char *fname, int linenum);
 void do_noisy_unlock(pthread_mutex_t *mutex, char *name,
                      char *fname, int linenum);
+void redirect_to_client(struct session *session,
+                        struct user *user,
+                        struct mg_connection *conn);
 
 #define noisy_lock(m,n) do_noisy_lock(m,n,__FILE__,__LINE__)
 #define noisy_unlock(m,n) do_noisy_unlock(m,n,__FILE__,__LINE__)

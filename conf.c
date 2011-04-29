@@ -7,7 +7,7 @@ const char *options[] = {
   "listening_ports", "8088,9099s",
   "ssl_certificate", "ssl_cert.pem",
   "i", "index.html",
-  "num_threads", "5",
+  "num_threads", "30",
   NULL
 };
 

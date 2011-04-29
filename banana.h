@@ -21,6 +21,7 @@
 #include <errno.h>
 
 #include "mongoose.h"
+#include "strutil.h"
 #include "logger.h"
 #include "conf.h"
 #include "sessions.h"

@@ -2,6 +2,8 @@ var API = {
   apibase: '', /* It connects to apibase + "/action/..." So if you're
                 * connecting from a remote site, use API.apibase = 
                 * 'http://client.pennmush.org' or similar. */
+  loginuri: '/', /* When we get too many errors from updates, go to 
+                  * loginurl */
   updateCount: -1,
   loginname: '', /* This is set on the first update */
   username: '', /* This is set on the first update */
@@ -32,12 +34,16 @@ var API = {
   },
   onFirstSuccess: function(myData, textStatus, xhr) {
     API.onSuccess(myData, textStatus, xhr);
+    var ucount = xhr.getResponseHeader('updateCount');
+    if (ucount == "0") {
+      API.onStart();
+    }
     API.onReady();
   },
   onSuccess: function(myData, textStatus, xhr) {
     API.errorCount = 0;
     try {
-      var ucount = xhr.getResponseHeader('updateCount');
+      var ucount = parseInt(xhr.getResponseHeader('updateCount'));
       API.fetchUpdates(ucount);
       eval(myData);
       API.updateCount = ucount;
@@ -49,10 +55,9 @@ var API = {
   },
   errorCount: 0,
   onError: function(jqxhr, textStatus) {
-    API.alert("AJAX Error?");
     API.errorCount += 1;
-    if (API.errorCount > 20) {
-      setTimeout(API.fetchUpdates, 5000);
+    if (API.errorCount > 10) {
+      window.location.replace(API.apibase + API.loginuri + "?err=Logged%20out");
     } else if (API.errorCount > 2) {
       setTimeout(API.fetchUpdates, 1000);
     } else {
@@ -84,20 +89,31 @@ var API = {
       error: API.onError,
     });
   },
-  callQueue: $(function() {}), // I don't know why, but jQuery needs this?
+  callSemaphore: 0,
+  callSemQueue: [],
   callQueueComplete: function() {
-    API.callQueue.dequeue();
+    API.callSemaphore -= 1;
+    if (API.callSemaphore > 0) {
+      $.ajax(API.callSemQueue.shift());
+    }
+  },
+  callAjax: function(args) {
+    args.complete = API.callQueueComplete;
+    if (API.callSemaphore == 0) {
+      API.callSemaphore = 1;
+      $.ajax(args);
+    } else {
+      API.callSemaphore += 1
+      API.callSemQueue.push(args);
+    }
   },
   callAction: function(uri, args) {
-    API.callQueue.queue(function() {
-      $.ajax({
+    API.callAjax({
         url: API.apibase + '/action/' + uri,
         async: true,
         data: args,
         type: 'post',
-        complete: API.callQueueComplete
       });
-    });
   },
   world: {
     open: function(world) {
@@ -124,8 +140,7 @@ var API = {
       API.callAction('file.write', {file: filename, contents: contents});
     },
     read: function(filename, callback) {
-      API.callQueue.queue(function() {
-        $.ajax({
+      API.callAjax({
           url: API.apibase + '/user/' + API.loginname + '/files/' + filename,
           async: true,
           data: args,
@@ -138,8 +153,7 @@ var API = {
               API.file.onReadFail({file: filename, cause: "File not found."});
             }
           }
-        });
-      });
+       });
     }
   },
   user: {
@@ -154,6 +168,9 @@ var API = {
   flush: function() {
     /* OVERRIDE ME */
   },
+  onStart: function() {
+    /* OVERRIDE ME */
+  },
   onReady: function() {
     /* OVERRIDE ME */
   },
@@ -162,5 +179,5 @@ var API = {
 $(window).ready(function() {
   // Timeout is needed to prevent Chrome from thinking we're still
   // loading the document with fetchUpdates.
-  setTimeout(API.fetchUpdates, 500);
+  setTimeout(API.fetchFirstUpdate, 500);
 });
