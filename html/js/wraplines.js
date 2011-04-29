@@ -18,19 +18,23 @@ function wrapLines(lines,width) {
     wrapPatterns[width] = rx;
   }
   for (var i = 0; i < nlines; i += 1) {
-    var line = lines[i];
+    var line = lines[i] || '';
     var newline = '' + line;
-    newline = newline.replace(rx,function(str,end,withspace,nospace) {
-      if (withspace) {
-        newlines.push(withspace);
-      } else if (nospace) {
-        newlines.push(nospace);
-      } else if (end) {
-        newlines.push(end);
-      } else {
-        newlines.push(str);
-      }
-    });
+    if (newline == '') {
+      newlines.push('');
+    } else {
+      newline = newline.replace(rx,function(str,end,withspace,nospace) {
+        if (withspace) {
+          newlines.push(withspace);
+        } else if (nospace) {
+          newlines.push(nospace);
+        } else if (end) {
+          newlines.push(end);
+        } else {
+          newlines.push(str);
+        }
+      });
+    }
   };
   return newlines;
 }
