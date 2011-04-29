@@ -5,3 +5,4 @@ genapi.c
 mongoose
 *.swp
 logs
+core
