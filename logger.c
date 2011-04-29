@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
@@ -165,14 +166,31 @@ logger_shutdown() {
   syslogger = NULL;
 }
 
+
+static int ttylog = 1;
+
 void
 slog(char *fmt, ...) {
   va_list args;
+  if (syslogger) {
+    pthread_mutex_lock(&syslogger->logmutex);
+  }
   va_start(args, fmt);
   vllog(syslogger, fmt, args);
   va_end(args);
-  va_start(args, fmt);
-  vprintf(fmt, args);
-  va_end(args);
-  printf("\n");
+  if (ttylog) {
+    if (isatty(1) || !syslogger) {
+      va_start(args, fmt);
+      vprintf(fmt, args);
+      va_end(args);
+      printf("\n");
+    } else {
+      printf("Non-tty stdout detected. Logging only to %s",
+             syslogger->logname);
+      ttylog = 0;
+    }
+  }
+  if (syslogger) {
+    pthread_mutex_unlock(&syslogger->logmutex);
+  }
 }
