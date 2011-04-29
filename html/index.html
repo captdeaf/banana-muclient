@@ -9,9 +9,9 @@
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/jquery-ui.js"></script>
     <script type="text/javascript">
+      var qs = {};
       $(document).ready(function() {
         var x = window.location.search.substr(1).split('&');
-        var qs = {}
         for (var i = 0; i < x.length; i++) {
           var m = x[i].split(/=/,2);
           qs[m[0]] = decodeURIComponent(m[1]);
@@ -23,15 +23,18 @@
         if (qs.user) {
           $('#username').val(qs.user);
         }
+        if (qs.loggedout == "1") {
+          $('#logoutsuccess').show();
+        }
       });
     </script>
   </head>
   <body>
-   <center><div style="width: 400px;">
-    <span class="title">Banana MU* Client</span><br />
-    <br />
-    Hello, and welcome to Banana MU* Client! If you would like to<br />
-    log in as a guest, please use one of the following links:<br />
+   <div style="width: 400px; margin-left:auto; margin-right:auto;">
+    <div class="title"><h2>Banana MU* Client</h2></div>
+    <blockquote style="text-align:left;">Hello, and welcome to Banana MU* Client! If you would like to
+    log in as a guest, please use one of the following links:
+    </blockquote>
     <ul>
       <li><a href="/guest/m.u.s.h">M*U*S*H - the flagship PennMUSH</a></li>
     </ul>
@@ -39,9 +42,16 @@
     <br />
     <form action="/action/login" method="POST">
      <table class="mushtable bordered">
+       <tr id="logoutsuccess" style="display:none;text-align:center;">
+         <td colspan="2">
+           <span style="color: blue;font-weight: bold;">
+             You have succcessfully logged out.
+           </span>
+         </td>
+       </tr>
        <tr><td colspan="2">Please log in:</td></tr>
        <tr id="err" style="display:none;"><td id="errmsg" colspan="2" style="color: red">&nbsp;</td></tr>
-      <tr>
+       <tr>
        <td> Username: </td>
        <td><input type="text" id="username" name="username" value="" /></td>
       </tr>
@@ -62,6 +72,6 @@
        <tr><td colspan="2"><input type="submit" value="submit" /></td></tr>
      </table>
     </form>
-    </div></center>
+    </div>
   </body>
 </html>

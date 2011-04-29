@@ -26,6 +26,8 @@ typedef struct session {
 // Fetch a current session for a connection.
 Session *session_get(const struct mg_connection *conn);
 
+void session_logout(Session *);
+
 // Create one: Only call if it doesn't have one.
 // It returns a set cookie_string. Don't forget to SetCookie it!
 Session *session_make();

@@ -25,3 +25,13 @@ ACTION("user.setpassword", api_user_setpass, API_DEFAULT | API_NOLENGTH) {
 ACTION("login", api_logged_in, 0) {
   redirect_to_client(NULL, user, conn);
 }
+
+// Log out the user.
+// redirect them to their preferred client.
+ACTION("logout", api_logout, 0) {
+  mg_printf(conn, "HTTP/1.1 302 Found\r\n"
+            HEADER_NOCACHE
+            "SetCookie: session=deleted; "
+              "expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; httponly\r\n"
+            "Location: /?loggedout=1\r\n\r\n");
+}

@@ -192,7 +192,8 @@ event_handler(enum mg_event event, struct mg_connection *conn,
               struct mg_request_info *req) {
   char *retval = NULL;
   char *action;
-  User *user;
+  User *user = NULL;
+  Session *session = NULL;
   int i;
   if (event != MG_NEW_REQUEST) return NULL;
 
@@ -202,7 +203,10 @@ event_handler(enum mg_event event, struct mg_connection *conn,
   // }
   init_conndata(conn, req);
 
-  user = user_get(conn);
+  session = session_get(conn);
+  if (session) {
+    user = user_get(session);
+  }
 
   if (!strncmp(req->uri,"/action/", 8)) {
     action = req->uri + 8;
@@ -219,19 +223,25 @@ event_handler(enum mg_event event, struct mg_connection *conn,
       if (!strcmp(action, "updates")) {
         handle_update(user, conn, req, "updates");
         retval = "yes";
-      }
+      } else if (!strcmp(action, "logout")) {
+        slog("Session: User '%s' logged out of session '%s'.",
+             user->name, session->session_id);
+        api_logout(user, conn, req, "logout");
+        session_logout(session);
+        retval = "yes";
+      } else {
+        for (i = 0; allActions[i].name; i++) {
+          if (!strcmp(allActions[i].name, action)) {
+            allActions[i].handler(user, conn, req, allActions[i].name);
 
-      for (i = 0; allActions[i].name; i++) {
-        if (!strcmp(allActions[i].name, action)) {
-          allActions[i].handler(user, conn, req, allActions[i].name);
-
-          // If the action has API_AUTOHEADER set, then spit out
-          // the ajax header.
-          if (allActions[i].flags & API_AUTOHEADER) {
-            write_ajax_header(conn, allActions[i].flags);
+            // If the action has API_AUTOHEADER set, then spit out
+            // the ajax header.
+            if (allActions[i].flags & API_AUTOHEADER) {
+              write_ajax_header(conn, allActions[i].flags);
+            }
+            retval = "yes";
+            break;
           }
-          retval = "yes";
-          break;
         }
       }
     } else {

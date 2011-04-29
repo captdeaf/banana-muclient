@@ -1,6 +1,7 @@
 build
 server
 users
+genapi.h
 genapi.c
 mongoose
 *.swp

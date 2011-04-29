@@ -42,8 +42,8 @@ session_new(void) {
   time_t now = time(NULL);
   noisy_lock(&session_mutex, "sessions");
   for (i = 0; i < MAX_SESSIONS; i++) {
-    if (sessions[i].expire == 0 || sessions[i].expire < now) {
-      sessions[i].expire = time(NULL) + SESSION_TTL;
+    if (sessions[i].expire == 0) {
+      sessions[i].expire = now + SESSION_TTL;
       break;
     }
   }
@@ -54,6 +54,15 @@ session_new(void) {
   sessions[i].expire = time(NULL) + SESSION_TTL;
   sessions[i].userid = -1;
   return &sessions[i];
+}
+
+void
+session_logout(Session *session) {
+  noisy_lock(&session_mutex, "sessions");
+  session->expire = 100; // Way, way, way before "now", but nonzero so
+                         // that expire will work. This will be
+                         // expired on the next sessions_expire.
+  noisy_unlock(&session_mutex, "sessions");
 }
 
 // Generate session ID. buf must be 33 bytes in size.
@@ -73,9 +82,9 @@ session_make() {
   session = session_new();
   if (session) {
     snprintf(session->random, RANDOM_LEN, "%d", rand());
-    generate_session_id(session->session_id, session->random, session_salt);
+    generate_session_id(session->session_id, session->random, SESSION_SALT);
     snprintf(session->cookie_string, COOKIE_LEN,
-             "Set-Cookie: session=%s; path=/; Expires=Wed, 06-Jan-2038 12:34:56 GMT",
+             "Set-Cookie: session=%s; path=/; Expires=Wed, 06-Jan-2038 12:34:56 GMT; httponly",
              session->session_id);
     slog("Session: '%s' created", session->session_id);
   }

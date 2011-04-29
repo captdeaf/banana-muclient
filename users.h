@@ -40,7 +40,7 @@ typedef struct user {
   int updateCount;
 } User;
 
-User *user_get(const struct mg_connection *conn);
+User *user_get(Session *session);
 User *user_guest(Session *session, char *username, char *userdir);
 User *user_login(Session *session, char *username, char *userdir);
 

@@ -16,8 +16,6 @@
 #include <iconv.h>
 
 #define MAX_EVENTS 20
-// 10 second wait timeout.
-#define WAIT_TIMEOUT 30000
 
 static int epfd;
 static pthread_mutex_t sockmutex;
@@ -846,7 +844,7 @@ net_poll() {
   int i;
 
   while (1) {
-    numevents = epoll_wait(epfd, events, MAX_EVENTS, WAIT_TIMEOUT);
+    numevents = epoll_wait(epfd, events, MAX_EVENTS, (next - now) * 1000);
     net_lock();
     for (i = 0; i < numevents; i++) {
       w = (World *) events[i].data.ptr;

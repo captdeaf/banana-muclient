@@ -12,13 +12,11 @@ static pthread_mutex_t user_mutex;
 
 // Get user object for the connection.
 User *
-user_get(const struct mg_connection *conn) {
-  Session *session;
+user_get(Session *session) {
   User *ret = NULL;
 
   noisy_lock(&user_mutex, "users");
 
-  session = session_get(conn);
   if (session) {
     if (session->userid >= 0) {
       ret = &users[session->userid];

@@ -25,14 +25,28 @@ clean:
 	rm $(O_FILES) $(PROG)
 
 API_FILES = $(filter api_%.c,$(C_FILES))
+
+genapi.h: $(API_FILES)
+	@type -p pcregrep >/dev/null || (echo "pcregrep is not installed" && false)
+	@echo "Generating genapi.h"
+	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.h
+	@echo >> genapi.h
+	@echo '#ifndef __GENAPI_H_ ' >> genapi.h
+	@echo '#define __GENAPI_H_ ' >> genapi.h
+	@echo '#include "banana.h"' >> genapi.h
+	@echo >> genapi.h
+	@grep -h ^ACTION $(API_FILES) | sed 's/).*/);/' >> genapi.h
+	@echo >> genapi.h
+	@echo "extern ActionList allActions[];" >> genapi.h
+	@echo >> genapi.h
+	@echo '#endif' >> genapi.h
+
 genapi.c: $(API_FILES)
 	@type -p pcregrep >/dev/null || (echo "pcregrep is not installed" && false)
 	@echo "Generating genapi.c"
 	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.c
 	@echo >> genapi.c
 	@echo '#include "banana.h"' >> genapi.c
-	@echo >> genapi.c
-	@grep -h ^ACTION $(API_FILES) | sed 's/).*/);/' >> genapi.c
 	@echo >> genapi.c
 	@echo "ActionList allActions[] = {" >> genapi.c
 	@grep -h ^ACTION $(API_FILES) | pcregrep -o '".*\w' | sed s/$$/\\},/ | sed 's/^/  {/' >> genapi.c

@@ -49,8 +49,14 @@ BODY {
   background-color: #000000;
 }
 
+DIV.title {
+  width: 100%;
+  text-align: center;
+}
+
 TABLE.mushtable {
   width: 100%;
+  padding: 0.5em;
 }
 
 TD.mushwindow: {
