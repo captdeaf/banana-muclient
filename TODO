@@ -1,6 +1,6 @@
 TODO:
 
-  * Logout, and auto-logout
+  * Logout.
 
   * Getting real IP address of connections: X-FORWARDED-FOR
 
@@ -27,6 +27,7 @@ WTF:
     send_ttype works but only if I send a space or two first. Why does
     send_ttype need to send that magic space?
 
+DONE:
   * Overflow event: Client/HTTP couldn't keep up with the incoming text
     from the server.
 

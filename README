@@ -1,0 +1,60 @@
+Banana is an HTTP <-> Telnet mud gateway that allows browsers to be used
+to connect to Multi-User Dungeons. It is not dependent on WebSocket,
+and supports browsers even 2 or 3 generations old. It uses long polling
+combined with JQuery, and works on all modern and semi-modern browsers that
+have been tested.
+
+MU* support:
+
+* Charset negotiation: ISO_8859-1, UTF-8 and more.
+
+* ANSI colors (^[[30m) and xterm-256 colors (fore and back)
+
+* NAWS - window width and height negotiation.
+
+* Prompts, using telnet-GA or EOR
+
+
+Server features:
+
+* User accounts, open to connect to anywhere. Users can even be logged
+  in to the same account from multiple browsers or computers and still
+  be logged into the mud just once!
+
+* Guest accounts, which are limited to one host:port, and may be used
+  to create a "Try us out!" webpage that auto-connects to a mud as a guest.
+
+* Multiple worlds: One user can connect to a number of worlds.
+
+* Logging: All output from a world is logged by default, tied to the user
+  or guest account, and may be viewed at any time.
+
+* Users may write their own HTML/JS front-end that works with the banana
+  back-end and provided API.
+
+* HTML/JS front-ends can create their own files for use for configuration,
+  etc.
+
+* HTTPS for secure mudding!
+
+
+Roadmap:
+
+* Mud SSL connection.
+
+* Generically useful Client API with browser-side features: Triggers,
+  hooks, keybindings, etc. Built on top of jquery.
+
+* Host-specific settings: So hosts can choose to block connections or
+  force real IP identification.
+
+
+Technical information:
+
+* Banana is written in C.
+
+* Banana's HTTP side is built on top of the Mongoose embedded HTTP server
+  (http://code.google.com/p/mongoose/) - Somewhat modified.
+
+* Banana requires a POSIX environment with iconv installed for charset
+  manipulation. Browser side is entirely UTF-8.
