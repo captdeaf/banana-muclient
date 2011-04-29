@@ -33,10 +33,16 @@ var API = {
     }
   },
   onFirstSuccess: function(myData, textStatus, xhr) {
-    API.onSuccess(myData, textStatus, xhr);
     var ucount = xhr.getResponseHeader('updateCount');
+    API.onSuccess(myData, textStatus, xhr);
     if (ucount == "0") {
-      API.onStart();
+      if (API.onStart) {
+        API.onStart();
+      }
+    } else {
+      if (API.onReload) {
+        API.onReload();
+      }
     }
     API.onReady();
   },
@@ -48,7 +54,7 @@ var API = {
       eval(myData);
       API.updateCount = ucount;
     } catch (err) {
-      API.alert("API error on fetchUpdates/success: '" + err + "'");
+      API.alert("API error on fetchUpdates/success: '" + err.description + "'");
     }
     API.updateCount = ucount;
     API.flush();
@@ -65,9 +71,6 @@ var API = {
     }
   },
   fetchUpdates: function(ucount) {
-    if (!ucount) {
-      ucount = API.updateCount;
-    }
     API.updateObject = $.ajax({
       url: API.apibase + '/action/updates',
       async: true,
