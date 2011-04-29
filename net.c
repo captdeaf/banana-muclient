@@ -239,35 +239,38 @@ recv_debug(int fd, unsigned char *ptr, int size, int flags) {
 int write_stoppers[0x100];
 
 void
-write_escaped(int fd, char *text, int len) {
-  int start = 0;
-  int end = 0;
-  unsigned char *s = (unsigned char *) text;
-
-  while (start < len) {
-    if (s[start] == _IAC) {
-      write_raw(fd, IAC, 1);
-    } else if (s[start] == '\r') {
-      // We skip over \rs, since we turn \ns into \r\n.
-      start++;
-      continue;
-    } else if (s[start] == '\n') {
-      write_raw(fd, "\r\n", 2);
-      start++;
-      continue;
-    }
-    for (end = start + 1; end < len && s[end] != _IAC; end++);
-    write_raw(fd, s + start, end - start);
-    start = end;
-  }
-}
-
-void
 net_send(World *world, char *text) {
+  char buff[BUFFER_LEN];
+  int i, j;
   noisy_lock(&world->user->mutex, world->user->name);
   if (world->fd >= 0) {
-    write_escaped(world->fd, text, strlen(text));
-    write_raw(world->fd, "\r\n", 2);
+    j = 0;
+    for (i = 0; text[i]; i++) {
+      if (write_stoppers[(unsigned char) *text]) {
+        if (text[i] == (char) _IAC) {
+          buff[j++] = text[i];
+          buff[j++] = text[i];
+        } else if (text[i] == '\n') {
+          buff[j++] = '\r';
+          buff[j++] = '\n';
+          write_raw(world->fd, buff, j);
+          j = 0;
+        }
+      } else {
+        buff[j++] = text[i];
+      }
+      if (j >= (BUFFER_LEN - 8)) {
+        // Send what we have so far.
+        write_raw(world->fd, buff, j);
+        j = 0;
+      }
+    }
+    buff[j++] = '\r';
+    buff[j++] = '\n';
+    if (j > 0) {
+      write_raw(world->fd, buff, j);
+      j = 0;
+    }
   } else {
     messageEvent(world->user, world, EVENT_WORLD_ERROR, "cause",
                  "Not connected.");
@@ -595,39 +598,63 @@ convert_to_json(World *w, char *str) {
   return post_ansi2html;
 }
 
+static void
+writebuf(char *buff _unused_, char **bp, char *what, int len) {
+  memcpy(*bp, what, len);
+  *bp += len;
+}
+
+static void
+writebuf_escaped(char *buff _unused_, char **bp, char *what, int len) {
+  int i;
+  for (i = 0; i < len; i++) {
+    *(*bp)++ = what[i];
+    if (what[i] == (char) _IAC) {
+      *(*bp)++ = what[i];
+    }
+  }
+}
+
 void
 send_charsets(World *w) {
+  char buff[100], *bp = buff;
   char *charsets = ";UTF-8;ISO-8859-1;ISO-8859-2;US-ASCII;CP437";
-  write_raw(w->fd, IAC SB CHARSET CHARSET_REQUEST, 4);
-  write_raw(w->fd, charsets, sizeof(charsets));
-  write_raw(w->fd, IAC SE, 2);
+  writebuf(buff, &bp, IAC SB CHARSET CHARSET_REQUEST, 4);
+  writebuf(buff, &bp, charsets, strlen(charsets));
+  writebuf(buff, &bp, IAC SE, 2);
+  write_raw(w->fd, buff, bp - buff);
 }
 
 void
 send_naws(World *w, int width, int height) {
+  char buff[100], *bp = buff;
+
   char bs[4];
-  write_raw(w->fd, IAC SB NAWS, 3);
+  writebuf(buff, &bp, IAC SB NAWS, 3);
   bs[0] = width >> 8 & 0xFF;
   bs[1] = width & 0xFF;
   bs[2] = height >> 8 & 0xFF;
   bs[3] = height & 0xFF;
-  write_escaped(w->fd, bs, 4);
-  write_raw(w->fd, IAC SE, 2);
+  writebuf_escaped(buff, &bp, bs, 4);
+  writebuf(buff, &bp, IAC SE, 2);
+  write_raw(w->fd, buff, bp - buff);
 }
 
 void
 send_ttype(World *w, char *what) {
-  write_raw(w->fd, "  ", 1);
-  write_raw(w->fd, IAC SB TTYPE IS, 4);
-  write_escaped(w->fd, what, strlen(what));
-  write_raw(w->fd, IAC SE, 2);
+  char buff[100], *bp = buff;
+  writebuf(buff, &bp, IAC SB TTYPE IS, 4);
+  writebuf_escaped(buff, &bp, what, strlen(what));
+  writebuf(buff, &bp, IAC SE, 2);
+  write_raw(w->fd, buff, bp - buff);
 }
 
 // When we get our first IAC, we send this.
 void
 try_iac(World *w) {
-  write_raw(w->fd, IAC WILL CHARSET, 3);
-  write_raw(w->fd, " ", 1);
+  char buff[100], *bp = buff;
+  writebuf(buff, &bp, IAC WILL CHARSET, 3);
+  write_raw(w->fd, buff, bp - buff);
 }
 
 #define readb(b) b = 0; if (recv_raw(w->fd, &b, 1, 0) < 1) return -1;

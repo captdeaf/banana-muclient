@@ -1,7 +1,5 @@
 TODO:
 
-  * Logout.
-
   * Getting real IP address of connections: X-FORWARDED-FOR
 
   * Accessing logs and files via http. - files done.
@@ -9,8 +7,6 @@ TODO:
   * File API - partly done.
 
   * Logging API
-
-  * Figure out wtf is going on with the IAC calls.
 
   * Server preferences, for connecting to a given IP:port: Send REAL_IP,
     etc?
@@ -62,4 +58,9 @@ DONE:
 
   * login and guest should check for extant session, and redirect if they
     exist.
+
+  * Figure out wtf is going on with the IAC calls. Fixed - Thanks to
+    Odin and buffering.
+
+  * Logout.
 
