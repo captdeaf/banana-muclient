@@ -22,8 +22,7 @@ session_get(const struct mg_connection *conn) {
 
   mg_get_cookie(conn, "session", session_id, sizeof(session_id));
   for (i = 0; i < MAX_SESSIONS; i++) {
-    if (sessions[i].expire != 0 &&
-        sessions[i].expire > now &&
+    if (sessions[i].expire > now &&
         strcmp(sessions[i].session_id, session_id) == 0) {
       // Bump sessions expire time, since this was accessed.
       sessions[i].expire = time(NULL) + SESSION_TTL;
