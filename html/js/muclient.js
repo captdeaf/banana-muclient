@@ -71,6 +71,9 @@ var API = {
     }
   },
   fetchUpdates: function(ucount) {
+    if (ucount == undefined || ucount == null) {
+      ucount = API.updateCount;
+    }
     API.updateObject = $.ajax({
       url: API.apibase + '/action/updates',
       async: true,
