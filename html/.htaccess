@@ -4,6 +4,6 @@ DirectoryIndex index.html
 RewriteEngine on
 # Banana server only handles /action/, that is all we forward, everything
 # else is a static file handled by Apache.
-RewriteRule ^(/?action.*) http://localhost:8088/$1 [P,QSA,L]
-RewriteRule ^(/?guest.*) http://localhost:8088/$1 [P,QSA,L]
-RewriteRule ^(/?user.*) http://localhost:8088/$1 [P,QSA,L]
+RewriteRule ^(/?action.*) http://localhost:8088/$1 [P,QSA,L,E=no-gzip:1]
+RewriteRule ^(/?guest.*) http://localhost:8088/$1 [P,QSA,L,E=no-gzip:1]
+RewriteRule ^(/?user.*) http://localhost:8088/$1 [P,QSA,L,E=no-gzip:1]
