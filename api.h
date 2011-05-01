@@ -50,5 +50,14 @@ extern ActionList allActions[];
 // From api_file.c
 void read_user_file(User *user, struct mg_connection *conn,
                     struct mg_request_info *req, char *fname);
+void list_user_files(User *user,
+                     struct mg_connection *conn,
+                     struct mg_request_info *req _unused_);
+void read_user_log(User *user,
+                   struct mg_connection *conn, struct mg_request_info *req,
+                   char *fname);
+void list_user_logs(User *user,
+                    struct mg_connection *conn,
+                    struct mg_request_info *req _unused_);
 
 #endif /* _API_INC_H_ */

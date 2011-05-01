@@ -1,12 +1,12 @@
 TODO:
 
-  * Getting real IP address of connections: X-FORWARDED-FOR
-
   * Accessing logs and files via http. - files done.
 
   * File API - partly done.
 
   * Logging API
+
+  * Getting real IP address of connections: X-FORWARDED-FOR
 
   * Server preferences, for connecting to a given IP:port: Send REAL_IP,
     etc?

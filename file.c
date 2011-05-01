@@ -6,6 +6,7 @@
  */
 
 #include "banana.h"
+#include <dirent.h>
 
 /** Read a number from a file and return it, if it exists. If it doesn't,
  *  the default is returned.
@@ -254,4 +255,77 @@ file_read_to_conn(struct mg_connection *conn, const char *path, int dohead) {
   }
   (void) fclose(fp);
   free(mtype);
+}
+
+void
+file_list_to_conn(struct mg_connection *conn, const char *path) {
+  DIR *dp;
+  struct dirent *ep;
+  struct stat fbuf;
+  const char *p;
+  int count;
+
+  char date[64], lm[64];
+  const char *fmt = "%a, %d %b %Y %H:%M:%S %Z";
+  time_t curtime = time(NULL);
+
+  if (stat(path, &fbuf)) {
+    send_error(conn, strerror(errno));
+    return;
+  }
+
+  if (!(fbuf.st_mode & S_IFDIR)) {
+    send_error(conn, "Requested path is not a directory.");
+    return;
+  }
+
+  dp = opendir(path);
+
+  if (dp == NULL) {
+    send_error(conn, "Unable to determine mime-type");
+    return;
+  }
+
+  // Prepare Etag, Date, Last-Modified headers
+  strftime(date, sizeof(date), fmt, localtime(&curtime));
+  strftime(lm, sizeof(lm), fmt, localtime(&fbuf.st_mtime));
+
+  // Send the header.
+  (void) mg_printf(conn,
+      "HTTP/1.1 200 OK\r\n"
+      "Date: %s\r\n"
+      "Last-Modified: %s\r\n"
+      "Content-Type: text/html\r\n"
+      "Connection: keep-alive\r\n"
+      "\r\n",
+      date, lm);
+
+  p = strrchr(path, '/');
+  if (p && *(p + 1)) {
+    p++;
+  } else {
+    p = path;
+  }
+  (void) mg_printf(conn,
+      "<HTML>\r\n"
+      "<HEAD><TITLE>Directory listing for %s</TITLE></HEAD>\r\n"
+      "<BODY>\r\n"
+      "<h3>Directory listing for %s</h3><br />\r\n"
+      ,
+      p, p);
+
+  count = 0;
+  while ((ep = readdir(dp)) != NULL) {
+    if (ep->d_name[0] != '.') {
+      // We don't print hidden files.
+      mg_printf(conn, "<a href=\"%s\">%s</a><br />\r\n",
+          ep->d_name, ep->d_name);
+      count++;
+    }
+  }
+  closedir(dp);
+  if (count == 0) {
+    mg_printf(conn, "... The directory is empty.\r\n");
+  }
+  mg_printf(conn, "</BODY>\r\n</HTML>\r\n");
 }

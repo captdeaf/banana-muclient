@@ -6,6 +6,7 @@
  */
 
 #include "banana.h"
+#include "genapi.h"
 #include <signal.h>
 
 // Redirect the user to their preferred client.
@@ -266,20 +267,32 @@ event_handler(enum mg_event event, struct mg_connection *conn,
     }
   } else if (!strncmp(req->uri, "/user/", 6)) {
     if (user) {
-      slog("User accessing /user/");
       action = req->uri + 6;
       // Try for /user/<username>/... And we only accept when <username>
       // == the logged in user.
       int len = strlen(user->loginname);
-      slog("Action: '%s', loginname: '%s'", action, user->loginname);
       if (!strncmp(action, user->loginname, len) && (*(action+len) == '/')) {
         action = action + len + 1; // Advance past the /
-        slog("Want to do: '%s'", action);
         if (!strncmp(action, "files/", 6)) {
           action = action + 6;
-          retval = "yes";
-          slog("Reading user file '%s'", action);
-          read_user_file(user, conn, req, action);
+          if (action[0]) {
+            action += 1;
+            retval = "yes";
+            read_user_file(user, conn, req, action);
+          } else {
+            retval = "yes";
+            list_user_files(user, conn, req);
+          }
+        } else if (!strncmp(action, "logs/", 5)) {
+          action = action + 5;
+          if (action[0]) {
+            action += 1;
+            retval = "yes";
+            read_user_log(user, conn, req, action);
+          } else {
+            retval = "yes";
+            list_user_logs(user, conn, req);
+          }
         }
       }
     }

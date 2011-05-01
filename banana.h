@@ -30,7 +30,6 @@
 #include "banana.h"
 #include "util.h"
 #include "api.h"
-#include "genapi.h"
 #include "file.h"
 #include "events.h"
 #include "net.h"

@@ -36,6 +36,17 @@ ACTION("file.write", api_file_write, API_NOGUEST) {
 }
 
 void
+list_user_files(User *user,
+                struct mg_connection *conn,
+                struct mg_request_info *req _unused_) {
+  char path[100];
+  snprintf(path, 100, "%s/files", user->dir);
+  file_mkdir(path);
+      
+  file_list_to_conn(conn, path);
+}
+
+void
 read_user_file(User *user,
                struct mg_connection *conn, struct mg_request_info *req,
                char *fname) {

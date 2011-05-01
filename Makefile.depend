@@ -10,7 +10,6 @@ build/api.o: worlds.h
 build/api.o: users.h
 build/api.o: util.h
 build/api.o: api.h
-build/api.o: genapi.h
 build/api.o: file.h
 build/api.o: events.h
 build/api.o: net.h
@@ -24,10 +23,10 @@ build/banana.o: worlds.h
 build/banana.o: users.h
 build/banana.o: util.h
 build/banana.o: api.h
-build/banana.o: genapi.h
 build/banana.o: file.h
 build/banana.o: events.h
 build/banana.o: net.h
+build/banana.o: genapi.h
 build/conf.o: banana.h
 build/conf.o: mongoose.h
 build/conf.o: strutil.h
@@ -38,7 +37,6 @@ build/conf.o: worlds.h
 build/conf.o: users.h
 build/conf.o: util.h
 build/conf.o: api.h
-build/conf.o: genapi.h
 build/conf.o: file.h
 build/conf.o: events.h
 build/conf.o: net.h
@@ -52,7 +50,6 @@ build/events.o: worlds.h
 build/events.o: users.h
 build/events.o: util.h
 build/events.o: api.h
-build/events.o: genapi.h
 build/events.o: file.h
 build/events.o: events.h
 build/events.o: net.h
@@ -67,7 +64,6 @@ build/sessions.o: worlds.h
 build/sessions.o: users.h
 build/sessions.o: util.h
 build/sessions.o: api.h
-build/sessions.o: genapi.h
 build/sessions.o: file.h
 build/sessions.o: events.h
 build/sessions.o: net.h
@@ -81,7 +77,6 @@ build/util.o: worlds.h
 build/util.o: users.h
 build/util.o: util.h
 build/util.o: api.h
-build/util.o: genapi.h
 build/util.o: file.h
 build/util.o: events.h
 build/util.o: net.h
@@ -95,7 +90,6 @@ build/users.o: worlds.h
 build/users.o: users.h
 build/users.o: util.h
 build/users.o: api.h
-build/users.o: genapi.h
 build/users.o: file.h
 build/users.o: events.h
 build/users.o: net.h
@@ -109,7 +103,6 @@ build/api_world.o: worlds.h
 build/api_world.o: users.h
 build/api_world.o: util.h
 build/api_world.o: api.h
-build/api_world.o: genapi.h
 build/api_world.o: file.h
 build/api_world.o: events.h
 build/api_world.o: net.h
@@ -123,7 +116,6 @@ build/file.o: worlds.h
 build/file.o: users.h
 build/file.o: util.h
 build/file.o: api.h
-build/file.o: genapi.h
 build/file.o: file.h
 build/file.o: events.h
 build/file.o: net.h
@@ -137,7 +129,6 @@ build/worlds.o: worlds.h
 build/worlds.o: users.h
 build/worlds.o: util.h
 build/worlds.o: api.h
-build/worlds.o: genapi.h
 build/worlds.o: file.h
 build/worlds.o: events.h
 build/worlds.o: net.h
@@ -151,7 +142,6 @@ build/net.o: worlds.h
 build/net.o: users.h
 build/net.o: util.h
 build/net.o: api.h
-build/net.o: genapi.h
 build/net.o: file.h
 build/net.o: events.h
 build/net.o: net.h
@@ -166,10 +156,10 @@ build/genapi.o: worlds.h
 build/genapi.o: users.h
 build/genapi.o: util.h
 build/genapi.o: api.h
-build/genapi.o: genapi.h
 build/genapi.o: file.h
 build/genapi.o: events.h
 build/genapi.o: net.h
+build/genapi.o: genapi.h
 build/logger.o: logger.h
 build/api_user.o: banana.h
 build/api_user.o: mongoose.h
@@ -181,7 +171,6 @@ build/api_user.o: worlds.h
 build/api_user.o: users.h
 build/api_user.o: util.h
 build/api_user.o: api.h
-build/api_user.o: genapi.h
 build/api_user.o: file.h
 build/api_user.o: events.h
 build/api_user.o: net.h
@@ -195,7 +184,6 @@ build/api_file.o: worlds.h
 build/api_file.o: users.h
 build/api_file.o: util.h
 build/api_file.o: api.h
-build/api_file.o: genapi.h
 build/api_file.o: file.h
 build/api_file.o: events.h
 build/api_file.o: net.h
@@ -209,7 +197,19 @@ build/strutil.o: worlds.h
 build/strutil.o: users.h
 build/strutil.o: util.h
 build/strutil.o: api.h
-build/strutil.o: genapi.h
 build/strutil.o: file.h
 build/strutil.o: events.h
 build/strutil.o: net.h
+build/api_log.o: banana.h
+build/api_log.o: mongoose.h
+build/api_log.o: strutil.h
+build/api_log.o: logger.h
+build/api_log.o: conf.h
+build/api_log.o: sessions.h
+build/api_log.o: worlds.h
+build/api_log.o: users.h
+build/api_log.o: util.h
+build/api_log.o: api.h
+build/api_log.o: file.h
+build/api_log.o: events.h
+build/api_log.o: net.h

@@ -10,7 +10,7 @@ all: $(PROG)
 
 include Makefile.depend
 
-C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c logger.c api_user.c api_file.c strutil.c
+C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c logger.c api_user.c api_file.c strutil.c api_log.c
 # C_FILES = *.c
 O_FILES = $(patsubst %.c, build/%.o, $(C_FILES))
 
@@ -47,6 +47,7 @@ genapi.c: $(API_FILES)
 	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.c
 	@echo >> genapi.c
 	@echo '#include "banana.h"' >> genapi.c
+	@echo '#include "genapi.h"' >> genapi.c
 	@echo >> genapi.c
 	@echo "ActionList allActions[] = {" >> genapi.c
 	@grep -h ^ACTION $(API_FILES) | pcregrep -o '".*\w' | sed s/$$/\\},/ | sed 's/^/  {/' >> genapi.c

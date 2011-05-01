@@ -29,5 +29,6 @@ int file_writenum(const char *fname, int val);
 char *file_mimetype(const char *fpath);
 void file_read_to_conn(struct mg_connection *conn, const char *path,
                        int dohead);
+void file_list_to_conn(struct mg_connection *conn, const char *path);
 
 #endif
