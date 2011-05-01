@@ -1,9 +1,5 @@
 TODO:
 
-  * Accessing logs and files via http. - files done.
-
-  * File API - partly done.
-
   * Logging API
 
   * Getting real IP address of connections: X-FORWARDED-FOR
@@ -63,4 +59,8 @@ DONE:
     Odin and buffering.
 
   * Logout.
+
+  * Accessing logs and files via http. - files done.
+
+  * File API - partly done.
 

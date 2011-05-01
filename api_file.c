@@ -51,11 +51,14 @@ read_user_file(User *user,
                struct mg_connection *conn, struct mg_request_info *req,
                char *fname) {
   char *path;
+  slog("Getting valid file path for %s", fname);
   path = user_file_path(user, fname);
   if (!path) {
+    slog("No valid file path for %s", fname);
     send_404(conn);
     return;
   }
+  slog("Reading %s to conn", fname);
       
   file_read_to_conn(conn, path, !strcasecmp(req->request_method,"HEAD"));
   free(path);

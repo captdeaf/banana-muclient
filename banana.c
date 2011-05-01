@@ -250,6 +250,9 @@ event_handler(enum mg_event event, struct mg_connection *conn,
       if (!strcmp(action, "login")) {
         handle_login(conn, req);
         retval = "yes";
+      } else if (!strcmp(action, "logout")) {
+        redirect_to(conn, "/index.html");
+        retval = "yes";
       } else if (!strcmp(action, "updates")) {
         send_error(conn, "You are logged out.");
         retval = "yes";
@@ -276,17 +279,15 @@ event_handler(enum mg_event event, struct mg_connection *conn,
         if (!strncmp(action, "files/", 6)) {
           action = action + 6;
           if (action[0]) {
-            action += 1;
             retval = "yes";
             read_user_file(user, conn, req, action);
           } else {
             retval = "yes";
             list_user_files(user, conn, req);
           }
-        } else if (!strncmp(action, "logs/", 5)) {
+        } else if (!user->isGuest && !strncmp(action, "logs/", 5)) {
           action = action + 5;
           if (action[0]) {
-            action += 1;
             retval = "yes";
             read_user_log(user, conn, req, action);
           } else {
