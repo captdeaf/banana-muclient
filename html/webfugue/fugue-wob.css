@@ -1,0 +1,16 @@
+.colorsel {
+  background-color: black;
+  color: white;
+}
+.fuguebox {
+  border: 1px solid #CCCCCC;
+}
+.mush {
+  border: 1px solid #CCCCCC;
+}
+.mush STRONG {
+  color: #CCCCCC;
+}
+.ui-icon-gripsmall-diagonal-se {
+  background: white;
+}

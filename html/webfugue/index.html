@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8" />
+    <title>WebFugue Mu* Client</title>
+    <link rel="stylesheet" type="text/css" href="/css/ui-lightness/jquery-ui-1.8.12.custom.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/css/ansi.css" />
+    <link rel="stylesheet" type="text/css" href="/css/muclient.css" />
+    <link rel="stylesheet" type="text/css" href="fugue.css" />
+
+    <link rel="stylesheet" type="text/css"
+      title="white-on-black" href="fugue-wob.css" />
+    <link rel="alternate stylesheet" type="text/css"
+      title="black-on-white" href="fugue-bow.css" />
+
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/muclient.js"></script>
+    <script type="text/javascript" src="/js/wraplines.js"></script>
+    <script type="text/javascript" src="fugue.js"></script>
+    <script type="text/javascript" src="fugue-cmd.js"></script>
+    <script type="text/javascript" src="stylesheetToggle.js"></script>
+  </head>
+  <body class="colorsel">
+   <h2>WebFugue Mu* Client</h2>
+   Inspired by Tinyfugue, the best mu* client there ever was =).<br />
+   <div id="resizable" class="fuguebox">
+     <div class="world infobox" id="infobox">
+      <span class="namebox" id="namebox">
+       You are not logged in.
+      </span>
+      <span class="logout">
+       <a href="/action/logout"><button>Log out</button></a>
+      </span>
+      <span id="filechoice" class="filechoice">
+       <a id="acctlink" target="_blank" style="display:none;"><button>Settings</button></a> &nbsp;
+       <a id="filelink" target="_blank" style="display:none;"><button>Files</button></a> &nbsp;
+       <a id="loglink"  target="_blank" style="display:none;"><button>Logs</button></a>
+      </span>
+     </div>
+     <div class="mush" id="outbox"></div>
+     <div id="tabs"></div>
+     <textarea class="colorsel inbox" id="inbox" type="text" wrap="soft"></textarea>
+   </div>
+  </body>
+</html>
