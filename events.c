@@ -274,7 +274,7 @@ event_wait(struct user *user, struct mg_connection *conn, int updateCount) {
   if (user->updateCount <= updateCount) {
     // Nuts, no updates. Let's take a nap.
     clock_gettime(CLOCK_REALTIME, &to);
-    to.tv_sec += 10;
+    to.tv_sec += LONG_POLL_SECONDS;
     to.tv_nsec = 0;
     pthread_cond_timedwait(&(user->evtAlarm), &(user->mutex), &to);
   }
