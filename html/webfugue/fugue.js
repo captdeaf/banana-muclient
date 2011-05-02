@@ -56,36 +56,31 @@ var allWorlds = {};
 var curWidth = 80;
 
 // Called after a limit or unlimit.
-function redrawWorld(worldname) {
-  for (var world in allWorlds) {
-    var w = allWorlds[world];
-    var lim;
-    if (w.limit) {
-      lim = [];
-      for (var i = 0; i < w.lines.length; i++) {
-        if (matchLimit(w.lines[i], w.limit)) {
-          lim.push(w.lines[i]);
-        }
+function redrawWorld(world) {
+  var w = allWorlds[world];
+  var lim;
+  if (w.limit) {
+    lim = [];
+    for (var i = 0; i < w.lines.length; i++) {
+      if (matchLimit(w.lines[i], w.limit)) {
+        lim.push(w.lines[i]);
       }
-    } else {
-      lim = w.lines;
     }
-    var l = wrapLines(lim, curWidth);
-    w.outdiv.html(l.join("<br />\n"));
-    if (world == curWorld) {
-      outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
-    }
+  } else {
+    lim = w.lines;
+  }
+  w.lineCount = lim.length;
+  var l = wrapLines(lim, curWidth);
+  w.outdiv.html(l.join("<br />\n"));
+  if (world == curWorld) {
+    outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
   }
 }
+
 function redrawAllWorlds() {
   curWidth = getCharWidthOf(outbox);
   for (var world in allWorlds) {
-    var w = allWorlds[world];
-    var l = wrapLines(w.lines, curWidth);
-    w.outdiv.html(l.join("<br />\n"));
-    if (world == curWorld) {
-      outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
-    }
+    redrawWorld(world);
   }
 }
 
@@ -118,11 +113,17 @@ API.flush = function() {
         lim = w.lines;
       }
       if (lim.length > 0) {
-        var l = wrapLines(lim, curWidth);
-        w.outdiv.append("<br />");
-        w.outdiv.append(l.join("<br />\n"));
-        if (world == curWorld) {
-          outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
+        w.lineCount += lim.length;
+        if (w.lineCount > (w.lineLimit + 200)) {
+          // Redraw the world instead of appending to a too-long buffer.
+          redrawWorld(world);
+        } else {
+          var l = wrapLines(lim, curWidth);
+          w.outdiv.append("<br />");
+          w.outdiv.append(l.join("<br />\n"));
+          if (world == curWorld) {
+            outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
+          }
         }
       }
     } else {
@@ -139,6 +140,7 @@ function handleCommand(cmd, args) {
     API.flush();
   } else {
     API.alert('Invalid command "' + cmd + '"');
+    API.flush();
   }
 }
 
@@ -218,10 +220,15 @@ function appendToWorld(world, msg, received) {
   if (!toadd[world]) {
     toadd[world] = []
   };
-  if (allWorlds[world]) {
-    allWorlds[world].lines.push(msg);
+  var w = allWorlds[world];
+  if (w) {
+    if (w.lines.push(msg) > (w.lineLimit + 200)) {
+      w.lines = w.lines.slice(0 - w.lineLimit);
+    }
     if (received) {
-      allWorlds[world].inlines.push(msg);
+      if (w.inlines.push(msg) > (w.lineLimit + 200)) {
+        w.inlines = w.inlines.slice(0 - w.lineLimit);
+      }
     }
   }
   toadd[world].push(msg);
@@ -240,7 +247,7 @@ function handleReceived(p) {
   // TODO: Figure out a way to handle fugue triggers, with
   // priority, regexp matching, and ability to replace (in html!)
   // stuff.
-  appendToWorld(p.world, p.text || '');
+  appendToWorld(p.world, p.text || '', true);
 }
 
 API.world.onReceive = function(p) {
@@ -261,7 +268,9 @@ API.world.onOpen = function(p) {
     tab: $('<div class="tab"><a>' + p.world + '</a></div>'),
     outdiv: $('<div class="world"></div>'),
     lines: [],
-    inlines: []
+    inlines: [],
+    lineLimit: 3000,
+    lineCount: 0
   };
   w.tab.appendTo('#tabs');
   $(w.tab,'a').click(function() {
@@ -302,7 +311,9 @@ var KeyReplacers = {
   37: 'left',
   38: 'up',
   39: 'right',
-  40: 'down'
+  40: 'down',
+  33: 'pgup',
+  34: 'pgdn'
 };
 
 API.alert = function(msg) {
