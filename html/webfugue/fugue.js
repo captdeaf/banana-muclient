@@ -8,6 +8,10 @@ API.onReady = function() {
   }
 };
 
+function text2html(text) {
+  return $('<div></div>').text(text).html();
+}
+
 var outbox;
 var inbox;
 var boxframe;
@@ -19,6 +23,7 @@ function resizeDivs() {
   inbox.width(boxframe.width() - 40);
   redrawAllWorlds();
 }
+
 $(document).ready(function() {
   $.stylesheetInit();
   $('#resizable').resizable({
@@ -50,6 +55,28 @@ var toadd = {};
 var allWorlds = {};
 var curWidth = 80;
 
+// Called after a limit or unlimit.
+function redrawWorld(worldname) {
+  for (var world in allWorlds) {
+    var w = allWorlds[world];
+    var lim;
+    if (w.limit) {
+      lim = [];
+      for (var i = 0; i < w.lines.length; i++) {
+        if (matchLimit(w.lines[i], w.limit)) {
+          lim.push(w.lines[i]);
+        }
+      }
+    } else {
+      lim = w.lines;
+    }
+    var l = wrapLines(lim, curWidth);
+    w.outdiv.html(l.join("<br />\n"));
+    if (world == curWorld) {
+      outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
+    }
+  }
+}
 function redrawAllWorlds() {
   curWidth = getCharWidthOf(outbox);
   for (var world in allWorlds) {
@@ -62,15 +89,41 @@ function redrawAllWorlds() {
   }
 }
 
+function matchLimit(text, limit) {
+  return striphtml(text).match(limit);
+}
+
+function setLimit(world, limit) {
+  if (allWorlds[world]) {
+    allWorlds[world].limit = limit;
+    redrawWorld(world);
+  } else {
+    API.alert("No such world '" + world + "'");
+  }
+}
+
 API.flush = function() {
   for (var world in toadd) {
     var w = allWorlds[world];
     if (w) {
-      var l = wrapLines(toadd[world], curWidth);
-      w.outdiv.append("<br />");
-      w.outdiv.append(l.join("<br />\n"));
-      if (world == curWorld) {
-        outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
+      var lim;
+      if (w.limit) {
+        lim = [];
+        for (var i = 0; i < toadd[world].length; i++) {
+          if (matchLimit(toadd[world][i], w.limit)) {
+            lim.push(toadd[world][i]);
+          }
+        }
+      } else {
+        lim = w.lines;
+      }
+      if (lim.length > 0) {
+        var l = wrapLines(lim, curWidth);
+        w.outdiv.append("<br />");
+        w.outdiv.append(l.join("<br />\n"));
+        if (world == curWorld) {
+          outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
+        }
       }
     } else {
       setPrompt("Odd errors? " + toadd[world].join('<br>'));
@@ -243,6 +296,15 @@ API.world.onClose = function(p) {
   }
 }
 
+var KeyReplacers = {
+  17: 'ctrl',
+  18: 'alt',
+  37: 'left',
+  38: 'up',
+  39: 'right',
+  40: 'down'
+};
+
 API.alert = function(msg) {
   appendToWorld(curWorld, '-- ' + msg + ' --');
   API.flush();
@@ -253,8 +315,9 @@ $(document).ready(function() {
   outbox = $('#outbox');
   inbox = $('#inbox');
   inbox.focus();
-  inbox.keypress(function(e) {
-    if (e.keyCode == 13) {
+  inbox.keydown(function(e) {
+    var code = e.charCode ? e.charCode : e.keyCode;
+    if (code == 13) {
       var val = inbox.val();
       handleInput(val);
       inbox.val('');
@@ -266,6 +329,27 @@ $(document).ready(function() {
         e.preventDefault();
       }
       return false;
+    } else if (e.altKey || e.ctrlKey) {
+      var keyp = String.fromCharCode(code);
+      if (KeyReplacers[code]) {
+        keyp = KeyReplacers[code];
+      }
+      var keyname = 'key_' + 
+        (e.ctrlKey ? 'ctrl_' : '') +
+        (e.altKey ? 'alt_' : '') +
+        keyp;
+      keyname = text2html(keyname);
+      if (FugueCommands[keyname]) {
+        handleCommand(keyname, 'down');
+        e.keyCode = 505;
+        e.returnValue = false;
+        e.cancelBubble = true;
+        if (e.stopPropagation) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        return false;
+      }
     }
     return true;
   });

@@ -5,6 +5,27 @@ function addCommand(name, fun) {
   }
 }
 
+addCommand('key_ctrl_P', function() { recallPrev(); });
+addCommand('key_ctrl_N', function() { recallNext(); });
+addCommand('key_ctrl_up', function() { recallPrev(); });
+addCommand('key_ctrl_down', function() { recallNext(); });
+
+addCommand('limit', function(args) {
+  try {
+    setLimit(curWorld, new RegExp(args));
+  } catch (err) {
+    API.alert("Unable to limit: '" + err + "'");
+  }
+});
+
+addCommand('unlimit', function(args) {
+  try {
+    setLimit(curWorld, undefined);
+  } catch (err) {
+    API.alert("Unable to unlimit: '" + err.description + "'");
+  }
+});
+
 addCommand('fg', function(args) {
   if (allWorlds[args]) {
     showWorld(args);
@@ -43,6 +64,9 @@ addCommand('help', function(args) {
     "/close",
     "",
     "/fg &lt;worldname&gt;",
+    "",
+    "ctrl+p or ctrl+up recalls previous command",
+    "ctrl+n or ctrl+down recalls next command",
     "--"
   ];
 
