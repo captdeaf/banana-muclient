@@ -36,11 +36,24 @@ var toadd = {};
 var allWorlds = {};
 var curWidth = 80;
 
+function redrawWorld(world) {
+  var w = allWorlds[world];
+  if (w) {
+    var l = wrapLines(w.lines, curWidth);
+    w.outdiv.html(l.join("<br />\n"));
+    w.lineCount = w.lines.length;
+    if (world == curWorld) {
+      outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
+    }
+  }
+}
+
 function redrawAllWorlds() {
   curWidth = getCharWidthOf(outbox);
   for (var world in allWorlds) {
     var w = allWorlds[world];
     var l = wrapLines(w.lines, curWidth);
+    w.lineCount = w.lines.length;
     w.outdiv.html(l.join("<br />\n"));
     if (world == curWorld) {
       outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
@@ -52,9 +65,17 @@ API.flush = function() {
   for (var world in toadd) {
     var w = allWorlds[world];
     if (w) {
-      var l = wrapLines(toadd[world], curWidth);
-      w.outdiv.append("<br />");
-      w.outdiv.append(l.join("<br />\n"));
+      w.lineCount += toadd[world].length;
+      // If linecount > w.limit + 200, then redraw.
+      if (w.lineCount > (w.limit + 200)) {
+        redrawWorld(world);
+        w.lineCount = w.lines.length;
+      } else {
+        var l = wrapLines(toadd[world], curWidth);
+        w.outdiv.append("<br />");
+        w.outdiv.append(l.join("<br />\n"));
+        w.lineCount += toadd[world].length;
+      }
       if (world == curWorld) {
         outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
       }
@@ -152,9 +173,16 @@ API.world.onOverflow = function(p) {
 };
 
 function appendToWorld(world, msg) {
+  var w = allWorlds[world];
   if (!toadd[world]) {
     toadd[world] = []
   };
+  if (w) {
+    if (w.lines.push(msg) > (w.limit + 200)) {
+      // Keep the last w.limit lines
+      w.lines = w.lines.slice(0 - w.limit);
+    }
+  }
   toadd[world].push(msg);
 }
 
@@ -181,7 +209,9 @@ API.world.onOpen = function(p) {
     name: p.world,
     tab: $('<div class="tab"><a>' + p.world + '</a></div>'),
     outdiv: $('<div class="world"></div>'),
-    lines: []
+    lines: [],
+    lineCount: 0, /* Not lines.length, but displayed line count. */
+    limit: 2000 /* # of lines of recall we keep. */
   };
   w.tab.appendTo('#tabs');
   $(w.tab,'a').click(function() {
