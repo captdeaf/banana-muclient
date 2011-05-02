@@ -21,7 +21,7 @@
 #define HTTP_PORTS "8088,9099s"
 
 // How many seconds do we wait on a socket before returning?
-#define LONG_POLL_SECONDS 120
+#define LONG_POLL_SECONDS 30
 
 #define USE_SSL
 #define SSL_PEM_FILE "ssl_cert.pem"

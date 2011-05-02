@@ -95,7 +95,7 @@ queueEvent(struct user *user, struct world *world, int alarm,
       // Bump a world event.
       event_free(world->events[world->evtE]);
       world->evtS++;
-      world->evtS %= MAX_USER_EVENTS;
+      world->evtS %= MAX_WORLD_EVENTS;
     }
     event->refcount++;
     world->events[world->evtE] = event;
