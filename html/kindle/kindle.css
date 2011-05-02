@@ -1,0 +1,63 @@
+.mainbox {
+}
+.infobox {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.mush {
+  /* white-space: pre; */
+  font-family: Courier New, fixed, monospace;
+  overflow:  auto;
+  border:    2px solid black;
+  padding:   1em;
+}
+.mush STRONG {
+  color: #333333;
+}
+.mush STRONG SPAN {
+  font-weight: normal;
+}
+.logout {
+  position: relative;
+  float: right;
+  right: 3em;
+}
+.filechoice {
+  position: relative;
+  float: right;
+  right: 5em;
+}
+.prompt {
+  display: none;
+  font-size: 10pt;
+  overflow:  auto;
+  border:    2px solid black;
+  padding:   0.5em;
+  height:    20px;
+}
+.tabbox {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+#tabs {
+  float: left;
+  height: 1.5em;
+}
+.tabsel {
+  float: left;
+  width: 8em;
+  height: 1em;
+}
+.tab {
+  float: left;
+  height: 1em;
+  margin-left: 0.25em;
+  padding: 0.2em;
+}
+.inbox {
+  margin-top: 0.5em;
+  padding: 0.5em;
+  padding: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+}

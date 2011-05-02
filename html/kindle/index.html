@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8" />
+    <title>Kindle MU* Client</title>
+    <link rel="stylesheet" type="text/css" href="/css/ui-lightness/jquery-ui-1.8.12.custom.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/css/ansi.css" />
+    <link rel="stylesheet" type="text/css" href="/css/muclient.css" />
+    <link rel="stylesheet" type="text/css" href="kindle.css" />
+
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/muclient.js"></script>
+    <script type="text/javascript" src="/js/wraplines.js"></script>
+    <script type="text/javascript" src="kindle.js"></script>
+  </head>
+  <body>
+   <h2>Kindle MU* Client</h2>
+   <div class="world infobox" id="infobox">
+    <span class="namebox" id="namebox">
+     You are not logged in.
+    </span>
+    <span class="logout">
+     <a href="/action/logout"><button>Log out</button></a>
+    </span>
+    <span id="filechoice" class="filechoice">
+     <a id="filelink" target="_blank" href="#" style="display:none;">Files</a> &nbsp; &nbsp;
+     <a id="loglink" target="_blank" href="#" style="display:none;">Logs</a> &nbsp; &nbsp;
+    </span>
+   </div>
+   <div class="mush" id="outbox"></div>
+   <div class="tabbox" id="tabbox">
+     <div class="tabsel">
+       <a id="prev"><button>Prev</button></a>&nbsp;&nbsp;
+       <a id="next"><button>Next</button></a>
+     </div>
+     <div id="tabs"></div>
+   </div>
+   <div class="prompt" id="promptbox"></div>
+   <input class="inbox" id="inbox" type="text" value="" /><br />
+   <br />
+   <table class="mainbox"><tr>
+    <td style="text-align:left; width:250px;" valign="top">
+     Commands:<br />
+     Open a new world:<br />
+     &nbsp; /open &lt;worldname&gt;<br />
+     Manipulate your current world:<br />
+     &nbsp; /connect &lt;host&gt; &lt;port&gt;<br />
+     &nbsp; /disconnect<br />
+     &nbsp; /close<br />
+    </td><td style="text-align:left; width:250px;" valign="top">
+    </td>
+   </tr></table>
+  </body>
+</html>
