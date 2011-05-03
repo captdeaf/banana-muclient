@@ -9,7 +9,7 @@
 
 #define HTTP_FOUND "HTTP/1.1 302 Found\r\n"
 #define HEADER_NOCACHE \
-      "Expires: yesterday\r\n" \
+      "Expires: Thu, 01-Jan-1970 00:00:01 GMT\r\n" \
       "Cache: no-cache\r\n" \
       "max-age: 0\r\n" \
       "s-maxage: 0\r\n" \
