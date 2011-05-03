@@ -76,23 +76,23 @@ convert_charset( char *from_charset, char *to_charset, char *input ) {
 
 // start_span and end_span must write out text that is JSON-safe.
 int
-start_span(char **r, struct a2h *ah) {
+start_span(char **r, struct markupdata *md) {
   int ret = 0;
-  if (ah->flags) {
+  if (md->flags) {
     ret = 1;
-    if (ah->flags & ANSI_UNDERLINE) { *r += sprintf(*r, "<u>"); }
-    if (ah->flags & ANSI_FLASH) { *r += sprintf(*r, "<em>"); }
-    if (ah->flags & ANSI_HILITE) { *r += sprintf(*r, "<strong>"); }
-    if (ah->flags & ANSI_INVERT) { *r += sprintf(*r, "<span class=\\\"invert\\\">"); }
+    if (md->flags & ANSI_UNDERLINE) { *r += sprintf(*r, "<u>"); }
+    if (md->flags & ANSI_FLASH) { *r += sprintf(*r, "<em>"); }
+    if (md->flags & ANSI_HILITE) { *r += sprintf(*r, "<strong>"); }
+    if (md->flags & ANSI_INVERT) { *r += sprintf(*r, "<span class=\\\"invert\\\">"); }
   }
-  if (ah->f[0] || ah->b[0]) {
+  if (md->f[0] || md->b[0]) {
     ret = 1;
     (*r) += sprintf(*r, "<span class=\\\"");
-    if (ah->b[0]) {
-      (*r) += sprintf(*r, "%s", ah->b);
+    if (md->b[0]) {
+      (*r) += sprintf(*r, "%s", md->b);
     }
-    if (ah->f[0]) {
-      (*r) += sprintf(*r, "%s%s", ah->b[0] ? " " : "", ah->f);
+    if (md->f[0]) {
+      (*r) += sprintf(*r, "%s%s", md->b[0] ? " " : "", md->f);
     }
     (*r) += sprintf(*r, "\\\">");
   }
@@ -101,15 +101,15 @@ start_span(char **r, struct a2h *ah) {
 
 /** We need to spit out The bits we printed, in reverse */
 void
-end_span(char **r, struct a2h *ah) {
-  if (ah->f[0] || ah->b[0]) {
+end_span(char **r, struct markupdata *md) {
+  if (md->f[0] || md->b[0]) {
     (*r) += sprintf(*r, "</span>");
   }
-  if (ah->flags) {
-    if (ah->flags & ANSI_INVERT) { *r += sprintf(*r, "</span>"); }
-    if (ah->flags & ANSI_HILITE) { *r += sprintf(*r, "</strong>"); }
-    if (ah->flags & ANSI_FLASH) { *r += sprintf(*r, "</em>"); }
-    if (ah->flags & ANSI_UNDERLINE) { *r += sprintf(*r, "</u>"); }
+  if (md->flags) {
+    if (md->flags & ANSI_INVERT) { *r += sprintf(*r, "</span>"); }
+    if (md->flags & ANSI_HILITE) { *r += sprintf(*r, "</strong>"); }
+    if (md->flags & ANSI_FLASH) { *r += sprintf(*r, "</em>"); }
+    if (md->flags & ANSI_UNDERLINE) { *r += sprintf(*r, "</u>"); }
   }
 }
 
@@ -118,7 +118,7 @@ char *
 ansi2html(World *w, char *str) {
   int inspan;
   char *r, *s;
-  struct a2h *ah = &w->a2h;
+  struct markupdata *md = &w->mdata;
   int code;
   int donbsp;
   // With BUFFER_LEN of 8192, this takes 10kb, but it's called for every
@@ -129,7 +129,7 @@ ansi2html(World *w, char *str) {
   // It's short lived anyway, so who cares?
   r = ret;
 
-  inspan = start_span(&r, ah);
+  inspan = start_span(&r, md);
   donbsp = 1;
   while (*str) {
     while (*str && *str != _ESC) {
@@ -157,7 +157,7 @@ ansi2html(World *w, char *str) {
         break;
       case '\n':
         // We should never get \\r or \\n, but just in case . . .
-        r += sprintf(r, "\\r");
+        r += sprintf(r, "\\n");
         break;
       case '\r':
         // We should never get \\r or \\n, but just in case . . .
@@ -186,7 +186,7 @@ ansi2html(World *w, char *str) {
         r -= 1;
         r += sprintf(r, "&nbsp;");
       }
-      end_span(&r, ah); donbsp = 1;
+      end_span(&r, md); donbsp = 1;
     }
     inspan = 0;
     if (*str == _ESC) {
@@ -198,33 +198,33 @@ ansi2html(World *w, char *str) {
           while (*str && isdigit(*str)) str++;
           code = atoi(s);
           switch (code) {
-          case 30: strcpy(ah->f,"fg_x"); break;
-          case 31: strcpy(ah->f,"fg_r"); break;
-          case 32: strcpy(ah->f,"fg_g"); break;
-          case 33: strcpy(ah->f,"fg_y"); break;
-          case 34: strcpy(ah->f,"fg_b"); break;
-          case 35: strcpy(ah->f,"fg_m"); break;
-          case 36: strcpy(ah->f,"fg_c"); break;
-          case 37: strcpy(ah->f,"fg_w"); break;
-          case 40: strcpy(ah->b,"bg_x"); break;
-          case 41: strcpy(ah->b,"bg_r"); break;
-          case 42: strcpy(ah->b,"bg_g"); break;
-          case 43: strcpy(ah->b,"bg_y"); break;
-          case 44: strcpy(ah->b,"bg_b"); break;
-          case 45: strcpy(ah->b,"bg_m"); break;
-          case 46: strcpy(ah->b,"bg_c"); break;
-          case 47: strcpy(ah->b,"bg_w"); break;
-          case 1: ah->flags |= ANSI_HILITE; break;
-          case 3: ah->flags |= ANSI_FLASH; break;
-          case 4: ah->flags |= ANSI_UNDERLINE; break;
-          case 7: ah->flags |= ANSI_INVERT; break;
-          case 5: ah->flags |= ANSI_FLASH; break;
-          case 6: ah->flags |= ANSI_FLASH; break;
+          case 30: strcpy(md->f,"fg_x"); break;
+          case 31: strcpy(md->f,"fg_r"); break;
+          case 32: strcpy(md->f,"fg_g"); break;
+          case 33: strcpy(md->f,"fg_y"); break;
+          case 34: strcpy(md->f,"fg_b"); break;
+          case 35: strcpy(md->f,"fg_m"); break;
+          case 36: strcpy(md->f,"fg_c"); break;
+          case 37: strcpy(md->f,"fg_w"); break;
+          case 40: strcpy(md->b,"bg_x"); break;
+          case 41: strcpy(md->b,"bg_r"); break;
+          case 42: strcpy(md->b,"bg_g"); break;
+          case 43: strcpy(md->b,"bg_y"); break;
+          case 44: strcpy(md->b,"bg_b"); break;
+          case 45: strcpy(md->b,"bg_m"); break;
+          case 46: strcpy(md->b,"bg_c"); break;
+          case 47: strcpy(md->b,"bg_w"); break;
+          case 1: md->flags |= ANSI_HILITE; break;
+          case 3: md->flags |= ANSI_FLASH; break;
+          case 4: md->flags |= ANSI_UNDERLINE; break;
+          case 7: md->flags |= ANSI_INVERT; break;
+          case 5: md->flags |= ANSI_FLASH; break;
+          case 6: md->flags |= ANSI_FLASH; break;
           case 0:
             // Unset everything.
-            ah->f[0] = '\0';
-            ah->b[0] = '\0';
-            ah->flags = 0;
+            md->f[0] = '\0';
+            md->b[0] = '\0';
+            md->flags = 0;
             break;
           case 38: 
             // 256 color foreground
@@ -232,7 +232,7 @@ ansi2html(World *w, char *str) {
               str += 3;
               code = atoi(str);
               while (*str && isdigit(*str)) str++;
-              snprintf(ah->f, ANSI_SIZE, "fg_%d", code);
+              snprintf(md->f, ANSI_SIZE, "fg_%d", code);
             }
             break;
           case 48: 
@@ -241,7 +241,7 @@ ansi2html(World *w, char *str) {
               str += 3;
               code = atoi(str);
               while (*str && isdigit(*str)) str++;
-              snprintf(ah->b, ANSI_SIZE, "bg_%d", code);
+              snprintf(md->b, ANSI_SIZE, "bg_%d", code);
             }
             break;
           }
@@ -254,7 +254,7 @@ ansi2html(World *w, char *str) {
         r -= 1;
         r += sprintf(r, "&nbsp;");
       }
-      inspan = start_span(&r, ah);
+      inspan = start_span(&r, md);
       donbsp = 1;
     }
   }
