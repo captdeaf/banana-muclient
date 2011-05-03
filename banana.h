@@ -32,6 +32,7 @@
 #include "api.h"
 #include "file.h"
 #include "events.h"
+#include "mudparser.h"
 #include "net.h"
 
 #endif
