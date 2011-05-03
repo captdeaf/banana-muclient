@@ -110,7 +110,7 @@ API.flush = function() {
           }
         }
       } else {
-        lim = w.lines;
+        lim = toadd[world];
       }
       if (lim.length > 0) {
         w.lineCount += lim.length;
