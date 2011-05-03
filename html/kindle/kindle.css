@@ -27,14 +27,6 @@
   float: right;
   right: 5em;
 }
-.prompt {
-  display: none;
-  font-size: 10pt;
-  overflow:  auto;
-  border:    2px solid black;
-  padding:   0.5em;
-  height:    20px;
-}
 .tabbox {
   margin-top: 0.5em;
   margin-bottom: 0.5em;

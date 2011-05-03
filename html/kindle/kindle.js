@@ -158,14 +158,9 @@ function showWorld(which) {
   inbox.focus();
 }
 
-$('#promptbox').hide();
 function setPrompt(text) {
-  $('#promptbox').html(text);
-  if (text && text != "") {
-    $('#promptbox').show();
-  } else {
-    $('#promptbox').hide();
-  }
+  appendToWorld(curWorld, '-- ' + text + ' --');
+  API.flush();
 }
 
 API.world.onOverflow = function(p) {
@@ -197,7 +192,9 @@ function setInfo(text) {
 API.world.onReceive = function(p) {
   appendToWorld(p.world, p.text || '');
 };
-API.world.onPrompt = function(p) { setPrompt(p.text); };
+API.world.onPrompt = function(p) {
+  appendToWorld(p.world, p.text || '');
+};
 
 API.world.onConnectFail = function(p) { appendToWorld(p.world, ' -- CONNFAIL: ' + p.cause + ' -- '); }
 API.world.onDisconnectFail = function(p) { appendToWorld(p.world, ' -- DISCONNFAIL: ' + p.cause + ' -- '); }
