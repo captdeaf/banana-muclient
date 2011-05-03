@@ -67,14 +67,14 @@ logger_new(char *logname) {
   pthread_mutex_init(&logger->logmutex, &pth_recurse);
   logger->logout = NULL;
 
-  llog(logger, "-- LOGGING STARTED --");
+  llog(logger, "-- LOG STARTED --");
 
   return logger;
 }
 
 void
 logger_free(Logger *logger) {
-  llog(logger, "-- LOGGING ENDED --");
+  llog(logger, "-- LOG ENDED --");
 
   if (logger->logout) {
     fclose(logger->logout);
@@ -99,6 +99,7 @@ vllog(Logger *logger, char *fmt, va_list args) {
   time_t now;
   char filename[200];
   char timebuff[20];
+  int  logrollover = 0;
 
   // Lock up.
   pthread_mutex_lock(&logger->logmutex);
@@ -108,6 +109,10 @@ vllog(Logger *logger, char *fmt, va_list args) {
 
   if (today.tm_yday != logger->logday.tm_yday) {
     // Date has advanced.
+    if (logger->logout) {
+      fprintf(logger->logout, "23:59:59 -- LOG ROLLOVER --\n");
+      logrollover = 1;
+    }
     localtime_r(&now, &logger->logday);
     free(logger->datestr);
     strftime(timebuff, 20, "%F", &logger->logday);
@@ -139,6 +144,9 @@ vllog(Logger *logger, char *fmt, va_list args) {
       }
       pthread_mutex_unlock(&logger->logmutex);
       return;
+    }
+    if (logrollover) {
+      fprintf(logger->logout, "00:00:00 -- LOG ROLLOVER --\n");
     }
   }
 
