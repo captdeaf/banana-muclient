@@ -145,9 +145,7 @@ static void
 user_clean(User *user) {
   int j;
   noisy_lock(&user->mutex, user->name);
-  if (user->refcount == 0) {
-    slog("User '%s' cleaning up.", user->name);
-  }
+  slog("User '%s' cleaning up.", user->name);
 
   for (j = 0; j < MAX_USER_EVENTS; j++) {
     if (user->events[j]) {
@@ -161,8 +159,9 @@ user_clean(User *user) {
   }
  
   noisy_unlock(&user->mutex, user->name);
-  pthread_cond_destroy(&user->evtAlarm);
-  pthread_mutex_destroy(&user->mutex);
+  pthread_cond_broadcast(&(user->evtAlarm));
+  pthread_cond_destroy(&(user->evtAlarm));
+  pthread_mutex_destroy(&(user->mutex));
 }
 
 void

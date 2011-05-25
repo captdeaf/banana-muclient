@@ -344,7 +344,7 @@ send_charsets(World *w) {
   char buff[100], *bp = buff;
   char *charsets = ";UTF-8;ISO-8859-1;ISO-8859-2;US-ASCII;CP437";
   writebuf(buff, &bp, IAC SB CHARSET CHARSET_REQUEST, 4);
-  writebuf(buff, &bp, charsets, strlen(charsets));
+  writebuf_escaped(buff, &bp, charsets, strlen(charsets));
   writebuf(buff, &bp, IAC SE, 2);
   write_raw(w->fd, buff, bp - buff);
 }

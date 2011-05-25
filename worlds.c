@@ -168,9 +168,7 @@ world_open(User *user, char *worldname) {
                  user->dir, user->name, worldname);
         world->logger = logger_new(logpath);
         world->user = user;
-        world->a2h.f[0] = '\0';
-        world->a2h.b[0] = '\0';
-        world->a2h.flags = 0;
+        memset(&world->mdata, 0, sizeof(struct markupdata));
         world->tried_iac = 0;
         snprintf(world->charset, 20, "ISO-8859-1");
         world->netstatus = WORLD_DISCONNECTED;

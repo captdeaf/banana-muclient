@@ -44,6 +44,14 @@ addCommand('disconnect', function(args) {
 addCommand('close', function(args) {
   API.world.close(curWorld);
 });
+addCommand('setpassword', function(args) {
+  if (args.match(/\S{5}/)) {
+    appendToWorld(curWorld, 'Submitting password change request. (It won\'t verify)');
+    API.user.setPassword(args);
+  } else {
+    appendToWorld(curWorld, 'Password too short.');
+  }
+});
 addCommand('wob', function(args) {
   $.stylesheetSwitch('white-on-black');
 });
@@ -67,6 +75,8 @@ addCommand('help', function(args) {
     "",
     "ctrl+p or ctrl+up recalls previous command",
     "ctrl+n or ctrl+down recalls next command",
+    "",
+    "/setpassword <password> - Set a new password for Banana",
     "--"
   ];
 

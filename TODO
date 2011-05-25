@@ -1,23 +1,26 @@
 TODO:
 
-  * Logging API
+  * Getting real IP address of connections: X-FORWARDED-FOR for logging
+    and REAL_IP
 
-  * Getting real IP address of connections: X-FORWARDED-FOR
+  * API.user.setdimensions(width, height)
+
+  * Report to a user their _own_ connects/disconnects (to/from banana)?
 
   * Server preferences, for connecting to a given IP:port: Send REAL_IP,
-    etc?
+    etc? Add REAL_IP or IP_ADDR support to PennMUSH. Talk to Brazil,
+    Ashen-Shugar? - Add PROXIED_IP and PROXIED_USER ?
 
   * SSL connection to MU*s.
+
+  * Replace Mongoose, it's far too limited and broken.
 
   * I _THINK_ the only thread hazard right now is the wait between
     epoll_wait and when it acquires the net lock. Some solution
     would be ideal. Maybe: Check using EPOLL_MOD to make sure it still
     exists?
 
-WTF:
-  * IAC: Figure out where the incorrect character count is coming from?
-    send_ttype works but only if I send a space or two first. Why does
-    send_ttype need to send that magic space?
+  * File and Logging list API
 
 DONE:
   * Overflow event: Client/HTTP couldn't keep up with the incoming text
@@ -63,4 +66,8 @@ DONE:
   * Accessing logs and files via http. - files done.
 
   * File API - partly done.
+
+  * IAC: Figure out where the incorrect character count is coming from?
+    send_ttype works but only if I send a space or two first. Why does
+    send_ttype need to send that magic space?
 

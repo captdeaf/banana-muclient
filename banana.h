@@ -25,6 +25,7 @@
 #include "logger.h"
 #include "conf.h"
 #include "sessions.h"
+#include "mudparser.h"
 #include "worlds.h"
 #include "users.h"
 #include "banana.h"
@@ -32,7 +33,6 @@
 #include "api.h"
 #include "file.h"
 #include "events.h"
-#include "mudparser.h"
 #include "net.h"
 
 #endif

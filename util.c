@@ -7,7 +7,11 @@
 
 pthread_mutexattr_t pthread_recursive_attr; 
 
-// #define NOISY_LOCK
+#define NOISY_LOCK
+
+#ifdef NOISY_LOCK
+Logger *threadlog;
+#endif
 
 void
 do_noisy_lock(pthread_mutex_t *mutex,
@@ -15,12 +19,12 @@ do_noisy_lock(pthread_mutex_t *mutex,
               char *fname _unused_,
               int linenum _unused_) {
 #ifdef NOISY_LOCK
-  slog("Mutex '%s' try_lock by %X at %s:%d",
+  llog(threadlog, "Mutex '%s' try_lock by %X at %s:%d",
        name, pthread_self(), fname, linenum);
 #endif
   pthread_mutex_lock(mutex);
 #ifdef NOISY_LOCK
-  slog("Mutex '%s' locked by %X at %s:%d",
+  llog(threadlog, "Mutex '%s' locked by %X at %s:%d",
        name, pthread_self(), fname, linenum);
 #endif
 }
@@ -31,7 +35,7 @@ do_noisy_unlock(pthread_mutex_t *mutex,
                 char *fname _unused_,
                 int linenum _unused_) {
 #ifdef NOISY_LOCK
-  slog("Mutex '%s' unlocked by %X at %s:%d",
+  llog(threadlog, "Mutex '%s' unlocked by %X at %s:%d",
        name, pthread_self(), fname, linenum);
 #endif
   pthread_mutex_unlock(mutex);
@@ -56,6 +60,9 @@ unsigned char valid_chars[0x100];
 void
 util_init() {
   int i;
+#ifdef NOISY_LOCK
+  threadlog = logger_new("logs/threads");
+#endif
   pthread_mutexattr_init(&pthread_recursive_attr); 
   pthread_mutexattr_settype(&pthread_recursive_attr, PTHREAD_MUTEX_RECURSIVE); 
   for (i = 0; i < 0x100; i++) {
@@ -142,7 +149,7 @@ redirect_to_client(struct session *session,
     snprintf(clfile, MAX_PATH_LEN, "/%s", client);
     free(client);
   } else {
-    snprintf(clfile, MAX_PATH_LEN, "/webcat");
+    snprintf(clfile, MAX_PATH_LEN, "/webfugue");
   }
   if (session && session->cookie_string) {
     mg_printf(conn, "HTTP/1.1 302 Found\r\n"
