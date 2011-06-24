@@ -27,7 +27,6 @@ clean:
 API_FILES = $(filter api_%.c,$(C_FILES))
 
 genapi.h: $(API_FILES)
-	@type -p pcregrep >/dev/null || (echo "pcregrep is not installed" && false)
 	@echo "Generating genapi.h"
 	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.h
 	@echo >> genapi.h
@@ -42,7 +41,6 @@ genapi.h: $(API_FILES)
 	@echo '#endif' >> genapi.h
 
 genapi.c: $(API_FILES)
-	@type -p pcregrep >/dev/null || (echo "pcregrep is not installed" && false)
 	@echo "Generating genapi.c"
 	@echo "/* AUTO-GENERATED FILE, DO NOT EDIT */" > genapi.c
 	@echo >> genapi.c
