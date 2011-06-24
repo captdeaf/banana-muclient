@@ -182,6 +182,9 @@ handle_login(struct mg_connection *conn, struct mg_request_info *req) {
     slog("User '%s': Out of users.", username);
     redirect_to(conn, "/nousers.html"); return;
   }
+  if (user->timeout > 60) {
+    session->timeout = user->timeout;
+  }
   slog("Session: User '%s' attached to session '%s'",
        username, session->session_id);
 

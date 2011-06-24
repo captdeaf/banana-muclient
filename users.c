@@ -55,6 +55,7 @@ user_guest(Session *session, char *username, char *userdir) {
     snprintf(users[i].name, MAX_GUESTNAME_LEN, "%s-guest-%d",
              username, guestid);
     strncpy(users[i].dir, userdir, MAX_DIR_LEN);
+    users[i].timeout = 60;
     users[i].isGuest = 1;
     users[i].refcount = 1;
     if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))
@@ -77,6 +78,7 @@ user_guest(Session *session, char *username, char *userdir) {
 User *
 user_login(Session *session, char *username, char *userdir) {
   int i;
+  char fpath[MAX_PATH_LEN];
 
   noisy_lock(&user_mutex, "users");
 
@@ -109,6 +111,8 @@ user_login(Session *session, char *username, char *userdir) {
     snprintf(users[i].loginname, MAX_NAME_LEN, "%s", username);
     strncpy(users[i].name, username, MAX_NAME_LEN);
     strncpy(users[i].dir, userdir, MAX_DIR_LEN);
+    snprintf(fpath, MAX_PATH_LEN, "%s/timeout", userdir);
+    users[i].timeout = file_readnum(fpath, 120);
     users[i].isGuest = 0;
     users[i].refcount = 1;
     if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))

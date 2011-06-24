@@ -25,7 +25,7 @@ session_get(const struct mg_connection *conn) {
     if (sessions[i].expire > now &&
         strcmp(sessions[i].session_id, session_id) == 0) {
       // Bump sessions expire time, since this was accessed.
-      sessions[i].expire = time(NULL) + SESSION_TTL;
+      sessions[i].expire = time(NULL) + sessions[i].timeout;
       break;
     }
   }
@@ -42,7 +42,7 @@ session_new(void) {
   noisy_lock(&session_mutex, "sessions");
   for (i = 0; i < MAX_SESSIONS; i++) {
     if (sessions[i].expire == 0) {
-      sessions[i].expire = now + SESSION_TTL;
+      sessions[i].expire = now + sessions[i].timeout;
       break;
     }
   }
@@ -50,7 +50,6 @@ session_new(void) {
   if (i >= MAX_SESSIONS) {
     return NULL;
   }
-  sessions[i].expire = time(NULL) + SESSION_TTL;
   sessions[i].userid = -1;
   return &sessions[i];
 }
@@ -80,6 +79,7 @@ session_make() {
 
   session = session_new();
   if (session) {
+    session->timeout = SESSION_TTL;
     snprintf(session->random, RANDOM_LEN, "%d", rand());
     generate_session_id(session->session_id, session->random, SESSION_SALT);
     snprintf(session->cookie_string, COOKIE_LEN,

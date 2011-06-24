@@ -20,6 +20,9 @@ typedef struct user {
   // A refcount > 0 means it's in use.
   int refcount;
 
+  // How long until a session times out?
+  int timeout;
+
   // User mutex. For protecting worlds and events.
   pthread_mutex_t mutex;
   pthread_cond_t  evtAlarm;

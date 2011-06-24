@@ -18,6 +18,7 @@ typedef struct session {
   // Time left.
   time_t expire;            // Expiration timestamp, UTC. expire of 0
                             // Means that this session is unused.
+  int    timeout;
 
   // The user ID.
   int    userid;            // -1 until authorized.
