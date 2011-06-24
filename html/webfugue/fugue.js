@@ -54,6 +54,8 @@ function striphtml(line) {
 var toadd = {};
 var allWorlds = {};
 var curWidth = 80;
+var curWorld;
+var sysWorld;
 
 // Called after a limit or unlimit.
 function redrawWorld(world) {
@@ -198,10 +200,14 @@ function showWorld(which) {
     if (world == which) {
       w.outdiv.show();
       w.outdiv.attr({ scrollTop: w.outdiv.attr("scrollHeight") });
-      w.tab.css({ 'text-decoration': 'underline', 'background-color': '#99F'});
+      if (w.tab) {
+        w.tab.css({ 'text-decoration': 'underline', 'background-color': '#99F'});
+      }
     } else {
       w.outdiv.hide();
-      w.tab.css({ 'text-decoration': 'none', 'background-color': '#CCCCCC'});
+      if (w.tab) {
+        w.tab.css({ 'text-decoration': 'none', 'background-color': '#CCCCCC'});
+      }
     }
   }
   outbox.attr({ scrollTop: outbox.attr("scrollHeight") });
@@ -217,18 +223,22 @@ API.world.onOverflow = function(p) {
 };
 
 function appendToWorld(world, msg, received) {
+  if (!world) {
+    world = "--sys--";
+  }
   if (!toadd[world]) {
     toadd[world] = []
   };
   var w = allWorlds[world];
-  if (w) {
-    if (w.lines.push(msg) > (w.lineLimit + 200)) {
-      w.lines = w.lines.slice(0 - w.lineLimit);
-    }
-    if (received) {
-      if (w.inlines.push(msg) > (w.lineLimit + 200)) {
-        w.inlines = w.inlines.slice(0 - w.lineLimit);
-      }
+  if (!w) {
+    w = sysWorld;
+  }
+  if (w.lines.push(msg) > (w.lineLimit + 200)) {
+    w.lines = w.lines.slice(0 - w.lineLimit);
+  }
+  if (received) {
+    if (w.inlines.push(msg) > (w.lineLimit + 200)) {
+      w.inlines = w.inlines.slice(0 - w.lineLimit);
     }
   }
   toadd[world].push(msg);
@@ -261,28 +271,39 @@ API.world.onConnectFail = function(p) { appendToWorld(p.world, ' -- CONNFAIL: ' 
 API.world.onDisconnectFail = function(p) { appendToWorld(p.world, ' -- DISCONNFAIL: ' + p.cause + ' -- '); }
 API.world.onError = function(p) { appendToWorld(p.world, ' -- ERROR: ' + p.cause + ' -- '); }
 
-API.world.onOpen = function(p) {
-  var tabname = '#' + p.world + '-output';
+function createWorld(name, addtab) {
   var w = {
-    name: p.world,
-    tab: $('<div class="tab"><a>' + p.world + '</a></div>'),
+    name: name,
     outdiv: $('<div class="world"></div>'),
     lines: [],
     inlines: [],
     lineLimit: 3000,
     lineCount: 0
   };
-  w.tab.appendTo('#tabs');
-  $(w.tab,'a').click(function() {
-    showWorld(w.name);
-  });
+  if (addtab) {
+    w.tab = $('<div class="tab"><a>' + name + '</a></div>');
+    w.tab.appendTo('#tabs');
+    $(w.tab,'a').click(function() {
+      showWorld(w.name);
+    });
+  }
   w.outdiv.css({display: 'none'});
   w.outdiv.appendTo(outbox);
 
-  allWorlds[p.world] = w;
-  appendToWorld(p.world, ' -- Opened -- ');
-  showWorld(p.world);
+  allWorlds[name] = w;
+  if (addtab) {
+    appendToWorld(name, ' -- Opened -- ');
+  }
+  if (curWorld == undefined || addtab) {
+    showWorld(name);
+  }
+  return w;
 }
+
+API.world.onOpen = function(p) {
+  createWorld(p.world, true);
+}
+
 API.world.onConnect = function(p) {
   if (p.seen == 1) {
     appendToWorld(p.world, ' -- Connected to ' + p.world + ' --');
@@ -322,9 +343,15 @@ API.alert = function(msg) {
 }
 
 $(document).ready(function() {
-  redrawAllWorlds();
   outbox = $('#outbox');
   inbox = $('#inbox');
+  sysWorld = createWorld('--sys--', false);
+  redrawAllWorlds();
+  var x = curWorld;
+  curWorld = "--sys--";
+  handleCommand("help", "");
+  curWorld = x;
+
   inbox.focus();
   inbox.keydown(function(e) {
     var code = e.charCode ? e.charCode : e.keyCode;
