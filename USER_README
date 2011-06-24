@@ -8,7 +8,7 @@ e.g:
 Contents of a user dir: (So far, only password.md5 is supported :D)
 
   password.md5: An md5sum of the user's password.
-      echo -n 'password' > password.md5
+      echo -n 'password' | md5sum > password.md5
 
   can_guest: If it contains "yes", it means the user can guest.
 
