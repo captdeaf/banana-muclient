@@ -51,6 +51,16 @@ function striphtml(line) {
   return line.replace(/&.*?;/g, function(i) { return repls[i]; });
 }
 
+function glob_to_regexp(text) {
+  if (text.length == 0){return new RegExp('');}
+  text = text.replace(/[\^\$\.\+\=\!\:\|\\\/\(\)\[\]\{\}]/g,"\\$&");
+  text = (text.charAt(0)=='*') ? (text.replace(/^\*+/,'')) : ('^'+text);
+  text = (text.charAt(text.length - 1)=='*') ? (text.replace(/\*+$/,'')) : (text+'$');
+  text = text.replace(/\?/g,'.');
+  text = text.replace(/\*+/g,'.*');
+  return new RegExp(text);
+}
+
 var toadd = {};
 var allWorlds = {};
 var curWidth = 80;
