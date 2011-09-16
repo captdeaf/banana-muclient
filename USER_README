@@ -12,11 +12,18 @@ Contents of a user dir: (So far, only password.md5 is supported :D)
 
   can_guest: If it contains "yes", it means the user can guest.
 
+  host: For guest accounts, it must exist: Contains host.domain.com 1234
+        (host and port)
+
   guestcount: Contains a number, it is the number of the next guest
               to connect (assuming can_guest is enabled).
 
   client: Contains a path (not including the beginning /) of the preferred
           client of the user. e.g: "webcat", "oneworld", etc.
+
+  timeout: Contains a number, which is the seconds this user can be
+           disconnected from the server before their sessions time out.
+           (Default 120 for users, 30 for guests)
 
   files/: For the API.file.* read/write/etc.
 
