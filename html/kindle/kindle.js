@@ -17,7 +17,7 @@ $(document).ready(function() {
   var newheight = $(window).height() - 250;
   var newwidth = $(window).width() - 80;
   outbox.css({height: newheight, width: newwidth});
-  inbox.css({width: newwidth});
+  inbox.css({width: newwidth - 80});
 });
 
 var repls = {
@@ -266,6 +266,11 @@ $(document).ready(function() {
       }
       return false;
     }
+    $('#send').click(function() {
+      var val = inbox.val();
+      handleInput(val);
+      inbox.val('');
+    });
     return true;
   });
 });

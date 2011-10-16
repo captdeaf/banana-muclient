@@ -235,14 +235,19 @@ event_handler(enum mg_event event, struct mg_connection *conn,
         retval = "yes";
       } else {
         for (i = 0; allActions[i].name; i++) {
+          if ((allActions[i].flags & API_NOGUEST) &&
+              user->isGuest) continue;
+          if ((allActions[i].flags & API_ADMIN) &&
+              !user->isAdmin) continue;
           if (!strcmp(allActions[i].name, action)) {
-            allActions[i].handler(user, conn, req, allActions[i].name);
-
             // If the action has API_AUTOHEADER set, then spit out
             // the ajax header.
             if (allActions[i].flags & API_AUTOHEADER) {
               write_ajax_header(conn, allActions[i].flags);
             }
+
+            allActions[i].handler(user, conn, req, allActions[i].name);
+
             retval = "yes";
             break;
           }
@@ -277,8 +282,13 @@ event_handler(enum mg_event event, struct mg_connection *conn,
       // Try for /user/<username>/... And we only accept when <username>
       // == the logged in user.
       int len = strlen(user->loginname);
-      if (!strncmp(action, user->loginname, len) && (*(action+len) == '/')) {
-        action = action + len + 1; // Advance past the /
+      if ((!strncmp(action, user->loginname, len) && (*(action+len) == '/')) ||
+          (!strncmp(action, "me/", 3))) {
+        if (!strncmp(action, "me/", 3)) {
+          action += 3;
+        } else {
+          action = action + len + 1; // Advance past the /
+        }
         if (!strncmp(action, "files/", 6)) {
           action = action + 6;
           if (action[0]) {

@@ -23,6 +23,7 @@ typedef void (*actioncallback)(struct user *, struct mg_connection *,
 #define API_NOLENGTH     0x02
 #define API_NOGUEST      0x04
 #define API_POSTONLY     0x08
+#define API_ADMIN        0x10
 
 #define API_DEFAULT    (API_AUTOHEADER | API_NOLENGTH)
 

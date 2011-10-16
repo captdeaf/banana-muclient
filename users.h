@@ -15,6 +15,7 @@ typedef struct user {
   char dir[MAX_DIR_LEN];
 
   int isGuest;
+  int isAdmin;
   // A refcount == -1 means this user struct is available for reassignment.
   // A refcount == 0 means this user struct needs to be freed.
   // A refcount > 0 means it's in use.
@@ -42,6 +43,8 @@ typedef struct user {
   // event is always evtE.
   int updateCount;
 } User;
+
+extern User users[MAX_USERS];  // Current users
 
 User *user_get(Session *session);
 User *user_guest(Session *session, char *username, char *userdir);

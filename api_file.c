@@ -15,7 +15,7 @@ user_file_path(User *user, char *fname) {
   return strdup(path);
 }
 
-ACTION("file.write", api_file_write, API_NOGUEST) {
+ACTION("file.write", api_file_write, API_DEFAULT | API_NOGUEST) {
   char *file;
   char *contents;
   char *path;

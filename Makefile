@@ -10,7 +10,7 @@ all: $(PROG)
 
 include Makefile.depend
 
-C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_world.c file.c worlds.c net.c genapi.c logger.c api_user.c api_file.c strutil.c api_log.c mudparser.c
+C_FILES = api.c banana.c conf.c events.c mongoose.c sessions.c util.c users.c api_admin.c api_world.c file.c worlds.c net.c genapi.c logger.c api_user.c api_file.c strutil.c api_log.c mudparser.c
 # C_FILES = *.c
 O_FILES = $(patsubst %.c, build/%.o, $(C_FILES))
 

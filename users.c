@@ -5,7 +5,7 @@
 
 #include "banana.h"
 
-static User users[MAX_USERS];  // Current users
+User users[MAX_USERS];  // Current users
 
 // Protects users.
 static pthread_mutex_t user_mutex;
@@ -57,6 +57,7 @@ user_guest(Session *session, char *username, char *userdir) {
     strncpy(users[i].dir, userdir, MAX_DIR_LEN);
     users[i].timeout = 60;
     users[i].isGuest = 1;
+    users[i].isAdmin = 0;
     users[i].refcount = 1;
     if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))
       perror("pthread_mutex_init");
@@ -114,6 +115,9 @@ user_login(Session *session, char *username, char *userdir) {
     snprintf(fpath, MAX_PATH_LEN, "%s/timeout", userdir);
     users[i].timeout = file_readnum(fpath, 120);
     users[i].isGuest = 0;
+    // Is the user an admin?
+    snprintf(fpath, MAX_PATH_LEN, "%s/is_admin", userdir);
+    users[i].isAdmin = file_yorn(fpath);
     users[i].refcount = 1;
     if (pthread_mutex_init(&(users[i].mutex), &pthread_recursive_attr))
       perror("pthread_mutex_init");

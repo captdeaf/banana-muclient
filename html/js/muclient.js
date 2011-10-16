@@ -145,9 +145,46 @@ var API = {
     write: function(filename, contents) {
       API.callAction('file.write', {file: filename, contents: contents});
     },
-    read: function(filename, callback) {
+    read: function(filename, callback, onfail) {
       API.callAjax({
-          url: API.apibase + '/user/' + API.loginname + '/files/' + filename,
+          url: API.apibase + '/user/me/files/' + filename,
+          async: true,
+          dataType: 'text',
+          type: 'get',
+          success: function(myData, textStatus, xhr) {
+            callback(myData);
+          },
+          error: function(transport, httpstatus, description) {
+            if (onfail) {
+              onfail('API.file.read failure: ' + httpstatus + ', ' + description);
+            }
+          }
+       });
+    },
+    readJSON: function(filename, callback, onfail) {
+      API.callAjax({
+          url: API.apibase + '/user/me/files/' + filename,
+          async: true,
+          dataType: 'json',
+          type: 'get',
+          success: function(myData, textStatus, xhr) {
+            callback(myData);
+          },
+          error: function(transport, httpstatus, description) {
+            if (onfail) {
+              onfail('API.file.readJSON failure: ' + httpstatus + ', ' + description);
+            }
+          }
+       });
+    }
+  },
+  user: {
+    setPassword: function(newpass) {
+      API.callAction('user.setpassword', {newpassword: newpass});
+    },
+    gethost: function(callback) {
+      API.callAjax({
+          url: API.apibase + '/action/gethost',
           async: true,
           data: args,
           type: 'get',
@@ -160,11 +197,6 @@ var API = {
             }
           }
        });
-    }
-  },
-  user: {
-    setPassword: function(newpass) {
-      API.callAction('user.setpassword', {newpassword: newpass});
     }
   },
   alert: function(msg) {

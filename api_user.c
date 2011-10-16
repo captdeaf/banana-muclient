@@ -5,7 +5,7 @@
 
 #include "banana.h"
 
-ACTION("user.setpassword", api_user_setpass, API_DEFAULT | API_NOLENGTH) {
+ACTION("user.setpassword", api_user_setpass, API_DEFAULT | API_NOLENGTH | API_NOGUEST) {
   char pwmd5[MD5_LEN];
   char *newpass;
   char pwfile[MAX_PATH_LEN];
@@ -18,6 +18,18 @@ ACTION("user.setpassword", api_user_setpass, API_DEFAULT | API_NOLENGTH) {
 
   snprintf(pwfile, MAX_PATH_LEN, "%s/password.md5", user->dir);
   file_write(pwfile, pwmd5);
+}
+
+ACTION("user.gethost", api_user_gethost, API_AUTOHEADER) {
+  char path[MAX_PATH_LEN];
+  char *hostlimit;
+  snprintf(path, MAX_PATH_LEN, "%s/host", user->dir);
+
+  hostlimit = file_read(path);
+  if (hostlimit) {
+    mg_printf(conn, "%s", hostlimit);
+    free(hostlimit);
+  }
 }
 
 // We only get this if the user is already logged in. In which case:
