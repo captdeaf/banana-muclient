@@ -12,7 +12,18 @@ addCommand('key_ctrl_down', function() { recallNext(); });
 
 addCommand('limit', function(args) {
   try {
-    setLimit(curWorld, new RegExp(args));
+    var m = args.split(/\s+/,2);
+    if (m[0].match(/^-m/)) {
+      if (m[0].match(/^-mregexp$/i)) {
+        setLimit(curWorld, new RegExp(m[1]));
+      } else if (m[0].match(/^-mglob/i)) {
+        setLimit(curWorld, glob_to_regexp(m[1]));
+      } else {
+        API.alert("Valid values for -m are 'glob' and 'regexp'.");
+      }
+    } else {
+      setLimit(curWorld, glob_to_regexp(args));
+    }
   } catch (err) {
     API.alert("Unable to limit: '" + err + "'");
   }
@@ -74,6 +85,9 @@ addCommand('help', function(args) {
     "/close",
     "",
     "/fg &lt;worldname&gt; - Display the named world, when you have more than one.",
+    "",
+    "/limit &lt;pattern&gt; shows only lines matching the glob &lt;pattern&gt;.",
+    "/unlimit removes the pattern filter.",
     "",
     "ctrl+p or ctrl+up recalls previous command",
     "ctrl+n or ctrl+down recalls next command",
