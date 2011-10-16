@@ -147,7 +147,7 @@ var API = {
     },
     read: function(filename, callback, onfail) {
       API.callAjax({
-          url: API.apibase + '/user/me/files/' + filename,
+          url: API.apibase + '/user/' + API.loginname + '/files/' + filename,
           async: true,
           dataType: 'text',
           type: 'get',
@@ -163,7 +163,7 @@ var API = {
     },
     readJSON: function(filename, callback, onfail) {
       API.callAjax({
-          url: API.apibase + '/user/me/files/' + filename,
+          url: API.apibase + '/user/' + API.loginname + '/files/' + filename,
           async: true,
           dataType: 'json',
           type: 'get',

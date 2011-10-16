@@ -10,6 +10,13 @@ API.onStart = function() {
     CONFIG = newconf;
     API.world.open('world');
   });
+}
+API.onReload = function() {
+  API.file.readJSON("config.json", function(newconf) {
+    CONFIG = newconf;
+  });
+}
+API.onReady = function() {
   API.file.read("header.html", function(content) {
     $('#header').html(content);
   });

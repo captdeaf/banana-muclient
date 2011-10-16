@@ -42,7 +42,7 @@ session_new(void) {
   noisy_lock(&session_mutex, "sessions");
   for (i = 0; i < MAX_SESSIONS; i++) {
     if (sessions[i].expire == 0) {
-      sessions[i].expire = now + sessions[i].timeout;
+      sessions[i].expire = now + 120;
       break;
     }
   }

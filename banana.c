@@ -268,7 +268,9 @@ event_handler(enum mg_event event, struct mg_connection *conn,
     }
   } else if (!strncmp(req->uri,"/guest/", 7)) {
     if (user) {
-      redirect_to_client(NULL, user, conn);
+      // redirect_to_client(NULL, user, conn);
+      api_logged_in(user, conn, req, "guest");
+      retval = "yes";
     } else {
       action = req->uri + 7;
       if (*action) {

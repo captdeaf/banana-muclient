@@ -34,8 +34,29 @@ ACTION("user.gethost", api_user_gethost, API_AUTOHEADER) {
 
 // We only get this if the user is already logged in. In which case:
 // redirect them to their preferred client.
-ACTION("login", api_logged_in, 0) {
-  redirect_to_client(NULL, user, conn);
+ACTION("login", api_logged_in, API_AUTOHEADER) {
+  char clfile[MAX_PATH_LEN];
+  char *client;
+  snprintf(clfile, MAX_PATH_LEN, "%s/%s", user->dir, "client");
+  client = file_read(clfile);
+  mg_printf(conn,
+       "<html><body>\n"
+       "You are already logged in as '%s'.<br />\n"
+       "<br />\n"
+       "If you are connecting as a guest, please "
+       "<a href=\"/action/logout\">Log Out</a> first.<br />\n"
+       "<br />\n"
+       "You can go back to your default client at:<br />\n"
+       "<br />\n"
+       "<a href=\"/%s\">%s</a>\n"
+       "</body></html>",
+         user->name,
+         client ? client : "webfugue",
+         client ? client : "webfugue"
+       );
+  if (client) {
+    free(client);
+  }
 }
 
 // Log out the user.
