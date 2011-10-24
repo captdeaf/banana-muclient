@@ -1,0 +1,51 @@
+This expands on the USER_README file, and covers accounts aimed at guest users
+and using the "guest_client" front-end.
+
+http://<baseurl>/guest/<username> is an attempt to log <username> in as a guest.
+This will only succeed if the file users/<username>/can_guest exists and contains
+the word "yes"
+
+Guest accounts are limited to one world, and are restricted from some of the
+API features. Most notably: Change password, writing files, and viewing the
+log files.
+
+If you intend to host guest accounts, such as those listed at
+
+http://client.pennmush.org/guest/m.u.s.h
+
+Then this should be your starting point. Assuming your mud is named "split"
+and is located at split.pennmush.org port 1234
+
+mkdir -p users/split/
+cd users/split
+echo yes > can_guest
+echo guestclient > client
+
+# It doesn't matter what's in password.md5, it just needs to exist. If it's an
+# actual md5 string, that means somebody can log in :D.
+echo nologin > password.md5
+
+# host file limits what the guest can connect to.
+echo split.pennmush.org 1234 > host
+
+# Now we configure the front-end, which uses the file api, of sorts.
+mkdir files
+cd files
+
+# Configure the client's connection and display:
+cat > config.json <<EOT
+{ 
+  "mudhost": "split.pennmush.org",
+  "mudport": "1234",
+  "mudname": "Banana -> Split MUSH connection."
+}
+EOT
+
+# Header and Footer files.
+echo "This is the header for Split MUSH" > header.html
+echo "This is a smelly foot." > footer.html
+
+# Autosend: What gets sent immediately on connection?
+echo "connect guest" > autosend.txt
+echo "+newbie Hello from a Web Guest\!" >> autosend.txt
+
