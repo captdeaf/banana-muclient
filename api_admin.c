@@ -7,12 +7,18 @@
 
 ACTION("admin.listusers", api_admin_listusers, API_ADMIN | API_AUTOHEADER) {
   int i, j;
+  char retbuff[8192];
+  int len = 8192;
+  char *ptr = retbuff;
   for (i = 0, j = 0; i < MAX_USERS; i++) {
     if (users[i].refcount > 0) {
       if (j++ > 0) {
-        mg_printf(conn, " ");
+        ptr += snprintf(ptr, len, " %s", users[i].name);
+      } else {
+        ptr += snprintf(ptr, len, "%s", users[i].name);
       }
-      mg_printf(conn, users[i].name);
+      len = 8192 - (ptr - retbuff);
     }
   }
+  mg_printf(conn, "%s", retbuff);
 }
