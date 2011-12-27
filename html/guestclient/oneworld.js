@@ -130,7 +130,7 @@ API.world.onDisconnect = function(p) {
   setInfo("You have been disconnected. Redirecting. . .");
   append(' -- You have been disconnected -- ');
   setTimeout(function() {
-    window.location.replace(API.apibase + "/action/logout");
+    window.location.replace(API.apibase + "action/logout");
   }, 3000);
 }
 API.world.onClose = function(p) { append(' -- Closed -- '); }

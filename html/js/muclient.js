@@ -1,8 +1,9 @@
 var API = {
-  apibase: '', /* It connects to apibase + "/action/..." So if you're
-                * connecting from a remote site, use API.apibase = 
-                * 'http://client.pennmush.org' or similar. */
-  loginuri: '/', /* When we get too many errors from updates, go to 
+  apibase: '' + base_url_path, /* It connects to apibase + "action/..."
+                * So if you're connecting from a remote site, use
+                * API.apibase = 'http://client.pennmush.org' + base_url_path
+                * or similar. */
+  loginuri: 'index.html', /* When we get too many errors from updates, go to 
                   * loginurl */
   updateCount: -1,
   loginname: '', /* This is set on the first update */
@@ -75,7 +76,7 @@ var API = {
       ucount = API.updateCount;
     }
     API.updateObject = $.ajax({
-      url: API.apibase + '/action/updates',
+      url: API.apibase + 'action/updates',
       async: true,
       data: {updateCount: ucount},
       dataType: 'text',
@@ -86,7 +87,7 @@ var API = {
   },
   fetchFirstUpdate: function(ucount) {
     API.updateObject = $.ajax({
-      url: API.apibase + '/action/updates',
+      url: API.apibase + 'action/updates',
       async: true,
       data: {updateCount: -1},
       dataType: 'text',
@@ -115,7 +116,7 @@ var API = {
   },
   callAction: function(uri, args) {
     API.callAjax({
-        url: API.apibase + '/action/' + uri,
+        url: API.apibase + 'action/' + uri,
         async: true,
         data: args,
         type: 'post',
@@ -147,7 +148,7 @@ var API = {
     },
     read: function(filename, callback, onfail) {
       API.callAjax({
-          url: API.apibase + '/user/' + API.loginname + '/files/' + filename,
+          url: API.apibase + 'user/' + API.loginname + '/files/' + filename,
           async: true,
           dataType: 'text',
           type: 'get',
@@ -163,7 +164,7 @@ var API = {
     },
     readJSON: function(filename, callback, onfail) {
       API.callAjax({
-          url: API.apibase + '/user/' + API.loginname + '/files/' + filename,
+          url: API.apibase + 'user/' + API.loginname + '/files/' + filename,
           async: true,
           dataType: 'json',
           type: 'get',
@@ -184,7 +185,7 @@ var API = {
     },
     gethost: function(callback) {
       API.callAjax({
-          url: API.apibase + '/action/gethost',
+          url: API.apibase + 'action/gethost',
           async: true,
           data: args,
           type: 'get',

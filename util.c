@@ -146,22 +146,22 @@ redirect_to_client(struct session *session,
   client = file_read(clfile);
   if (client) {
     strchomp(client);
-    snprintf(clfile, MAX_PATH_LEN, "/%s", client);
+    snprintf(clfile, MAX_PATH_LEN, "%s", client);
     free(client);
   } else {
-    snprintf(clfile, MAX_PATH_LEN, "/webfugue");
+    snprintf(clfile, MAX_PATH_LEN, "webfugue");
   }
   if (session && session->cookie_string) {
     mg_printf(conn, "HTTP/1.1 302 Found\r\n"
               HEADER_NOCACHE
               "%s\r\n"
-              "Location: %s\r\n\r\n",
+              "Location: " SEND_BASE_URL_PATH "%s/index.html\r\n\r\n",
               session->cookie_string,
               clfile);
   } else {
     mg_printf(conn, "HTTP/1.1 302 Found\r\n"
               HEADER_NOCACHE
-              "Location: %s\r\n\r\n",
+              "Location: " SEND_BASE_URL_PATH "%s/index.html\r\n\r\n",
               clfile);
   }
 }
@@ -170,7 +170,7 @@ void
 redirect_to(struct mg_connection *conn, const char *dest) {
   mg_printf(conn, "HTTP/1.1 302 Found\r\n"
             HEADER_NOCACHE
-            "Location: %s\r\n\r\n",
+            "Location: " SEND_BASE_URL_PATH "%s\r\n\r\n",
             dest);
 }
 
