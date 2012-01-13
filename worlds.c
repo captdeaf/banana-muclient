@@ -85,6 +85,7 @@ world_free(World *w, int doEvents) {
   net_disconnect(w);
 
   // Now clean up the world.
+  logger_free(w->logger);
   for (i = 0; i < MAX_WORLD_EVENTS; i++) {
     if (w->events[i]) {
       event_free(w->events[i]);
