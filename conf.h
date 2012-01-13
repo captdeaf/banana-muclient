@@ -28,6 +28,10 @@
 
 // The directory containing the static files.
 #define DOCUMENT_ROOT "html"
+// Base URL path for client HTTP requests.
+#define SEND_BASE_URL_PATH "/"
+// Base URL path the server expects.
+#define RECEIVE_BASE_URL_PATH "/"
 
 /////////////////////////////////////////////////
 // Network Configuration

@@ -47,17 +47,17 @@ handle_guest(struct mg_connection *conn, struct mg_request_info *req _unused_,
   snprintf(username, MAX_NAME_LEN, "%s", uname);
 
   if (username == NULL) {
-    redirect_to(conn, "/index.html");
+    redirect_to(conn, "index.html");
     return;
   }
   if (username == VAR_TOO_LONG) {
-    redirect_to(conn, "/index.html?err=Username%20too%20long");
+    redirect_to(conn, "index.html?err=Username%20too%20long");
     return;
   }
 
   // valid_name will turn username into a lowercase representation.
   if (!valid_name(username)) {
-    redirect_to(conn, "/index.html?err=Invalid%20username");
+    redirect_to(conn, "index.html?err=Invalid%20username");
     return;
   }
 
@@ -65,7 +65,7 @@ handle_guest(struct mg_connection *conn, struct mg_request_info *req _unused_,
   // directory.
   snprintf(pwfile, MAX_PATH_LEN, "users/%s/password.md5", username);
   if (!file_exists(pwfile)) {
-    snprintf(uri, MAX_PATH_LEN, "/index.html?user=%s&err=Unknown%%20User", username);
+    snprintf(uri, MAX_PATH_LEN, "index.html?user=%s&err=Unknown%%20User", username);
     redirect_to(conn, uri);
     return;
   }
@@ -73,7 +73,7 @@ handle_guest(struct mg_connection *conn, struct mg_request_info *req _unused_,
   // Make sure the account is allowed for guesting.
   snprintf(pwfile, MAX_PATH_LEN, "users/%s/can_guest", username);
   if (!file_yorn(pwfile)) {
-    snprintf(uri, MAX_PATH_LEN, "/index.html?user=%s&err=User%%20cannot%%20guest", username);
+    snprintf(uri, MAX_PATH_LEN, "index.html?user=%s&err=User%%20cannot%%20guest", username);
     redirect_to(conn, uri);
     return;
   }
@@ -82,7 +82,7 @@ handle_guest(struct mg_connection *conn, struct mg_request_info *req _unused_,
   session = session_make();
   if (!session) {
     slog("Guest user '%s': Out of sessions.", username);
-    redirect_to(conn, "/nosessions.html");
+    redirect_to(conn, "nosessions.html");
     return;
   }
 
@@ -90,7 +90,7 @@ handle_guest(struct mg_connection *conn, struct mg_request_info *req _unused_,
   user = user_guest(session, username, pwfile);
   if (!user) {
     slog("Guest user '%s': Out of users.", username);
-    redirect_to(conn, "/nousers.html");
+    redirect_to(conn, "nousers.html");
     return;
   }
   slog("Session: Guest user '%s' attached to session '%s'",
@@ -119,19 +119,19 @@ handle_login(struct mg_connection *conn, struct mg_request_info *req) {
   password = get_qsvar(req, "password", MAX_NAME_LEN);
 
   if (username == NULL) {
-    redirect_to(conn, "/index.html");
+    redirect_to(conn, "index.html");
     return;
   }
   if (username == VAR_TOO_LONG) {
-    redirect_to(conn, "/index.html?err=Username%20too%20long");
+    redirect_to(conn, "index.html?err=Username%20too%20long");
     return;
   }
   if (password == NULL) {
-    redirect_to(conn, "/index.html?err=No%20password%20provided");
+    redirect_to(conn, "index.html?err=No%20password%20provided");
     return;
   }
   if (password == VAR_TOO_LONG) {
-    redirect_to(conn, "/index.html?err=Password%20too%20long");
+    redirect_to(conn, "index.html?err=Password%20too%20long");
     return;
   }
 
@@ -139,7 +139,7 @@ handle_login(struct mg_connection *conn, struct mg_request_info *req) {
 
   // valid_name will turn username into a lowercase representation.
   if (!valid_name(username)) {
-    redirect_to(conn, "/index.html?err=Invalid%20username");
+    redirect_to(conn, "index.html?err=Invalid%20username");
     return;
   }
 
@@ -147,7 +147,7 @@ handle_login(struct mg_connection *conn, struct mg_request_info *req) {
   // directory.
   snprintf(pwfile, MAX_PATH_LEN, "users/%s/password.md5", username);
   if (!file_exists(pwfile)) {
-    snprintf(uri, MAX_PATH_LEN, "/index.html?user=%s&err=Unknown%%20User", username);
+    snprintf(uri, MAX_PATH_LEN, "index.html?user=%s&err=Unknown%%20User", username);
     redirect_to(conn, uri);
     return;
   }
@@ -157,7 +157,7 @@ handle_login(struct mg_connection *conn, struct mg_request_info *req) {
   mg_md5(pwmd5, password, NULL);
   pwcheck = file_read(pwfile);
   if (!pwcheck) {
-    snprintf(uri, MAX_PATH_LEN, "/index.html?user=%s&err=Unknown%%20error", username);
+    snprintf(uri, MAX_PATH_LEN, "index.html?user=%s&err=Unknown%%20error", username);
     redirect_to(conn, uri);
     return;
   }
@@ -168,19 +168,19 @@ handle_login(struct mg_connection *conn, struct mg_request_info *req) {
 
   if (!ret) {
     slog("User '%s' failed password check.", username);
-    snprintf(uri, MAX_PATH_LEN, "/index.html?user=%s&err=Invalid%%20password", username);
+    snprintf(uri, MAX_PATH_LEN, "index.html?user=%s&err=Invalid%%20password", username);
     redirect_to(conn, uri);
     return;
   }
 
   session = session_make();
-  if (!session) { redirect_to(conn, "/nosessions.html"); return; }
+  if (!session) { redirect_to(conn, "nosessions.html"); return; }
 
   snprintf(pwfile, MAX_PATH_LEN, "users/%s", username);
   user = user_login(session, username, pwfile);
   if (!user) {
     slog("User '%s': Out of users.", username);
-    redirect_to(conn, "/nousers.html"); return;
+    redirect_to(conn, "nousers.html"); return;
   }
   if (user->timeout > 60) {
     session->timeout = user->timeout;
@@ -212,8 +212,8 @@ event_handler(enum mg_event event, struct mg_connection *conn,
     user = user_get(session);
   }
 
-  if (!strncmp(req->uri,"/action/", 8)) {
-    action = req->uri + 8;
+  if (!strncmp(req->uri, RECEIVE_BASE_URL_PATH "action/", strlen(RECEIVE_BASE_URL_PATH "action/"))) {
+    action = req->uri + strlen(RECEIVE_BASE_URL_PATH "action/");
 
     // If this is a POST message, then we need to populate req->user_data.
 
@@ -259,28 +259,28 @@ event_handler(enum mg_event event, struct mg_connection *conn,
         handle_login(conn, req);
         retval = "yes";
       } else if (!strcmp(action, "logout")) {
-        redirect_to(conn, "/index.html");
+        redirect_to(conn, "index.html");
         retval = "yes";
       } else if (!strcmp(action, "updates")) {
         send_error(conn, "You are logged out.");
         retval = "yes";
       }
     }
-  } else if (!strncmp(req->uri,"/guest/", 7)) {
+  } else if (!strncmp(req->uri, RECEIVE_BASE_URL_PATH "guest/", strlen(RECEIVE_BASE_URL_PATH "guest/"))) {
     if (user) {
       // redirect_to_client(NULL, user, conn);
       api_logged_in(user, conn, req, "guest");
       retval = "yes";
     } else {
-      action = req->uri + 7;
+      action = req->uri + strlen(RECEIVE_BASE_URL_PATH "guest/");
       if (*action) {
         handle_guest(conn, req, action);
         retval = "yes";
       }
     }
-  } else if (!strncmp(req->uri, "/user/", 6)) {
+  } else if (!strncmp(req->uri, RECEIVE_BASE_URL_PATH "user/", strlen(RECEIVE_BASE_URL_PATH "user/"))) {
     if (user) {
-      action = req->uri + 6;
+      action = req->uri + strlen(RECEIVE_BASE_URL_PATH "user/");
       // Try for /user/<username>/... And we only accept when <username>
       // == the logged in user.
       int len = strlen(user->loginname);
@@ -312,6 +312,9 @@ event_handler(enum mg_event event, struct mg_connection *conn,
         }
       }
     }
+  } else if ((strlen(req->uri) == strlen(RECEIVE_BASE_URL_PATH)) && !strncmp(req->uri, RECEIVE_BASE_URL_PATH, strlen(RECEIVE_BASE_URL_PATH))) {
+    redirect_to(conn, "index.html");
+    retval = "yes";
   }
   free_conndata(conn, req);
   return retval;

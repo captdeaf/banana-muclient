@@ -44,11 +44,11 @@ ACTION("login", api_logged_in, API_AUTOHEADER) {
        "You are already logged in as '%s'.<br />\n"
        "<br />\n"
        "If you are connecting as a guest, please "
-       "<a href=\"/action/logout\">Log Out</a> first.<br />\n"
+       "<a href=\"" SEND_BASE_URL_PATH "action/logout\">Log Out</a> first.<br />\n"
        "<br />\n"
        "You can go back to your default client at:<br />\n"
        "<br />\n"
-       "<a href=\"/%s\">%s</a>\n"
+       "<a href=\"" SEND_BASE_URL_PATH "%s\">%s</a>\n"
        "</body></html>",
          user->name,
          client ? client : "webfugue",
@@ -66,5 +66,5 @@ ACTION("logout", api_logout, 0) {
             HEADER_NOCACHE
             "SetCookie: session=deleted; "
               "expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/; httponly\r\n"
-            "Location: /?loggedout=1\r\n\r\n");
+            "Location: " SEND_BASE_URL_PATH "?loggedout=1\r\n\r\n");
 }

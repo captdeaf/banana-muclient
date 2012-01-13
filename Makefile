@@ -3,10 +3,11 @@
 # Muchas gracias to mongoose
 
 PROG  = server
+COMPILED_JS_OPTS = html/js/compiled.js
 CFLAGS=	-W -Wall -I. -pthread -g -lc -ggdb -Werror -D_GNU_SOURCE
 LDFLAGS = -lpthread -ldl -lc -ggdb -lrt -liconv
 
-all: $(PROG)
+all: $(PROG) $(COMPILED_JS_OPTS)
 
 include Makefile.depend
 
@@ -17,12 +18,16 @@ O_FILES = $(patsubst %.c, build/%.o, $(C_FILES))
 $(PROG): $(O_FILES)
 	$(CC) $(LDFLAGS) -o $(PROG) $(O_FILES)
 
+$(COMPILED_JS_OPTS): conf.h
+	@echo "Generating $(COMPILED_JS_OPTS)"
+	@grep SEND_BASE_URL conf.h | cut -d' ' -f3- | sed 's/^/base_url_path = /' >> $(COMPILED_JS_OPTS)
+
 build/%.o: %.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $(patsubst %.c,build/%.o,$<)
 
 clean:
-	rm $(O_FILES) $(PROG)
+	rm $(O_FILES) $(PROG) $(COMPILED_JS_OPTS)
 
 API_FILES = $(filter api_%.c,$(C_FILES))
 
