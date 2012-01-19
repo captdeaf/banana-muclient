@@ -36,7 +36,7 @@ void send_error(struct mg_connection *conn, const char *msg);
 
 // Redirect a connection to an url.
 void redirect_to(struct mg_connection *conn, const char *dest);
-#define login_redirect(c) redirect_to(c, "/index.html")
+#define login_redirect(c) redirect_to(c, "index.html")
 
 extern pthread_mutexattr_t pthread_recursive_attr; 
 

@@ -1,9 +1,9 @@
 API.onReady = function() {
   $('#namebox').html("You are logged in as " + API.username);
-  $('#filelink').attr({href:"/user/" + API.loginname + "/files/"});
+  $('#filelink').attr({href: API.apibase + "user/" + API.loginname + "/files/"});
   $('#filelink').show();
   if (!API.username.match(/guest/)) {
-    $('#loglink').attr({href:"/user/" + API.loginname + "/logs/"});
+    $('#loglink').attr({href: API.apibase + "user/" + API.loginname + "/logs/"});
     $('#loglink').show();
   }
 };
